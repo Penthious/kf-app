@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/screens/*": [
+        "app/(tabs)/*"
+      ],
+      "@/store/*": [
+        "src/store/*"
+      ],
+      "@/theme/*": [
+        "src/theme/*"
+      ],
+      "@/catalogs/*": [
+        "src/catalogs/*"
+      ],
+      "@/models/*": [
+        "src/models/*"
+      ],
+      "@/db/*": [
+        "src/db/*"
+      ]
+    }
+  },
+  "extends": "expo/tsconfig.base"
+}

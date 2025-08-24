@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "name": "Board Buddy",
+    "slug": "board-buddy-expo",
+    "scheme": "boardbuddy",
+    "plugins": ["expo-router", "expo-sqlite"],
+    "sdkVersion": "53.0.0"
+  }
+}
