@@ -13,13 +13,10 @@ import {
 
 type KnightsState = {
     knightsById: Record<string, Knight>;
-
     addKnight: (k: Omit<Knight, 'version' | 'updatedAt'>) => Knight;
     removeKnight: (id: string) => void;
     renameKnight: (id: string, name: string) => void;
-
     updateKnightSheet: (id: string, patch: Partial<KnightSheet>) => void;
-
     setRapport: (
         id: string,
         withKnightUID: string,
@@ -27,33 +24,28 @@ type KnightsState = {
         ticks: 0 | 1 | 2 | 3,
         boon?: string
     ) => void;
-
-    // replaces arrays only when provided
     setInvestigations: (
         id: string,
         chapterIndex: number,
         patch: Partial<InvestigationsPerChapter>
     ) => void;
-
     addInvestigationAttempt: (
         id: string,
         chapterIndex: number,
         code: string,
         result: InvestigationResult
     ) => void;
-
     toggleInvestigationCompleted: (
         id: string,
         chapterIndex: number,
         code: string
     ) => void;
-
     toggleChoiceMatrix: (id: string, key: string) => void;
 };
 
 export const useKnights = create<KnightsState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             knightsById: {},
 
             addKnight: (k) => {
@@ -64,11 +56,13 @@ export const useKnights = create<KnightsState>()(
                     updatedAt: now,
                     sheet: {
                         virtues: k.sheet.virtues,
+                        banes: k.sheet.banes ?? { cowardice:0, dishonor:0, duplicity:0, disregard:0, cruelty:0, treachery:0 },
                         bane: k.sheet.bane ?? 0,
                         gold: k.sheet.gold ?? 0,
                         leads: k.sheet.leads ?? 0,
                         sighOfGraal: k.sheet.sighOfGraal ?? 0,
                         chapter: k.sheet.chapter ?? 0,
+                        firstDeath: k.sheet.firstDeath ?? false,
                         chapterQuest: k.sheet.chapterQuest ?? '',
                         investigations: k.sheet.investigations ?? defaultInvestigations(),
                         choiceMatrix: k.sheet.choiceMatrix ?? defaultChoiceMatrix(),
@@ -79,7 +73,6 @@ export const useKnights = create<KnightsState>()(
                         mercenaries: k.sheet.mercenaries ?? []
                     }
                 };
-
                 set((s) => ({
                     knightsById: { ...s.knightsById, [withDefaults.knightUID]: withDefaults }
                 }));
@@ -143,7 +136,6 @@ export const useKnights = create<KnightsState>()(
                     };
                 }),
 
-            // Deep-merge patch for a chapter investigations object
             setInvestigations: (id, chapterIndex, patch) =>
                 set((s) => {
                     const k = s.knightsById[id];
@@ -155,7 +147,8 @@ export const useKnights = create<KnightsState>()(
                     const cur = list[safeIdx] ?? { attempts: [], completed: [] };
                     const next: InvestigationsPerChapter = {
                         attempts: patch.attempts !== undefined ? patch.attempts : cur.attempts,
-                        completed: patch.completed !== undefined ? patch.completed : cur.completed
+                        completed: patch.completed !== undefined ? patch.completed : cur.completed,
+                        questCompleted: patch.questCompleted !== undefined ? patch.questCompleted : cur.questCompleted
                     };
                     list[safeIdx] = next;
                     return {
@@ -179,13 +172,10 @@ export const useKnights = create<KnightsState>()(
                         : defaultInvestigations();
                     const safeIdx = Math.max(0, Math.min(4, chapterIndex));
                     const cur = list[safeIdx] ?? { attempts: [], completed: [] };
-                    // Do not allow retakes once an investigation is completed
-                    if (cur.completed.includes(code)) {
-                      return {};
-                    }
+                    if (cur.completed.includes(code)) return {}; // no retakes
                     const attempt: InvestigationAttempt = { code, result, at: Date.now() };
                     const next: InvestigationsPerChapter = {
-                        attempts: [...cur.attempts, attempt].slice(-12), // keep last 12
+                        attempts: [...cur.attempts, attempt].slice(-12),
                         completed: cur.completed
                     };
                     list[safeIdx] = next;
@@ -213,7 +203,7 @@ export const useKnights = create<KnightsState>()(
                     const exists = cur.completed.includes(code);
                     const nextCompleted = exists
                         ? cur.completed.filter((c) => c !== code)
-                        : [...cur.completed, code].slice(0, 5); // max 5 per chapter
+                        : [...cur.completed, code].slice(0, 5);
                     list[safeIdx] = { attempts: cur.attempts, completed: nextCompleted };
                     return {
                         knightsById: {

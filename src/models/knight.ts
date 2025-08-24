@@ -1,3 +1,12 @@
+export type Banes = {
+    cowardice: 0|1|2|3|4;
+    dishonor: 0|1|2|3|4;
+    duplicity: 0|1|2|3|4;
+    disregard: 0|1|2|3|4;
+    cruelty: 0|1|2|3|4;
+    treachery: 0|1|2|3|4;
+};
+
 export type Virtues = {
     bravery: number;
     tenacity: number;
@@ -15,7 +24,6 @@ export type RapportEntry = {
     updatedAt: number;
 };
 
-// Investigation model: per-attempt history + completed list
 export type InvestigationResult = 'pass' | 'fail';
 
 export type InvestigationAttempt = {
@@ -25,17 +33,18 @@ export type InvestigationAttempt = {
 };
 
 export type InvestigationsPerChapter = {
-    attempts: InvestigationAttempt[]; // history for this chapter
-    completed: string[];              // codes marked completed (max 5 per chapter)
+    attempts: InvestigationAttempt[];
+    completed: string[];
+    questCompleted?: boolean;
 };
 
 export type ChoiceMatrix = {
-    // Numeric 1..30 + E1..E10
     [key: string]: boolean | undefined;
 };
 
 export type KnightSheet = {
     virtues: Virtues;
+    banes: Banes;
     bane: number;
     gold: number;
     leads: number;
@@ -63,9 +72,8 @@ export type Knight = {
     sheet: KnightSheet;
 };
 
-// Defaults
 export const defaultInvestigations = (): InvestigationsPerChapter[] =>
-    Array.from({ length: 5 }, () => ({ attempts: [], completed: [] }));
+    Array.from({ length: 5 }, () => ({ attempts: [], completed: [], questCompleted: false }));
 
 export const defaultChoiceMatrix = (): ChoiceMatrix => {
     const matrix: ChoiceMatrix = {};
