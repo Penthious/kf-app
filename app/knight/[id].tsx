@@ -215,7 +215,7 @@ export default function KnightDetail() {
 
                                 {/* Six slots — label shows attempt code when present, otherwise slot # */}
                                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                                    {Array.from({ length: 6 }, (_, slot) => {
+                                    {Array.from({ length: 5 }, (_, slot) => {
                                         const attempt = attempts[slot];
                                         const has = !!attempt;
                                         const res = has ? attempt.result : undefined;
