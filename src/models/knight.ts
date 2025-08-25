@@ -205,3 +205,11 @@ export function completeQuestDomain(ch: ChapterProgress, outcome?: Investigation
     ch.quest.completed = true;
     if (outcome) ch.quest.outcome = outcome;
 }
+
+// Count entries that currently resolve to a PASS (normal or lead)
+export function countCompletedInvestigations(ch: ChapterProgress): number {
+    const entries = ch.investigations?.entries ?? {};
+    let n = 0;
+    for (const e of Object.values(entries)) if (e.outcome === 'pass') n += 1;
+    return n; // 0..5
+}
