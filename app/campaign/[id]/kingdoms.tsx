@@ -1,118 +1,132 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useGlobalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
-import { allKingdomCatalogs } from '@/catalogs/kingdoms';
+
+type Kingdom = { id: string; name: string; note?: string };
+
+// You can expand/rename these later; all are “unlocked” by default per your rule.
+const KINGDOMS: Kingdom[] = [
+    { id: 'principality-of-stone', name: 'Principality of Stone' },
+    { id: 'barony-of-bountiful-harvest', name: 'Barony of Bountiful Harvest' },
+    { id: 'red-kingdom-of-eshin', name: 'Red Kingdom of Eshin' },
+    { id: 'ten-thousand-succulent-fears', name: 'Ten Thousand Succulent Fears' },
+];
 
 export default function CampaignKingdoms() {
     const { tokens } = useThemeTokens();
-    const { id } = useLocalSearchParams<{ id: string }>();
-    const {
-        campaigns,
-        setPartyLeader,
-        setSelectedKingdom,
-        selectKingdomRosterForLeader,
-    } = useCampaigns();
-    const { knightsById } = useKnights();
+    const { id } = useGlobalSearchParams<{ id: string }>();
+    const { campaigns } = useCampaigns();
+    const { knightsById } = useKnights() as any;
 
-    const c = id ? campaigns[id] : undefined;
-    if (!c) {
-        return (
-            <SafeAreaView style={{ flex:1, backgroundColor: tokens.bg, alignItems:'center', justifyContent:'center' }}>
-                <Text style={{ color: tokens.textPrimary, fontWeight:'800' }}>Campaign not found</Text>
-            </SafeAreaView>
-        );
-    }
+    const c = (id && campaigns[id]) || undefined;
 
-    const activeMembers = c.members.filter(m=>m.isActive);
-    const selectedCatalog =
-        allKingdomCatalogs.find(kc => kc.kingdomId === c.selectedKingdomId) ?? allKingdomCatalogs[0];
+    // Resolve current party leader + their chapter (affects what hunts are valid)
+    const leader = useMemo(() => {
+        if (!c?.partyLeaderKnightUID) return undefined;
+        return (knightsById as any)[c.partyLeaderKnightUID];
+    }, [c?.partyLeaderKnightUID, knightsById]);
+
+    const leaderChapter = leader?.sheet?.chapter ?? 1;
+    const leaderName = leader?.name ?? '—';
+
+    // simple local expand/collapse state per kingdom panel
+    const [open, setOpen] = useState<Record<string, boolean>>({});
 
     return (
-        <SafeAreaView style={{ flex:1, backgroundColor: tokens.bg }}>
-            <ScrollView contentContainerStyle={{ padding:16 }}>
-                {/* Party Leader */}
-                <Card style={{ marginBottom:12 }}>
-                    <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>Party Leader</Text>
-                    <View style={{ flexDirection:'row', flexWrap:'wrap' }}>
-                        {activeMembers.map(m=>{
-                            const k = knightsById[m.knightUID]; if(!k) return null;
-                            const isLeader = c.partyLeaderKnightUID === m.knightUID;
+        <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+            <ScrollView contentContainerStyle={{ padding: 16 }}>
+                {!c ? (
+                    <Card>
+                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Campaign not found</Text>
+                        <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
+                            Reopen this campaign from the list.
+                        </Text>
+                    </Card>
+                ) : (
+                    <>
+                        {/* Header / context */}
+                        <Card style={{ marginBottom: 12 }}>
+                            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 6 }}>
+                                Kingdom Selection
+                            </Text>
+                            <Text style={{ color: tokens.textMuted }}>
+                                All kingdoms are selectable; valid hunts depend on the current party leader.
+                            </Text>
+                            <View style={{ height: 10 }} />
+                            <Text style={{ color: tokens.textPrimary }}>
+                                Party Leader: <Text style={{ fontWeight: '800' }}>{leaderName}</Text>
+                            </Text>
+                            <Text style={{ color: tokens.textPrimary }}>
+                                Leader Chapter: <Text style={{ fontWeight: '800' }}>{leaderChapter}</Text>
+                            </Text>
+                        </Card>
+
+                        {/* Kingdom panels */}
+                        {KINGDOMS.map((k) => {
+                            const isOpen = !!open[k.id];
                             return (
-                                <View key={m.knightUID} style={{ marginRight:8, marginBottom:8 }}>
+                                <Card key={k.id} style={{ marginBottom: 12 }}>
                                     <Pressable
-                                        onPress={()=> setPartyLeader(c.campaignId, m.knightUID)}
+                                        onPress={() => setOpen((o) => ({ ...o, [k.id]: !o[k.id] }))}
                                         style={{
-                                            paddingHorizontal:12, height:32, borderRadius:16,
-                                            alignItems:'center', justifyContent:'center',
-                                            backgroundColor: isLeader ? tokens.accent : tokens.surface,
-                                            borderWidth:1, borderColor:'#0006'
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            paddingVertical: 4,
                                         }}
                                     >
-                                        <Text style={{ color: isLeader ? '#0B0B0B' : tokens.textPrimary, fontWeight:'800' }}>
+                                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
                                             {k.name}
                                         </Text>
+                                        <Text style={{ color: tokens.textMuted }}>{isOpen ? '▾' : '▸'}</Text>
                                     </Pressable>
-                                </View>
+
+                                    {isOpen ? (
+                                        <View style={{ marginTop: 8, gap: 10 }}>
+                                            {/* Monsters block (read-only placeholder) */}
+                                            <View>
+                                                <Text style={{ color: tokens.textPrimary, fontWeight: '700', marginBottom: 6 }}>
+                                                    Monsters (computed from leader chapter & investigations)
+                                                </Text>
+                                                <Text style={{ color: tokens.textMuted }}>
+                                                    This will list the unlocked monsters and their tiers for the
+                                                    current leader (Chapter {leaderChapter}). We’ll plug in your
+                                                    exact unlock tables next.
+                                                </Text>
+                                            </View>
+
+                                            {/* Kingdom Adventures block (read-only placeholder) */}
+                                            <View>
+                                                <Text style={{ color: tokens.textPrimary, fontWeight: '700', marginBottom: 6 }}>
+                                                    Kingdom Adventures
+                                                </Text>
+                                                <Text style={{ color: tokens.textMuted }}>
+                                                    Track one‑time vs repeatable events here. For now this panel is
+                                                    read‑only; we’ll add per‑campaign persistence after we finalize
+                                                    the schema you prefer.
+                                                </Text>
+                                            </View>
+
+                                            {/* Destination helper */}
+                                            <View style={{ marginTop: 4 }}>
+                                                <Text style={{ color: tokens.textMuted }}>
+                                                    Tip: choose your destination kingdom based on the leader. A new
+                                                    leader may require Chapter 1 hunts even if others are further
+                                                    along.
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    ) : null}
+                                </Card>
                             );
                         })}
-                        {activeMembers.length === 0 ? (
-                            <Text style={{ color: tokens.textMuted }}>Activate knights to select a leader.</Text>
-                        ) : null}
-                    </View>
-                </Card>
-
-                {/* Kingdom picker + roster */}
-                <Card>
-                    <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>Kingdom</Text>
-                    {allKingdomCatalogs.length === 0 ? (
-                        <Text style={{ color: tokens.textMuted }}>
-                            No kingdom catalogs found. Add files under <Text style={{ fontWeight:'800' }}>src/catalogs/kingdoms</Text>.
-                        </Text>
-                    ) : (
-                        <>
-                            <View style={{ flexDirection:'row', flexWrap:'wrap' }}>
-                                {allKingdomCatalogs.map(kc=>{
-                                    const selected = selectedCatalog && kc.kingdomId === selectedCatalog.kingdomId;
-                                    return (
-                                        <View key={kc.kingdomId} style={{ marginRight:8, marginBottom:8 }}>
-                                            <Pressable
-                                                onPress={()=> setSelectedKingdom(c.campaignId, kc.kingdomId)}
-                                                style={{
-                                                    paddingHorizontal:12, height:32, borderRadius:16,
-                                                    alignItems:'center', justifyContent:'center',
-                                                    backgroundColor: selected ? tokens.accent : tokens.surface,
-                                                    borderWidth:1, borderColor:'#0006'
-                                                }}
-                                            >
-                                                <Text style={{ color: selected ? '#0B0B0B' : tokens.textPrimary, fontWeight:'800' }}>
-                                                    {kc.name}
-                                                </Text>
-                                            </Pressable>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-
-                            {selectedCatalog ? (
-                                <View style={{ marginTop:10 }}>
-                                    {selectKingdomRosterForLeader(c.campaignId, selectedCatalog as any).map(m=>(
-                                        <View key={m.id} style={{ flexDirection:'row', justifyContent:'space-between', marginBottom:6 }}>
-                                            <Text style={{ color: tokens.textPrimary }}>{m.name}</Text>
-                                            <Text style={{ color: m.tier>0 ? tokens.textPrimary : tokens.textMuted, fontWeight:'700' }}>
-                                                {m.tier === 0 ? '—' : `Tier ${m.tier}`}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            ) : null}
-                        </>
-                    )}
-                </Card>
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );

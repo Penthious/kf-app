@@ -1,6 +1,6 @@
 // app/campaign/[id]/knights.tsx
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -15,7 +15,6 @@ export default function CampaignKnights() {
     const router = useRouter();
     const { id } = useGlobalSearchParams<{ id: string }>();
 
-    // stores (keep hook order stable)
     const {
         campaigns,
         benchMember,
@@ -23,54 +22,81 @@ export default function CampaignKnights() {
         setPartyLeader,
         addKnightToCampaign,
         replaceCatalogKnight,
-    } = useCampaigns();
+        addKnightAsBenched,
+    } = useCampaigns() as any;
+
     const { knightsById, addKnight } = useKnights() as any;
 
-    // local state
     const [newName, setNewName] = useState('');
     const [newCatalog, setNewCatalog] = useState<string | null>(null);
 
-    // derive campaign (no early returns; render placeholder if missing)
     const c = (id && campaigns[id]) || undefined;
     const activeSlots = c?.settings.fivePlayerMode ? 5 : 4;
     const members = c?.members ?? [];
-    const activeMembers = members.filter((m) => m.isActive);
-    const benchedMembers = members.filter((m) => !m.isActive);
+    const activeMembers = members.filter((m: any) => m.isActive);
+    const benchedMembers = members.filter((m: any) => !m.isActive);
 
-    // Knights not yet part of this campaign
-    const memberUIDs = useMemo(() => new Set(members.map((m) => m.knightUID)), [members]);
+    const memberUIDs = useMemo(() => new Set(members.map((m: any) => m.knightUID)), [members]);
     const availableKnights = useMemo(
         () => Object.values(knightsById).filter((k: any) => !memberUIDs.has(k.knightUID)),
         [knightsById, memberUIDs]
     );
 
-    const onAddExisting = (knightUID: string, asActive = true) => {
+    const hasActiveCatalog = (catalogId: string) =>
+        activeMembers.some((m: any) => m.catalogId === catalogId);
+
+    /** Ensure a knight ends up ACTIVE.
+     * Works even if knightsById doesn't have this UID yet by using meta fallback. */
+    const ensureActive = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
         if (!c) return;
-        const res = addKnightToCampaign(c.campaignId, knightUID) as { conflict?: { existingUID: string } } | {};
-        if (res && 'conflict' in res && (res as any).conflict) {
-            const k = (knightsById as any)[knightUID];
-            if (!k) return;
-            Alert.alert(
-                'Catalog conflict',
-                `An active ${k.catalogId} is already in this campaign. What would you like to do?`,
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Replace Active', style: 'destructive', onPress: () => replaceCatalogKnight(c.campaignId, k.catalogId, knightUID) },
-                    {
-                        text: 'Add as Benched',
-                        onPress: () => {
-                            addKnightToCampaign(c.campaignId, knightUID);
-                            benchMember(c.campaignId, knightUID, true);
-                        },
-                    },
-                ]
-            );
-        } else if (!asActive) {
-            benchMember(c.campaignId, knightUID, true);
+
+        const k = (knightsById as any)[knightUID];
+        const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
+        const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
+
+        const existing = members.find((m: any) => m.knightUID === knightUID);
+        if (existing) {
+            if (existing.isActive) return; // already active
+            if (hasActiveCatalog(existing.catalogId)) {
+                replaceCatalogKnight(c.campaignId, existing.catalogId, knightUID, { displayName });
+            } else {
+                benchMember(c.campaignId, knightUID, false);
+            }
+            return;
+        }
+
+        // not yet a member
+        if (hasActiveCatalog(catalogId)) {
+            replaceCatalogKnight(c.campaignId, catalogId, knightUID, { displayName });
+        } else {
+            addKnightToCampaign(c.campaignId, knightUID, { catalogId, displayName });
         }
     };
 
-    // quick-create
+    /** Ensure a knight exists BENCHED (idempotent). */
+    const ensureBenched = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
+        if (!c) return;
+        const k = (knightsById as any)[knightUID];
+        const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
+        const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
+
+        const existing = members.find((m: any) => m.knightUID === knightUID);
+        if (existing) {
+            if (existing.isActive) benchMember(c.campaignId, knightUID, true);
+            return; // already benched or just benched
+        }
+        addKnightAsBenched(c.campaignId, knightUID, { catalogId, displayName });
+    };
+
+    // Add existing (from the list)
+    const onAddExisting = (knightUID: string, asActive = true) => {
+        const k = (knightsById as any)[knightUID];
+        const meta = { catalogId: k?.catalogId ?? 'unknown', displayName: k?.name ?? 'Unknown Knight' };
+        if (asActive) ensureActive(knightUID, meta);
+        else ensureBenched(knightUID, meta);
+    };
+
+    // Quick-create
     const CATALOG_CHOICES = [
         'kara', 'ser-sonch', 'renholder', 'fleishritter', 'paracelsa',
         'stoneface', 'delphine', 'reiner',
@@ -97,7 +123,7 @@ export default function CampaignKnights() {
                 prologueDone: false,
                 postgameDone: false,
                 firstDeath: false,
-                investigations: {}, // full sheet manages attempts/results
+                investigations: {},
                 vices: { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 },
                 armory: [],
             },
@@ -106,8 +132,15 @@ export default function CampaignKnights() {
             mercenaries: [],
         } as any;
 
+        // 1) add to knights store
         addKnight(k);
-        onAddExisting(knightUID, asActive);
+
+        // 2) immediately ensure campaign state using meta (works even before knightsById refreshes)
+        const meta = { catalogId: k.catalogId, displayName: k.name };
+        if (asActive) ensureActive(knightUID, meta);
+        else ensureBenched(knightUID, meta);
+
+        // 3) reset creator inputs
         setNewName('');
         setNewCatalog(null);
     };
@@ -115,7 +148,6 @@ export default function CampaignKnights() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
             <ScrollView contentContainerStyle={{ padding: 16 }}>
-                {/* Placeholder when campaign missing (keep hooks stable) */}
                 {!c ? (
                     <Card>
                         <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Campaign not found</Text>
@@ -129,7 +161,7 @@ export default function CampaignKnights() {
                                 Active Lineup ({activeMembers.length}/{activeSlots})
                             </Text>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                {activeMembers.map((m) => {
+                                {activeMembers.map((m: any) => {
                                     const k = (knightsById as any)[m.knightUID];
                                     const label = k ? k.name : m.displayName;
                                     const isLeader = c.partyLeaderKnightUID === m.knightUID;
@@ -155,16 +187,11 @@ export default function CampaignKnights() {
                                                 </Pressable>
                                                 <View style={{ width: 6 }} />
                                                 <Pressable
-                                                    onPress={() => router.push(`/knight/${m.knightUID}`)} // 👉 go to full sheet
+                                                    onPress={() => router.push(`/knight/${m.knightUID}`)}
                                                     style={{
-                                                        paddingHorizontal: 10,
-                                                        height: 28,
-                                                        borderRadius: 14,
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        backgroundColor: tokens.surface,
-                                                        borderWidth: 1,
-                                                        borderColor: '#0006',
+                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
+                                                        alignItems: 'center', justifyContent: 'center',
+                                                        backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
                                                     }}
                                                 >
                                                     <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Edit</Text>
@@ -173,14 +200,9 @@ export default function CampaignKnights() {
                                                 <Pressable
                                                     onPress={() => benchMember(c.campaignId, m.knightUID, true)}
                                                     style={{
-                                                        paddingHorizontal: 10,
-                                                        height: 28,
-                                                        borderRadius: 14,
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        backgroundColor: tokens.surface,
-                                                        borderWidth: 1,
-                                                        borderColor: '#0006',
+                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
+                                                        alignItems: 'center', justifyContent: 'center',
+                                                        backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
                                                     }}
                                                 >
                                                     <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Bench</Text>
@@ -189,14 +211,9 @@ export default function CampaignKnights() {
                                                 <Pressable
                                                     onPress={() => removeMember(c.campaignId, m.knightUID)}
                                                     style={{
-                                                        paddingHorizontal: 10,
-                                                        height: 28,
-                                                        borderRadius: 14,
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        backgroundColor: '#2A1313',
-                                                        borderWidth: 1,
-                                                        borderColor: '#0006',
+                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
+                                                        alignItems: 'center', justifyContent: 'center',
+                                                        backgroundColor: '#2A1313', borderWidth: 1, borderColor: '#0006',
                                                     }}
                                                 >
                                                     <Text style={{ color: '#F9DADA', fontWeight: '700' }}>Remove</Text>
@@ -218,20 +235,18 @@ export default function CampaignKnights() {
                                 {benchedMembers.length === 0 ? (
                                     <Text style={{ color: tokens.textMuted }}>No benched knights.</Text>
                                 ) : (
-                                    benchedMembers.map((m) => {
+                                    benchedMembers.map((m: any) => {
                                         const k = (knightsById as any)[m.knightUID];
                                         const label = k ? k.name : m.displayName;
+                                        const conflict = hasActiveCatalog(m.catalogId);
                                         return (
-                                            <View
-                                                key={m.knightUID}
-                                                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}
-                                            >
+                                            <View key={m.knightUID} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                                                 <Text style={{ color: tokens.textPrimary }}>
                                                     {label} <Text style={{ color: tokens.textMuted }}>({m.catalogId})</Text>
                                                 </Text>
                                                 <View style={{ flexDirection: 'row' }}>
                                                     <Pressable
-                                                        onPress={() => router.push(`/knight/${m.knightUID}`)} // 👉 full sheet
+                                                        onPress={() => router.push(`/knight/${m.knightUID}`)}
                                                         style={{
                                                             paddingHorizontal: 12, height: 32, borderRadius: 16,
                                                             alignItems: 'center', justifyContent: 'center',
@@ -240,15 +255,19 @@ export default function CampaignKnights() {
                                                     >
                                                         <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Edit</Text>
                                                     </Pressable>
+
                                                     <Pressable
-                                                        onPress={() => benchMember(c.campaignId, m.knightUID, false)}
+                                                        onPress={() => ensureActive(m.knightUID)}
                                                         style={{
                                                             paddingHorizontal: 12, height: 32, borderRadius: 16,
                                                             alignItems: 'center', justifyContent: 'center',
-                                                            backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
+                                                            backgroundColor: conflict ? '#3a2a1a' : tokens.surface,
+                                                            borderWidth: 1, borderColor: '#0006',
                                                         }}
                                                     >
-                                                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Activate</Text>
+                                                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
+                                                            {conflict ? 'Replace…' : 'Activate'}
+                                                        </Text>
                                                     </Pressable>
                                                 </View>
                                             </View>
@@ -305,7 +324,10 @@ export default function CampaignKnights() {
                             <TextRow label="Name" value={newName} onChangeText={setNewName} placeholder="e.g., Renholder" />
                             <Text style={{ color: tokens.textMuted, marginBottom: 6 }}>Catalog</Text>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
-                                {CATALOG_CHOICES.map((idOpt) => {
+                                {[
+                                    'kara','ser-sonch','renholder','fleishritter','paracelsa',
+                                    'stoneface','delphine','reiner','absolute-bastard','ser-gallant',
+                                ].map((idOpt) => {
                                     const selected = newCatalog === idOpt;
                                     return (
                                         <Pressable
