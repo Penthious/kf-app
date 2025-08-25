@@ -146,7 +146,7 @@ export default function CampaignKnights() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+        <View style={{ flex: 1, backgroundColor: tokens.bg }}>
             <ScrollView contentContainerStyle={{ padding: 16 }}>
                 {!c ? (
                     <Card>
@@ -380,6 +380,6 @@ export default function CampaignKnights() {
                     </>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }

@@ -24,6 +24,9 @@
       "@/catalogs/*": [
         "src/catalogs/*"
       ],
+      "@/features/*": [
+        "src/features/*"
+      ],
       "@/models/*": [
         "src/models/*"
       ],

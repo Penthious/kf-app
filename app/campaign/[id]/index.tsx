@@ -1,13 +1,8 @@
-import { useEffect } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import React from 'react';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
+// When user opens /campaign/[id], jump to the primary tab (Kingdoms)
 export default function CampaignIndexRedirect() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (id) router.replace(`/campaign/${id}/kingdoms`);
-    }, [id]);
-
-    return null;
+    return <Redirect href={{ pathname: '/campaign/[id]/kingdoms', params: { id } }} />;
 }

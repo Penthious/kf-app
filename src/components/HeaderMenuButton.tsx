@@ -1,108 +1,62 @@
-import React, { useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useRef, useState } from 'react';
+import { Pressable, Text } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
 
 export default function HeaderMenuButton() {
     const { tokens } = useThemeTokens();
-    const router = useRouter();
-    const [open, setOpen] = useState(false);
-    const insets = useSafeAreaInsets();
+    const { id } = useLocalSearchParams<{ id?: string }>();
 
-    const go = (path: string) => {
+    const anchorRef = useRef<any>(null);
+    const [open, setOpen] = useState(false);
+    const [frame, setFrame] = useState<any>(null);
+
+    const showMenu = async () => {
+        const f = await measureInWindow(anchorRef);
+        setFrame(f);
+        setOpen(true);
+    };
+
+    // Close then navigate on next frame → feels instant, avoids modal flashing
+    const go = (fn: () => void) => {
         setOpen(false);
-        // small delay lets the menu close before pushing, avoids flicker
-        setTimeout(() => router.push(path), 10);
+        requestAnimationFrame(fn);
     };
 
     return (
         <>
-            {/* The hamburger button in the header */}
             <Pressable
-                onPress={() => setOpen(true)}
-                accessibilityRole="button"
-                accessibilityLabel="Open quick menu"
+                ref={anchorRef}
+                onPress={showMenu}
+                hitSlop={12}
                 style={{
-                    marginRight: 12,
-                    paddingHorizontal: 12,
-                    height: 32,
-                    borderRadius: 16,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: tokens.surface,
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 10,
+                    backgroundColor: tokens.card,
                     borderWidth: 1,
                     borderColor: '#0006',
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Open quick menu"
             >
                 <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>☰</Text>
             </Pressable>
 
-            {/* Top-right dropdown menu */}
-            <Modal
+            <ContextMenu
                 visible={open}
-                transparent
-                animationType="fade"
+                anchorFrame={frame}
                 onRequestClose={() => setOpen(false)}
-            >
-                {/* Backdrop */}
-                <Pressable
-                    onPress={() => setOpen(false)}
-                    style={{ flex: 1, backgroundColor: 'transparent' }}
-                >
-                    {/* Empty pressable just to catch outside taps */}
-                </Pressable>
-
-                {/* Menu card — positioned near the top-right, below the header */}
-                <View
-                    pointerEvents="box-none"
-                    style={{
-                        position: 'absolute',
-                        top: Math.max(insets.top + 48, 64), // header height-ish + safe area
-                        right: 12,
-                    }}
-                >
-                    <View
-                        style={{
-                            minWidth: 180,
-                            borderRadius: 12,
-                            backgroundColor: tokens.surface,
-                            borderWidth: 1,
-                            borderColor: '#0006',
-                            overflow: 'hidden',
-                            shadowColor: '#000',
-                            shadowOpacity: 0.4,
-                            shadowRadius: 12,
-                            shadowOffset: { width: 0, height: 6 },
-                            elevation: 8,
-                        }}
-                    >
-                        <MenuItem label="Keywords" onPress={() => go('/(modals)/keywords')} />
-                        <Divider />
-                        <MenuItem label="Theme" onPress={() => go('/(modals)/theme')} />
-                    </View>
-                </View>
-            </Modal>
+                items={[
+                    { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
+                    { key: 'theme',    label: 'Theme',    onPress: () => go(() => router.push('/theme')) },
+                    ...(id ? [
+                        { key: 'camp-home',     label: 'Campaign Overview',   onPress: () => go(() => router.push({ pathname: '/campaign/[id]', params: { id } })) },
+                        { key: 'camp-kingdoms', label: 'Campaign • Kingdoms', onPress: () => go(() => router.push({ pathname: '/campaign/[id]/kingdoms', params: { id } })) },
+                    ] : []),
+                ]}
+            />
         </>
     );
-}
-
-function MenuItem({ label, onPress }: { label: string; onPress: () => void }) {
-    const { tokens } = useThemeTokens();
-    return (
-        <Pressable
-            onPress={onPress}
-            style={({ pressed }) => ({
-                paddingHorizontal: 14,
-                paddingVertical: 12,
-                backgroundColor: pressed ? '#ffffff10' : 'transparent',
-            })}
-        >
-            <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{label}</Text>
-        </Pressable>
-    );
-}
-
-function Divider() {
-    return <View style={{ height: 1, backgroundColor: '#0006' }} />;
 }
