@@ -1,0 +1,57 @@
+{
+  "kingdomId": "principality-of-stone",
+  "name": "Principality of Stone",
+  "monsters": [
+    { "id": "ratwolves", "name": "Ratwolves" },
+    { "id": "winged-nightmare", "name": "Winged Nightmare" },
+    { "id": "paleblood-worms", "name": "Paleblood Worms" },
+    { "id": "pumpkinhead-monstrosities", "name": "Pumpkinhead Monstrosities" },
+    { "id": "knight-of-the-fen", "name": "Knight of the Fen" },
+    { "id": "ironcast-dead", "name": "Ironcast Dead" },
+    { "id": "eggknight", "name": "Eggknight" },
+    { "id": "puppet-king-edelhardt", "name": "Puppet King Edelhardt" },
+    { "id": "devil-of-the-smelted-fears", "name": "Devil of the Smelted Fears" },
+    { "id": "panzerdragon-veldr", "name": "Panzerdragon Veldr" }
+  ],
+  "states": [
+    {
+      "order": 10,
+      "when": { "q": 1, "inv": 0 },
+      "tiersByMonster": {
+        "ratwolves": 1, "paleblood-worms": 1, "pumpkinhead-monstrosities": 1,
+        "ironcast-dead": 1, "eggknight": 1
+      }
+    },
+    {
+      "order": 20,
+      "when": { "qMax": 1, "inv": 1 },
+      "tiersByMonster": {
+        "ratwolves": 1, "paleblood-worms": 1, "pumpkinhead-monstrosities": 1,
+        "knight-of-the-fen": 1, "ironcast-dead": 1, "eggknight": 1
+      }
+    },
+    {
+      "order": 30,
+      "when": { "qMax": 1, "inv": 2 },
+      "tiersByMonster": {
+        "ratwolves": 2, "winged-nightmare": 1, "paleblood-worms": 1,
+        "pumpkinhead-monstrosities": 1, "knight-of-the-fen": 1,
+        "ironcast-dead": 0, "eggknight": 1
+      }
+    },
+    {
+      "order": 40,
+      "when": { "qMax": 1, "inv": 3 },
+      "tiersByMonster": {
+        "ratwolves": 2, "winged-nightmare": 1, "paleblood-worms": 2,
+        "pumpkinhead-monstrosities": 0, "knight-of-the-fen": 1,
+        "ironcast-dead": 2, "eggknight": 0
+      }
+    }
+  ],
+  "chapterAdvance": { "when": { "q": 1, "inv": 3 }, "toChapter": 2 },
+  "adventures": [
+    { "id": "patrol", "name": "Patrol the Outskirts", "repeatable": true },
+    { "id": "stone-rites", "name": "Stone Rites", "repeatable": false }
+  ]
+}
