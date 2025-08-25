@@ -1,258 +1,155 @@
+// src/store/knights.ts
+// Zustand store for Knights; handles quest completion, normal investigations, and lead completions.
+
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import {
-    Knight,
-    KnightSheet,
-    RapportEntry,
-    InvestigationsPerChapter,
-    InvestigationAttempt,
-    InvestigationResult,
-    defaultInvestigations,
-    defaultChoiceMatrix
+    Knight, UUID, InvestigationResult,
+    ensureChapter, addInvestigationDomain, completeQuestDomain, normalLocked
 } from '@/models/knight';
 
 type KnightsState = {
-    knightsById: Record<string, Knight>;
-    addKnight: (k: Omit<Knight, 'version' | 'updatedAt'>) => Knight;
-    removeKnight: (id: string) => void;
-    renameKnight: (id: string, name: string) => void;
-    updateKnightSheet: (id: string, patch: Partial<KnightSheet>) => void;
-    setRapport: (
-        id: string,
-        withKnightUID: string,
-        displayName: string,
-        ticks: 0 | 1 | 2 | 3,
-        boon?: string
-    ) => void;
-    setInvestigations: (
-        id: string,
-        chapterIndex: number,
-        patch: Partial<InvestigationsPerChapter>
-    ) => void;
-    addInvestigationAttempt: (
-        id: string,
-        chapterIndex: number,
-        code: string,
-        result: InvestigationResult
-    ) => void;
-    toggleInvestigationCompleted: (
-        id: string,
-        chapterIndex: number,
-        code: string
-    ) => void;
-    toggleChoiceMatrix: (id: string, key: string) => void;
-    patchKnight: (knightUID: string, patch: Partial<Knight>) => void;
-    patchKnightSheet: (knightUID: string, sheetPatch: Partial<Knight['sheet']>) => void;
+    knightsById: Record<UUID, Knight>;
 };
 
-export const useKnights = create<KnightsState>()(
-    persist(
-        (set) => ({
-            knightsById: {},
+type KnightsActions = {
+    addKnight: (k: Omit<Knight, 'version' | 'updatedAt'>) => void;
+    renameKnight: (knightUID: UUID, name: string) => void;
 
-            addKnight: (k) => {
-                const now = Date.now();
-                const withDefaults: Knight = {
-                    ...k,
-                    version: 1,
-                    updatedAt: now,
-                    sheet: {
-                        virtues: k.sheet.virtues,
-                        banes: k.sheet.banes ?? { cowardice:0, dishonor:0, duplicity:0, disregard:0, cruelty:0, treachery:0 },
-                        bane: k.sheet.bane ?? 0,
-                        gold: k.sheet.gold ?? 0,
-                        leads: k.sheet.leads ?? 0,
-                        sighOfGraal: k.sheet.sighOfGraal ?? 0,
-                        chapter: k.sheet.chapter ?? 0,
-                        firstDeath: k.sheet.firstDeath ?? false,
-                        chapterQuest: k.sheet.chapterQuest ?? '',
-                        investigations: k.sheet.investigations ?? defaultInvestigations(),
-                        choiceMatrix: k.sheet.choiceMatrix ?? defaultChoiceMatrix(),
-                        prologueDone: k.sheet.prologueDone ?? false,
-                        postgameDone: k.sheet.postgameDone ?? false,
-                        notes: k.sheet.notes ?? '',
-                        saints: k.sheet.saints ?? [],
-                        mercenaries: k.sheet.mercenaries ?? []
-                    }
-                };
-                set((s) => ({
-                    knightsById: { ...s.knightsById, [withDefaults.knightUID]: withDefaults }
-                }));
-                return withDefaults;
-            },
+    completeQuest: (knightUID: UUID, chapter: number, outcome?: InvestigationResult) => { ok: boolean; error?: string };
 
-            removeKnight: (id) =>
-                set((s) => {
-                    const copy = { ...s.knightsById };
-                    delete copy[id];
-                    return { knightsById: copy };
-                }),
+    addNormalInvestigation: (
+        knightUID: UUID,
+        chapter: number,
+        invId: string,
+        result: InvestigationResult
+    ) => { ok: boolean; error?: string };
 
-            renameKnight: (id, name) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: { ...k, name, updatedAt: Date.now() }
-                        }
-                    };
-                }),
+    addLeadCompletion: (
+        knightUID: UUID,
+        chapter: number,
+        invId: string
+    ) => { ok: boolean; error?: string };
 
-            updateKnightSheet: (id, patch) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: { ...k, sheet: { ...k.sheet, ...patch }, updatedAt: Date.now() }
-                        }
-                    };
-                }),
+    convertFailToLead: (
+        knightUID: UUID,
+        chapter: number,
+        invId: string
+    ) => { ok: boolean; error?: string };
 
-            setRapport: (id, withKnightUID, displayName, ticks, boon) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    const existing = k.rapport.find((r) => r.withKnightUID === withKnightUID);
-                    let next: RapportEntry[];
-                    if (existing) {
-                        next = k.rapport.map((r) =>
-                            r.withKnightUID === withKnightUID
-                                ? { ...r, ticks, boon, displayName, updatedAt: Date.now() }
-                                : r
-                        );
-                    } else {
-                        next = [
-                            ...k.rapport,
-                            { withKnightUID, displayName, ticks, boon, updatedAt: Date.now() }
-                        ];
-                    }
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: { ...k, rapport: next, updatedAt: Date.now() }
-                        }
-                    };
-                }),
+    isNormalLocked: (knightUID: UUID, chapter: number) => boolean;
+    updateKnightSheet: (knightUID: UUID, patch: Partial<Knight['sheet']>) => { ok: boolean; error?: string };
+};
 
-            setInvestigations: (id, chapterIndex, patch) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    const list = k.sheet.investigations?.length
-                        ? [...k.sheet.investigations]
-                        : defaultInvestigations();
-                    const safeIdx = Math.max(0, Math.min(4, chapterIndex));
-                    const cur = list[safeIdx] ?? { attempts: [], completed: [] };
-                    const next: InvestigationsPerChapter = {
-                        attempts: patch.attempts !== undefined ? patch.attempts : cur.attempts,
-                        completed: patch.completed !== undefined ? patch.completed : cur.completed,
-                        questCompleted: patch.questCompleted !== undefined ? patch.questCompleted : cur.questCompleted
-                    };
-                    list[safeIdx] = next;
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: {
-                                ...k,
-                                sheet: { ...k.sheet, investigations: list },
-                                updatedAt: Date.now()
-                            }
-                        }
-                    };
-                }),
+export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
+    knightsById: {},
 
-            addInvestigationAttempt: (id, chapterIndex, code, result) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    const list = k.sheet.investigations?.length
-                        ? [...k.sheet.investigations]
-                        : defaultInvestigations();
-                    const safeIdx = Math.max(0, Math.min(4, chapterIndex));
-                    const cur = list[safeIdx] ?? { attempts: [], completed: [] };
-                    if (cur.completed.includes(code)) return {}; // no retakes
-                    const attempt: InvestigationAttempt = { code, result, at: Date.now() };
-                    const next: InvestigationsPerChapter = {
-                        attempts: [...cur.attempts, attempt].slice(-12),
-                        completed: cur.completed
-                    };
-                    list[safeIdx] = next;
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: {
-                                ...k,
-                                sheet: { ...k.sheet, investigations: list },
-                                updatedAt: Date.now()
-                            }
-                        }
-                    };
-                }),
+    addKnight: (k) => {
+        const now = Date.now();
+        const newK: Knight = { ...k, version: 1, updatedAt: now };
+        set(s => ({ knightsById: { ...s.knightsById, [newK.knightUID]: newK } }));
+    },
 
-            toggleInvestigationCompleted: (id, chapterIndex, code) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    const list = k.sheet.investigations?.length
-                        ? [...k.sheet.investigations]
-                        : defaultInvestigations();
-                    const safeIdx = Math.max(0, Math.min(4, chapterIndex));
-                    const cur = list[safeIdx] ?? { attempts: [], completed: [] };
-                    const exists = cur.completed.includes(code);
-                    const nextCompleted = exists
-                        ? cur.completed.filter((c) => c !== code)
-                        : [...cur.completed, code].slice(0, 5);
-                    list[safeIdx] = { attempts: cur.attempts, completed: nextCompleted };
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: {
-                                ...k,
-                                sheet: { ...k.sheet, investigations: list },
-                                updatedAt: Date.now()
-                            }
-                        }
-                    };
-                }),
+    updateKnightSheet: (knightUID, patch) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return { ok:false, error:'Knight not found' };
+        const next: Knight = {
+            ...k,
+            sheet: { ...k.sheet, ...patch },
+            version: k.version + 1,
+            updatedAt: Date.now(),
+        };
+        return set({ knightsById: { ...s.knightsById, [knightUID]: next } }), { ok:true };
+    },
 
-            toggleChoiceMatrix: (id, key) =>
-                set((s) => {
-                    const k = s.knightsById[id];
-                    if (!k) return {};
-                    const cm = { ...(k.sheet.choiceMatrix ?? defaultChoiceMatrix()) };
-                    cm[key] = !cm[key];
-                    return {
-                        knightsById: {
-                            ...s.knightsById,
-                            [id]: {
-                                ...k,
-                                sheet: { ...k.sheet, choiceMatrix: cm },
-                                updatedAt: Date.now()
-                            }
-                        }
-                    };
-                }),
+    renameKnight: (knightUID, name) => {
+        set(s => {
+            const k = s.knightsById[knightUID];
+            if (!k) return s;
+            return {
+                knightsById: {
+                    ...s.knightsById,
+                    [knightUID]: { ...k, name, version: k.version + 1, updatedAt: Date.now() }
+                }
+            };
+        });
+    },
 
-            patchKnight: (knightUID, patch) =>
-                set((s) => {
-                    const k = s.knightsById[knightUID];
-                    if (!k) return {};
-                    const next = { ...k, ...patch, updatedAt: Date.now?.() ?? Date.now() };
-                    return { knightsById: { ...s.knightsById, [knightUID]: next } };
-                }),
+    completeQuest: (knightUID, chapter, outcome) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return { ok: false, error: 'Knight not found' };
+        const ch = ensureChapter(k.sheet, chapter);
+        completeQuestDomain(ch, outcome);
+        set({
+            knightsById: {
+                ...s.knightsById,
+                [knightUID]: { ...k, version: k.version + 1, updatedAt: Date.now() }
+            }
+        });
+        return { ok: true };
+    },
 
-            patchKnightSheet: (knightUID, sheetPatch) =>
-                set((s) => {
-                    const k = s.knightsById[knightUID];
-                    if (!k) return {};
-                    const next = { ...k, sheet: { ...k.sheet, ...sheetPatch }, updatedAt: Date.now?.() ?? Date.now() };
-                    return { knightsById: { ...s.knightsById, [knightUID]: next } };
-                }),
-        }),
-        { name: 'knights-store' }
-    )
-);
+    addNormalInvestigation: (knightUID, chapter, invId, result) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return { ok: false, error: 'Knight not found' };
+        const ch = ensureChapter(k.sheet, chapter);
+
+        const r = addInvestigationDomain(ch, invId, 'normal', result, Date.now());
+        if (!r.ok) return r;
+
+        set({
+            knightsById: {
+                ...s.knightsById,
+                [knightUID]: { ...k, version: k.version + 1, updatedAt: Date.now() }
+            }
+        });
+        return { ok: true };
+    },
+
+    addLeadCompletion: (knightUID, chapter, invId) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return { ok: false, error: 'Knight not found' };
+        const ch = ensureChapter(k.sheet, chapter);
+
+        const r = addInvestigationDomain(ch, invId, 'lead', 'pass', Date.now());
+        if (!r.ok) return r;
+
+        set({
+            knightsById: {
+                ...s.knightsById,
+                [knightUID]: { ...k, version: k.version + 1, updatedAt: Date.now() }
+            }
+        });
+        return { ok: true };
+    },
+
+    convertFailToLead: (knightUID, chapter, invId) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return { ok: false, error: 'Knight not found' };
+        const ch = ensureChapter(k.sheet, chapter);
+
+        // Reuse domain: adds a new lead attempt, outcome 'pass'
+        const r = addInvestigationDomain(ch, invId, 'lead', 'pass', Date.now());
+        if (!r.ok) return r;
+
+        set({
+            knightsById: {
+                ...s.knightsById,
+                [knightUID]: { ...k, version: k.version + 1, updatedAt: Date.now() }
+            }
+        });
+        return { ok: true };
+    },
+
+    isNormalLocked: (knightUID, chapter) => {
+        const s = get();
+        const k = s.knightsById[knightUID];
+        if (!k) return true;
+        const ch = ensureChapter(k.sheet, chapter);
+        return normalLocked(ch);
+    },
+}));

@@ -1,0 +1,12 @@
+{
+  "saints": [
+    { "id": "st-aloy", "name": "Saint Aloy" },
+    { "id": "st-bran", "name": "Saint Bran" },
+    { "id": "st-colm", "name": "Saint Colm" }
+  ],
+  "mercenaries": [
+    { "id": "sellsword", "name": "Sellsword" },
+    { "id": "marksman", "name": "Marksman" },
+    { "id": "apothecary", "name": "Apothecary" }
+  ]
+}
