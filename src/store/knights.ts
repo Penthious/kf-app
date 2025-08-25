@@ -41,6 +41,8 @@ type KnightsState = {
         code: string
     ) => void;
     toggleChoiceMatrix: (id: string, key: string) => void;
+    patchKnight: (knightUID: string, patch: Partial<Knight>) => void;
+    patchKnightSheet: (knightUID: string, sheetPatch: Partial<Knight['sheet']>) => void;
 };
 
 export const useKnights = create<KnightsState>()(
@@ -233,7 +235,23 @@ export const useKnights = create<KnightsState>()(
                             }
                         }
                     };
-                })
+                }),
+
+            patchKnight: (knightUID, patch) =>
+                set((s) => {
+                    const k = s.knightsById[knightUID];
+                    if (!k) return {};
+                    const next = { ...k, ...patch, updatedAt: Date.now?.() ?? Date.now() };
+                    return { knightsById: { ...s.knightsById, [knightUID]: next } };
+                }),
+
+            patchKnightSheet: (knightUID, sheetPatch) =>
+                set((s) => {
+                    const k = s.knightsById[knightUID];
+                    if (!k) return {};
+                    const next = { ...k, sheet: { ...k.sheet, ...sheetPatch }, updatedAt: Date.now?.() ?? Date.now() };
+                    return { knightsById: { ...s.knightsById, [knightUID]: next } };
+                }),
         }),
         { name: 'knights-store' }
     )

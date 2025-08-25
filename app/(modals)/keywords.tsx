@@ -1,4 +1,3 @@
-// app/(tabs)/keywords.tsx
 import React, {useMemo, useState, useEffect} from 'react';
 import { View, Text, ScrollView, Pressable, Modal, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

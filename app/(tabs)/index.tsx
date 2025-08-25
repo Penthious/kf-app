@@ -6,13 +6,11 @@ import { useRouter } from 'expo-router';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
-import uuid from 'react-native-uuid';
 
 export default function CampaignsScreen() {
     const router = useRouter();
     const { tokens } = useThemeTokens();
-    const { campaigns, addCampaign } = useCampaigns();
-
+    const { campaigns } = useCampaigns();
     const list = Object.values(campaigns);
 
     return (
@@ -49,11 +47,7 @@ export default function CampaignsScreen() {
                 )}
 
                 <Pressable
-                    onPress={() => {
-                        const id = uuid.v4() as string;
-                        const c = addCampaign(`Campaign ${list.length + 1}`, id);
-                        router.push(`/campaign/${c.campaignId}`);
-                    }}
+                    onPress={() => router.push('/campaign/new')}
                     style={{
                         marginTop: 8,
                         padding: 14,

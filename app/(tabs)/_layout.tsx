@@ -1,34 +1,35 @@
 import { Tabs } from 'expo-router';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderMenuButton from '@/components/HeaderMenuButton';
+import { useThemeTokens } from '@/theme/ThemeProvider';
 
-export default function TabsLayout(){
-  const {tokens} = useThemeTokens();
-  return (
-    <Tabs screenOptions={({route}) => ({
-      headerShown: false,
-      tabBarStyle: { backgroundColor: tokens.surface },
-      tabBarActiveTintColor: tokens.accent,
-      tabBarInactiveTintColor: tokens.textMuted,
-      tabBarIcon: ({color, size}) => {
-        const icons: Record<string,string> = {
-          index: 'albums',
-          knights: 'person',
-          gear: 'construct',
-          encounter: 'flame',
-          keywords: 'book',
-          theme: 'color-palette'
-        };
-        const name = icons[route.name] || 'apps';
-        return <Ionicons name={name as any} size={size} color={color} />;
-      }
-    })}>
-      <Tabs.Screen name="index" options={{title:"Campaigns"}} />
-      <Tabs.Screen name="knights" options={{title:"Knights"}} />
-      <Tabs.Screen name="gear" options={{title:"Gear"}} />
-      <Tabs.Screen name="encounter" options={{title:"Encounter"}} />
-      <Tabs.Screen name="keywords" options={{title:"Keywords"}} />
-      <Tabs.Screen name="theme" options={{title:"Theme"}} />
-    </Tabs>
-  );
+export default function RootTabsLayout() {
+    const { tokens } = useThemeTokens();
+
+    return (
+        <Tabs
+            screenOptions={({ route }) => ({
+                headerShown: true,
+                headerStyle: { backgroundColor: tokens.surface },
+                headerTitleStyle: { color: tokens.textPrimary },
+                headerTintColor: tokens.textPrimary,
+                headerRight: () => <HeaderMenuButton />,  // 👈 hamburger on root pages
+                tabBarStyle: { backgroundColor: tokens.surface },
+                tabBarActiveTintColor: tokens.accent,
+                tabBarInactiveTintColor: tokens.textMuted,
+                tabBarIcon: ({ color, size }) => {
+                    const m: Record<string, string> = {
+                        index: 'albums',        // Campaigns
+                        knights: 'person',      // (if you still have global Knights tab)
+                    };
+                    const name = m[route.name] || 'apps';
+                    return <Ionicons name={name as any} size={size} color={color} />;
+                },
+            })}
+        >
+            <Tabs.Screen name="index" options={{ title: 'Campaigns', tabBarLabel: 'Campaigns' }} />
+            <Tabs.Screen name="knights" options={{ title: 'Knights', tabBarLabel: 'Knights' }} />
+            <Tabs.Screen name="gear" options={{ title: 'Gear', tabBarLabel: 'Gear' }} />
+        </Tabs>
+    );
 }
