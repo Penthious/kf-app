@@ -2,15 +2,19 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+
 import Card from '@/components/Card';
 import TextRow from '@/components/TextRow';
 import Stepper from '@/components/Stepper';
 import SwitchRow from '@/components/SwitchRow';
+
 import { useKnights } from '@/store/knights';
+import { useCampaigns } from '@/store/campaigns';
+
 import { ensureChapter, type Knight } from '@/models/knight';
+
 import ChapterInvestigations from '@/components/ChapterInvestigations';
 import VirtuesCard from '@/components/VirtuesCard';
 import VicesCard from '@/components/VicesCard';
@@ -18,60 +22,6 @@ import SheetBasicsCard from '@/components/SheetBasicsCard';
 import ChoiceMatrixCard from '@/components/ChoiceMatrixCard';
 import AlliesCard from '@/components/AlliesCard';
 import NotesCard from '@/components/NotesCard';
-
-function HeaderBar({
-                       title,
-                       onBack,
-                       onDelete,
-                   }: {
-    title: string;
-    onBack: () => void;
-    onDelete: () => void;
-}) {
-    const { tokens } = useThemeTokens();
-    return (
-        <View
-            style={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                backgroundColor: tokens.surface,
-                borderBottomWidth: 1,
-                borderColor: '#0006',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-            }}
-        >
-            <Pressable
-                onPress={onBack}
-                style={{
-                    paddingVertical: 8,
-                    paddingHorizontal: 10,
-                    borderRadius: 10,
-                    backgroundColor: tokens.card,
-                }}
-            >
-                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Back</Text>
-            </Pressable>
-            <Text style={{ color: tokens.textPrimary, fontWeight: '800' }} numberOfLines={1}>
-                {title}
-            </Text>
-            <Pressable
-                onPress={onDelete}
-                style={{
-                    paddingVertical: 8,
-                    paddingHorizontal: 10,
-                    borderRadius: 10,
-                    backgroundColor: '#2A1313',
-                    borderWidth: 1,
-                    borderColor: '#0006',
-                }}
-            >
-                <Text style={{ color: '#F9DADA', fontWeight: '800' }}>Delete</Text>
-            </Pressable>
-        </View>
-    );
-}
 
 function Pill({
                   label,
@@ -112,8 +62,72 @@ function Pill({
     );
 }
 
+function HeaderBar({
+                       title,
+                       right,
+                       onBack,
+                       onDelete,
+                   }: {
+    title: string;
+    right?: React.ReactNode;
+    onBack: () => void;
+    onDelete: () => void;
+}) {
+    const { tokens } = useThemeTokens();
+    return (
+        <View
+            style={{
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                backgroundColor: tokens.surface,
+                borderBottomWidth: 1,
+                borderColor: '#0006',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+            }}
+        >
+            <Pressable
+                onPress={onBack}
+                style={{
+                    paddingVertical: 8,
+                    paddingHorizontal: 10,
+                    borderRadius: 10,
+                    backgroundColor: tokens.card,
+                }}
+            >
+                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Back</Text>
+            </Pressable>
+
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800' }} numberOfLines={1}>
+                {title}
+            </Text>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {right}
+                <Pressable
+                    onPress={onDelete}
+                    style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 10,
+                        borderRadius: 10,
+                        backgroundColor: '#2A1313',
+                        borderWidth: 1,
+                        borderColor: '#0006',
+                    }}
+                >
+                    <Text style={{ color: '#F9DADA', fontWeight: '800' }}>Delete</Text>
+                </Pressable>
+            </View>
+        </View>
+    );
+}
+
 export default function KnightDetail() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const params = useLocalSearchParams() as { id?: string; campaignId?: string | string[] };
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    const campaignId = Array.isArray(params.campaignId) ? params.campaignId[0] : params.campaignId;
+
     const router = useRouter();
     const { tokens } = useThemeTokens();
 
@@ -121,24 +135,27 @@ export default function KnightDetail() {
         knightsById,
         renameKnight,
         completeQuest,
-        // available if you want to wire quick actions here:
-        addNormalInvestigation,
-        addLeadCompletion,
-        convertFailToLead,
     } = useKnights() as any;
+
+    const { setPartyLeader } = useCampaigns() as any;
 
     const k: Knight | undefined = useMemo(() => (id ? knightsById[id] : undefined), [id, knightsById]);
 
+    // read current leader for this campaign (if any) so we can toggle UI
+    const currentLeaderUID = useCampaigns(s => {
+        if (!campaignId) return undefined;
+        const c = (s as any).campaigns?.[campaignId];
+        if (!c) return undefined;
+        return (
+            c.settings?.partyLeaderUID ||
+            c.members?.find((m: any) => m.isLeader)?.knightUID ||
+            undefined
+        );
+    });
+
     if (!k) {
         return (
-            <SafeAreaView
-                style={{
-                    flex: 1,
-                    backgroundColor: tokens.bg,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
+            <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Knight not found</Text>
             </SafeAreaView>
         );
@@ -147,16 +164,33 @@ export default function KnightDetail() {
     const chNum = k.sheet.chapter ?? 1;
     const ch = ensureChapter(k.sheet, chNum);
 
+    const leaderControls =
+        campaignId ? (
+            currentLeaderUID === k.knightUID ? (
+                <Pill
+                    label="Unset Leader"
+                    tone="danger"
+                    onPress={() => setPartyLeader(campaignId, '')}
+                />
+            ) : (
+                <Pill
+                    label="Set as Leader"
+                    tone="accent"
+                    onPress={() => setPartyLeader(campaignId, k.knightUID)}
+                />
+            )
+        ) : null;
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
             <HeaderBar
                 title={k.name || 'Knight'}
+                right={leaderControls}
                 onBack={() => router.back()}
                 onDelete={() => {
                     Alert.alert('Delete knight?', 'This cannot be undone.', [
                         { text: 'Cancel', style: 'cancel' },
-                        // If you kept removeKnight shim, wire it here:
-                        // { text: 'Delete', style: 'destructive', onPress: () => { removeKnight(k.knightUID); router.back(); } }
+                        // wire your removeKnight here if desired
                     ]);
                 }}
             />
@@ -169,19 +203,22 @@ export default function KnightDetail() {
                         label="Name"
                         value={k.name}
                         placeholder="Knight name"
-                        // allow empty while editing
                         onChangeText={(t) => renameKnight(k.knightUID, t)}
                     />
                     <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
                         Catalog: <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{k.catalogId}</Text>
                     </Text>
+                    {campaignId ? (
+                        <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
+                            Campaign: <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{campaignId}</Text>{' '}
+                            {currentLeaderUID === k.knightUID ? '• Party Leader' : ''}
+                        </Text>
+                    ) : null}
                 </Card>
 
                 {/* Chapter & Quest */}
                 <Card>
-                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-                        Chapter & Quest
-                    </Text>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>Chapter & Quest</Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Current Chapter</Text>
@@ -241,14 +278,12 @@ export default function KnightDetail() {
                 <AlliesCard knightUID={k.knightUID} />
                 <NotesCard knightUID={k.knightUID} />
 
-                {/* Sheet toggles (examples; keep/add what you need) */}
                 <Card>
                     <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>Session Flags</Text>
                     <SwitchRow
                         label="Prologue done"
                         value={k.sheet.prologueDone}
                         onValueChange={(on) => {
-                            // update via sheet patch (use your updateKnightSheet shim if present)
                             const now = Date.now();
                             (useKnights.getState() as any).addKnight({
                                 ...k,

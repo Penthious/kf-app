@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text , Alert} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
@@ -52,8 +52,23 @@ export default function HeaderMenuButton() {
                     { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
                     { key: 'theme',    label: 'Theme',    onPress: () => go(() => router.push('/theme')) },
                     ...(id ? [
-                        { key: 'camp-home',     label: 'Campaign Overview',   onPress: () => go(() => router.push({ pathname: '/campaign/[id]', params: { id } })) },
-                        { key: 'camp-kingdoms', label: 'Campaign • Kingdoms', onPress: () => go(() => router.push({ pathname: '/campaign/[id]/kingdoms', params: { id } })) },
+                        {
+                            key: 'exit',
+                            label: 'Exit Campaign',
+                            destructive: true,
+                            onPress: () =>
+                                go(() =>
+                                    Alert.alert(
+                                        'Leave campaign?',
+                                        'This will return you to home.',
+                                        [
+                                            { text: 'Cancel', style: 'cancel' },
+                                            { text: 'Exit', style: 'destructive', onPress: () => router.replace('/') },
+                                        ],
+                                        { cancelable: true }
+                                    )
+                                ),
+                        },
                     ] : []),
                 ]}
             />

@@ -1,68 +1,42 @@
+// --- Core types ---
 export type UUID = string;
 
-export type InvestigationVia = 'normal' | 'lead';
-export type InvestigationResult = 'pass' | 'fail';
-
-export type InvestigationAttempt = {
-    invId: string;                 // e.g., "I1-1".."I1-5", "I2-3", etc (your naming)
-    via: InvestigationVia;         // 'normal' or 'lead'
-    result: InvestigationResult;   // 'pass' | 'fail'
-    at: number;                    // timestamp ms
-};
-
-export type InvestigationEntry = {
-    // Canonical per-invId status for this chapter:
-    invId: string;
-    via: InvestigationVia;         // latest via that completed this invId
-    outcome: InvestigationResult;  // pass | fail  (lead implies 'pass')
-    attempts: number;              // normal retries counted here
-    firstAt: number;
-    lastAt: number;
-};
-
-export type ChapterQuest = {
-    completed: boolean;            // true as soon as quest is attempted (even if fail)
-    outcome?: InvestigationResult; // optional pass/fail for display
-};
-
-export type ChapterInvestigations = {
-    /** Full history (auditable). */
-    history: InvestigationAttempt[];
-
-    /**
-     * Canonical per-invId result for this chapter (distinct investigations).
-     * Key: invId (e.g., "I1-1")
-     */
-    entries: Record<string, InvestigationEntry>;
-};
-
-export type ChapterProgress = {
-    quest: ChapterQuest;
-    investigations: ChapterInvestigations;
-};
-
 export type Virtues = {
-    bravery: number;
-    tenacity: number;
-    sagacity: number;
-    fortitude: number;
-    might: number;
-    insight: number;
+    bravery: number; tenacity: number; sagacity: number;
+    fortitude: number; might: number; insight: number;
 };
 
 export type ViceCounter = {
-    cowardice: number;   // 0..4 each
-    dishonor: number;
-    duplicity: number;
-    disregard: number;
-    cruelty: number;
-    treachery: number;
+    cowardice: number;   // vs Bravery
+    dishonor: number;    // vs Tenacity
+    duplicity: number;   // vs Sagacity
+    disregard: number;   // vs Fortitude
+    cruelty: number;     // vs Might
+    treachery: number;   // vs Insight
+};
+
+export type Note = {
+    id: string;          // uuid
+    text: string;
+    at: number;          // ms epoch
+};
+
+export type ChapterProgress = {
+    quest: { completed: boolean; outcome?: 'pass' | 'fail' };
+    // Attempts list preserves history; “lead: true” marks lead-completion
+    attempts: Array<{
+        code: string;                   // e.g. 'I1-1'
+        result: 'pass' | 'fail';
+        lead?: boolean;                 // true if completed by leads
+        at?: number;
+    }>;
+    completed: string[];              // normalized investigation codes you've completed
 };
 
 export type KnightRapport = {
     withKnightUID: UUID;
     ticks: 0 | 1 | 2 | 3;
-    boonNote?: string;
+    boon?: string; // free text
 };
 
 export type KnightSheet = {
@@ -73,27 +47,29 @@ export type KnightSheet = {
     sighOfGraal: 0 | 1;
     gold: number;
 
-    /** If you use “clue tokens” as a currency, keep it here or in campaign. */
-    clues?: number;
+    // we keep both counters available explicitly
+    leads: number;       // required
+    clues?: number;      // optional currency if you want it
 
-    /** Optional separate “leads” counter if you keep both. */
-    leads?: number;
-
-    /** Current chapter (1..5). */
-    chapter: number;
-
-    /** Per-chapter data keyed by '1'..'5'. */
+    // campaign/story
+    chapter: number;                         // 1..5
     chapters: Record<string, ChapterProgress>;
-
-    armory: string[];
     prologueDone: boolean;
     postgameDone: boolean;
+
+    // misc / meta
+    firstDeath: boolean;
+    choiceMatrix: Record<string, boolean>;   // '1'..'30', 'E1'..'E10' => true
+    saints: string[];                        // catalog ids
+    mercenaries: string[];                   // catalog ids
+    armory: string[];                        // gear ids (for now)
+    notes: Note[];                           // player notes
 };
 
 export type Knight = {
     knightUID: UUID;
     ownerUserId: string;
-    catalogId: string;     // Kara / Renholder / etc id
+    catalogId: string;
     name: string;
     sheet: KnightSheet;
     rapport: KnightRapport[];
@@ -101,115 +77,177 @@ export type Knight = {
     updatedAt: number;
 };
 
-/* -------------------- Pure helpers (no store required) -------------------- */
+// --- Defaults & migration helpers ---
 
-export function ensureChapter(sheet: KnightSheet, chapter: number): ChapterProgress {
-    // guard old data that never had chapters created
-    if (!sheet.chapters) (sheet as any).chapters = {};
-
-    const fallback = Number.isFinite(sheet.chapter) ? sheet.chapter : 1;
-    const num = Math.max(1, Math.floor(chapter || fallback || 1));
-    const key = String(num);
-
-    let ch = sheet.chapters[key];
-    if (!ch) {
-        ch = {
-            quest: { completed: false, outcome: undefined },
-            investigations: { history: [], entries: {} },
-        };
-        sheet.chapters[key] = ch;
-    }
-    return ch;
-}
-/** Count distinct investigations completed via NORMAL in this chapter (pass or fail). */
-export function countDistinctNormal(ch: ChapterProgress): number {
-    return Object.values(ch.investigations.entries).filter(e => e.via === 'normal').length;
+export function defaultVices(): ViceCounter {
+    return { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 };
 }
 
-/** Count total distinct completed investigations (normal + lead) in this chapter. */
-export function countDistinctTotal(ch: ChapterProgress): number {
-    return Object.keys(ch.investigations.entries).length;
+export function defaultVirtues(): Virtues {
+    return { bravery: 1, tenacity: 1, sagacity: 1, fortitude: 1, might: 1, insight: 1 };
 }
 
-/** Has a specific investigation already PASSED this chapter? (blocks further attempts) */
-export function hasPassed(ch: ChapterProgress, invId: string): boolean {
-    const e = ch.investigations.entries[invId];
-    return !!e && e.outcome === 'pass';
+export function defaultChapterProgress(): ChapterProgress {
+    return { quest: { completed: false }, attempts: [], completed: [] };
 }
 
-/** Are NORMAL investigations locked now? (quest completed + 3 distinct normal done) */
-export function normalLocked(ch: ChapterProgress): boolean {
-    return ch.quest.completed && countDistinctNormal(ch) >= 3;
+export function defaultSheet(): KnightSheet {
+    return {
+        virtues: defaultVirtues(),
+        vices: defaultVices(),
+        bane: 0,
+        sighOfGraal: 0,
+        gold: 0,
+        leads: 0,
+        clues: 0,
+        chapter: 1,
+        chapters: {},
+        prologueDone: false,
+        postgameDone: false,
+        firstDeath: false,
+        choiceMatrix: {},
+        saints: [],
+        mercenaries: [],
+        armory: [],
+        notes: [],
+    };
 }
 
 /**
- * Add or update entry for an investigation.
- * - For 'normal': creates/updates entry; outcome may be 'pass' or 'fail'. Distinct-normal cap: 3.
- * - For 'lead': marks as PASS, does not count against normal cap; total distinct cap: 5.
- * Returns {ok, error} for rule violations.
+ * Count distinct investigations in this chapter that were completed by a NORMAL pass (not lead).
+ * We dedupe by investigation code and only count attempts where result === 'pass' and lead !== true.
  */
-export function addInvestigationDomain(
-    ch: ChapterProgress,
-    invId: string,
-    via: InvestigationVia,
-    result: InvestigationResult,
-    whenMs: number = Date.now()
-): { ok: boolean; error?: string } {
-    // Prevent retake if already passed
-    if (hasPassed(ch, invId)) {
-        return { ok: false, error: 'This investigation already passed this chapter.' };
+export function countDistinctNormal(ch?: ChapterProgress): number {
+    if (!ch) return 0;
+    const seen = new Set<string>();
+    for (const a of ch.attempts ?? []) {
+        if (!a) continue;
+        if (a.lead) continue;        // exclude lead completions
+        if (a.result !== 'pass') continue;
+        if (a.code) seen.add(a.code);
     }
-
-    // Normal flow: cap at 3 distinct NORMAL
-    if (via === 'normal') {
-        if (normalLocked(ch)) {
-            return { ok: false, error: 'Normal investigations are locked (quest + 3 done).' };
-        }
-        // If entry exists (same invId), just update attempts/result; else enforce distinct cap
-        const exists = !!ch.investigations.entries[invId];
-        if (!exists && countDistinctNormal(ch) >= 3) {
-            return { ok: false, error: 'You already have 3 normal investigations this chapter.' };
-        }
-    }
-
-    // Total distinct cap: 5 (normal + lead)
-    const existsEntry = !!ch.investigations.entries[invId];
-    if (!existsEntry && countDistinctTotal(ch) >= 5) {
-        return { ok: false, error: 'You already completed 5 investigations this chapter.' };
-    }
-
-    // Record in history
-    ch.investigations.history.push({ invId, via, result, at: whenMs });
-
-    // Upsert canonical entry
-    const prev = ch.investigations.entries[invId];
-    const attempts = (prev?.attempts ?? 0) + (via === 'normal' ? 1 : 0);
-
-    const outcome: InvestigationResult = via === 'lead' ? 'pass' : result;
-    const firstAt = prev?.firstAt ?? whenMs;
-    const entry: InvestigationEntry = {
-        invId,
-        via, // latest via
-        outcome,
-        attempts,
-        firstAt,
-        lastAt: whenMs,
-    };
-    ch.investigations.entries[invId] = entry;
-
-    return { ok: true };
+    return seen.size;
 }
 
-/** Mark quest as completed (even on fail). */
-export function completeQuestDomain(ch: ChapterProgress, outcome?: InvestigationResult) {
+/** Count total distinct completed investigations (normal or lead). */
+export function countDistinctTotal(ch?: ChapterProgress): number {
+    return ch?.completed?.length ?? 0;
+}
+
+/** Ensure a sheet has all new fields with safe defaults (non‑destructive). */
+export function ensureSheet(s: Partial<KnightSheet> | undefined): KnightSheet {
+    const base = defaultSheet();
+    const out: KnightSheet = {
+        ...base,
+        ...(s as any),
+        virtues: { ...base.virtues, ...(s?.virtues ?? {}) },
+        vices: { ...base.vices, ...(s?.vices ?? {}) },
+        leads: s?.leads ?? 0,
+        clues: s?.clues ?? base.clues,
+        chapters: { ...base.chapters, ...(s?.chapters ?? {}) },
+        choiceMatrix: { ...base.choiceMatrix, ...(s?.choiceMatrix ?? {}) },
+        saints: s?.saints ?? [],
+        mercenaries: s?.mercenaries ?? [],
+        armory: s?.armory ?? [],
+        notes: s?.notes ?? [],
+        firstDeath: !!s?.firstDeath,
+        prologueDone: !!s?.prologueDone,
+        postgameDone: !!s?.postgameDone,
+    };
+    return out;
+}
+
+/** Non‑destructive migration for a Knight object */
+export function ensureKnight(k: Knight): Knight {
+    return {
+        ...k,
+        sheet: ensureSheet(k.sheet as any),
+        version: k.version ?? 1,
+        updatedAt: k.updatedAt ?? Date.now(),
+    };
+}
+
+export type InvestigationResult = 'pass' | 'fail';
+type InvestigationKind = 'normal' | 'lead';
+type DomainOk = { ok: true };
+type DomainErr = { ok: false; error: string };
+type DomainResult = DomainOk | DomainErr;
+/**
+ * Whether further NORMAL investigations are locked for the chapter.
+ * Rules we’ve been using:
+ * - After the chapter quest is completed AND you have 3 completed investigations,
+ *   you can’t do more normal investigations in that chapter (you may still add LEAD completions).
+ */
+export function normalLocked(ch: ChapterProgress): boolean {
+    return !!ch.quest?.completed && (ch.completed?.length ?? 0) >= 3;
+}
+
+/** Mark the chapter quest as completed; failing still counts as completed. */
+export function completeQuestDomain(ch: ChapterProgress, outcome?: InvestigationResult): void {
+    if (!ch.quest) ch.quest = { completed: false };
     ch.quest.completed = true;
     if (outcome) ch.quest.outcome = outcome;
 }
 
-// Count entries that currently resolve to a PASS (normal or lead)
-export function countCompletedInvestigations(ch: ChapterProgress): number {
-    const entries = ch.investigations?.entries ?? {};
-    let n = 0;
-    for (const e of Object.values(entries)) if (e.outcome === 'pass') n += 1;
-    return n; // 0..5
+/**
+ * Add an investigation attempt and (if appropriate) record it as completed.
+ *
+ * Guards:
+ * - If kind==='normal' and normalLocked(ch) -> error
+ * - You cannot complete the same investigation code twice (idempotent on `completed`)
+ * - At most 5 distinct completed investigations per chapter (game rule)
+ *
+ * History:
+ * - Every call appends an attempt to `attempts` (so fails are preserved)
+ */
+export function addInvestigationDomain(
+    ch: ChapterProgress,
+    invId: string,
+    kind: InvestigationKind,
+    result: InvestigationResult,
+    at: number = Date.now()
+): DomainResult {
+    const code = invId.trim(); // e.g. 'I1-1', 'I1-2', etc.
+    if (!code) return { ok: false, error: 'Missing investigation id' };
+
+    // Ensure arrays exist
+    ch.attempts = ch.attempts ?? [];
+    ch.completed = ch.completed ?? [];
+
+    // Normal attempts may be locked by progression
+    if (kind === 'normal' && normalLocked(ch)) {
+        return { ok: false, error: 'Normal investigations are locked for this chapter' };
+    }
+
+    // Always store the attempt for history
+    ch.attempts.push({ code, result, lead: kind === 'lead', at });
+
+    // Determine if this call should mark the investigation as "completed"
+    const shouldComplete = kind === 'lead' || result === 'pass';
+    const alreadyCompleted = ch.completed.includes(code);
+
+    // Max 5 distinct completed investigations per chapter
+    if (shouldComplete && !alreadyCompleted) {
+        if (ch.completed.length >= 5) {
+            return { ok: false, error: 'Maximum of 5 completed investigations per chapter' };
+        }
+        ch.completed.push(code);
+    }
+
+    return { ok: true };
+}
+
+// Convenience: count completed investigations in a chapter (used by Kingdoms)
+export function countCompletedInvestigations(ch: ChapterProgress | undefined): number {
+    return ch ? ch.completed.length : 0;
+}
+
+// Ensure a chapter slot exists and return it
+export function ensureChapter(sheet: KnightSheet, chapter: number): ChapterProgress {
+    const key = String(Math.max(1, Math.min(5, Math.floor(chapter))));
+    const ch = sheet.chapters[key];
+    if (ch) return ch;
+    const created = defaultChapterProgress();
+    sheet.chapters[key] = created;
+    return created;
 }

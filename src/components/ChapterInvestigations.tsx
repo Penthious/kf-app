@@ -1,124 +1,206 @@
 // src/components/ChapterInvestigations.tsx
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import Card from '@/components/Card';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import Card from '@/components/Card';
+import Button from '@/components/Button';
+
 import { useKnights } from '@/store/knights';
 import {
+    ensureSheet,
     ensureChapter,
     countDistinctNormal,
     countDistinctTotal,
-    type ChapterProgress,
-    type InvestigationResult,
+    InvestigationResult,
 } from '@/models/knight';
 
-type Props = { knightUID: string; chapter: number };
-const INV_IDS = ['1','2','3','4','5'];
+type Props = {
+    knightUID: string;
+    chapter: number;
+};
 
-function Pill({ label, tone = 'default', onPress }:{
-    label: string;
-    tone?: 'default'|'muted'|'success'|'warning'|'danger'|'accent';
-    onPress?: () => void;
-}) {
-    const { tokens } = useThemeTokens();
-    const bg =
-        tone === 'success' ? '#2b6b3f' :
-            tone === 'warning' ? '#7a5e15' :
-                tone === 'danger'  ? '#7a2d2d' :
-                    tone === 'accent'  ? tokens.accent :
-                        tone === 'muted'   ? tokens.surface :
-                            tokens.surface;
-    const color = tone === 'accent' ? '#0B0B0B' : tokens.textPrimary;
-    return (
-        <Pressable onPress={onPress} style={{
-            paddingHorizontal: 12, height: 32, borderRadius: 16,
-            alignItems:'center', justifyContent:'center',
-            backgroundColor: bg, borderWidth:1, borderColor:'#0006', marginRight:8, marginBottom:8
-        }}>
-            <Text style={{ color, fontWeight:'800' }}>{label}</Text>
-        </Pressable>
-    );
+/** make keys like I1-1 … I1-5 for the given chapter */
+function chapterInvKeys(chapter: number): string[] {
+    const c = Math.max(1, Math.min(5, Math.floor(chapter || 1)));
+    return [1, 2, 3, 4, 5].map((i) => `I${c}-${i}`);
 }
 
-export default function ChapterInvestigations({ knightUID, chapter }: Props){
+export default function ChapterInvestigations({ knightUID, chapter }: Props) {
     const { tokens } = useThemeTokens();
-    const { knightsById, addNormalInvestigation, addLeadCompletion, convertFailToLead, isNormalLocked } = useKnights() as any;
+    const {
+        knightsById,
+        addNormalInvestigation,
+        addLeadCompletion,
+        isNormalLocked,
+    } = useKnights() as any;
 
-    const k = knightsById[knightUID];
-    const ch: ChapterProgress = ensureChapter(k.sheet, chapter);
-    const locked = isNormalLocked(knightUID, chapter);
+    const k = knightsById?.[knightUID];
+    const sheet = ensureSheet(k?.sheet);
+    const ch = ensureChapter(sheet, chapter);
 
-    const [selected, setSelected] = useState<string|undefined>();
+    const normalDone = countDistinctNormal(ch);
+    const totalDone = countDistinctTotal(ch);
+    const locked = isNormalLocked?.(knightUID, chapter) ?? false;
 
-    const normals = countDistinctNormal(ch);   // <-- recomputed every render
-    const total   = countDistinctTotal(ch);
+    // derive entries from attempts + completed
+    const attemptsArr = ch.attempts ?? [];
+    const completedSet = new Set(ch.completed ?? []);
+    const entries = chapterInvKeys(chapter).map((code) => {
+        const codeAttempts = attemptsArr.filter((a) => a.code === code);
+        const last = codeAttempts.at(-1);
+        const isCompleted = completedSet.has(code);
+        const viaLead = codeAttempts.some((a) => a.lead && a.result === 'pass');
 
-    const entries = ch.investigations.entries;
+        return {
+            code,
+            isCompleted,
+            lastResult: last?.result as InvestigationResult | undefined, // 'pass' | 'fail' | undefined
+            via: viaLead ? 'lead' : last?.lead ? 'lead' : 'normal',
+        } as const;
+    });
+    // chooser state
+    const [pickCode, setPickCode] = useState<string | null>(null);
 
-    function stateTone(invKey: string){
-        const e = entries[`I${chapter}-${invKey}`];
-        if (!e) return { label: `I${chapter}-${invKey}`, tone:'muted' as const };
-        if (e.via === 'lead') return { label: `I${chapter}-${invKey} • Lead • ${e.outcome}`, tone:'accent' as const };
-        if (e.outcome === 'pass') return { label: `I${chapter}-${invKey} • Pass`, tone:'success' as const };
-        return { label: `I${chapter}-${invKey} • Fail`, tone:'danger' as const };
-    }
-
-    const onAdd = async (invKey: string, via: 'normal'|'lead', result?: InvestigationResult) => {
-        const invId = `I${chapter}-${invKey}`;
-        const r = via === 'normal'
-            ? await addNormalInvestigation(knightUID, chapter, invId, result ?? 'fail')
-            : await addLeadCompletion(knightUID, chapter, invId);
-        if (!r.ok) alert(r.error);
-        setSelected(undefined);
+    const openChooser = (code: string) => {
+        // don’t allow editing a completed one
+        const isDone = (ch.completed ?? []).includes(code);
+        if (isDone) return;
+        setPickCode(code);
     };
 
-    const onConvert = async (invKey: string) => {
-        const invId = `I${chapter}-${invKey}`;
-        const r = await convertFailToLead(knightUID, chapter, invId);
-        if (!r.ok) alert(r.error);
-        setSelected(undefined);
+    const closeChooser = () => setPickCode(null);
+
+    const chooseNormal = async (result: InvestigationResult) => {
+        if (!pickCode) return;
+        await addNormalInvestigation(knightUID, chapter, pickCode, result);
+        setPickCode(null);
+    };
+
+    const chooseLead = async () => {
+        if (!pickCode) return;
+        await addLeadCompletion(knightUID, chapter, pickCode);
+        setPickCode(null);
+    };
+
+    // pill view
+    const Pill = ({
+                      label,
+                      tone = 'default',
+                      disabled,
+                      onPress,
+                  }: {
+        label: string;
+        tone?: 'default' | 'accent' | 'success' | 'danger' | 'info';
+        disabled?: boolean;
+        onPress?: () => void;
+    }) => {
+        const bg =
+            tone === 'accent'
+                ? tokens.accent
+                : tone === 'success'
+                    ? '#2b6b3f'
+                    : tone === 'danger'
+                        ? '#7a2d2d'
+                        : tone === 'info'
+                            ? '#2f6f95'
+                            : tokens.surface;
+        const fg = tone === 'accent' ? '#0B0B0B' : tokens.textPrimary;
+
+        return (
+            <Pressable
+                onPress={disabled ? undefined : onPress}
+                style={{
+                    paddingHorizontal: 12,
+                    height: 28,
+                    borderRadius: 14,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: bg,
+                    borderWidth: 1,
+                    borderColor: '#0006',
+                    opacity: disabled ? 0.6 : 1,
+                }}
+            >
+                <Text style={{ color: fg, fontWeight: '800' }}>{label}</Text>
+            </Pressable>
+        );
     };
 
     return (
         <Card>
-            <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>
+            {/* Header */}
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
                 Chapter {chapter} • Investigations
             </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom:8 }}>
-                Normal: {normals}/3 • Total: {total}/5 {locked ? '• Normal locked' : ''}
+            <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
+                Normal: {normalDone}/3 • Total: {totalDone}/5{locked ? ' • Normal locked' : ''}
             </Text>
 
-            <View style={{ flexDirection:'row', flexWrap:'wrap' }}>
-                {INV_IDS.map(key=>{
-                    const { label, tone } = stateTone(key);
+            {/* Pills */}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                {entries.map((e) => {
+                    let tone: 'default' | 'accent' | 'success' | 'danger' | 'info' = 'default';
+                    let suffix = '';
+
+                    if (e.isCompleted) {
+                        tone = e.via === 'lead' ? 'info' : 'success';
+                        suffix = e.via === 'lead' ? ' • Lead' : ' • Pass';
+                    } else if (e.lastResult === 'fail') {
+                        tone = 'danger';
+                        suffix = ' • Fail';
+                    }
+
                     return (
-                        <Pill key={key} label={label} tone={tone as any} onPress={()=> setSelected(key)} />
+                        <Pill
+                            key={e.code}
+                            label={`${e.code}${suffix}`}
+                            tone={tone}
+                            onPress={() => openChooser(e.code)}
+                        />
                     );
                 })}
             </View>
 
-            {selected ? (
-                <View style={{ marginTop:12, gap:8 }}>
-                    <Text style={{ color: tokens.textPrimary, fontWeight:'700' }}>
-                        I{chapter}-{selected} • Actions
+            {/* Chooser (inline, small) */}
+            {pickCode && (
+                <View
+                    style={{
+                        marginTop: 12,
+                        padding: 12,
+                        borderRadius: 10,
+                        backgroundColor: tokens.surface,
+                        borderWidth: 1,
+                        borderColor: '#0006',
+                        gap: 8,
+                    }}
+                >
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
+                        Record result for {pickCode}
                     </Text>
-                    <View style={{ flexDirection:'row', flexWrap:'wrap' }}>
-                        <Pill label="Normal • Pass" tone="success" onPress={()=> onAdd(selected, 'normal', 'pass')} />
-                        <Pill label="Normal • Fail"  tone="danger"  onPress={()=> onAdd(selected, 'normal', 'fail')} />
-                        <Pill label="Lead • Pass"    tone="accent"  onPress={()=> onAdd(selected, 'lead')} />
-                        {(() => {
-                            const e = entries[`I${chapter}-${selected}`];
-                            const show = e && e.via === 'normal' && e.outcome === 'fail';
-                            return show ? <Pill label="Convert Fail → Lead Pass" tone="accent" onPress={()=> onConvert(selected)} /> : null;
-                        })()}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                        <Button
+                            label="Normal • Pass"
+                            onPress={() => chooseNormal('pass')}
+                            tone={locked ? 'default' : 'accent'}
+                            disabled={locked}
+                        />
+                        <Button
+                            label="Normal • Fail"
+                            onPress={() => chooseNormal('fail')}
+                            tone={locked ? 'default' : 'danger'}
+                            disabled={locked}
+                        />
+                        <Button label="Lead • Complete" onPress={chooseLead} tone="accent" />
+                        <Button label="Cancel" onPress={closeChooser} />
                     </View>
+
                     {locked && (
-                        <Text style={{ color: tokens.textMuted }}>
-                            Normal is locked (Quest completed + 3 normals). You can still use Leads up to 5 total.
+                        <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
+                            Normal investigations are locked (quest completed & 3 completed investigations).
                         </Text>
                     )}
                 </View>
-            ) : null}
+            )}
         </Card>
     );
 }

@@ -1,7 +1,5 @@
-// app/campaign/[id]/knights.tsx
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
@@ -9,6 +7,7 @@ import TextRow from '@/components/TextRow';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import uuid from 'react-native-uuid';
+import {Knight} from "@/models/knight";
 
 export default function CampaignKnights() {
     const { tokens } = useThemeTokens();
@@ -114,7 +113,7 @@ export default function CampaignKnights() {
             catalogId: newCatalog as string,
             name: newName.trim(),
             sheet: {
-                virtues: { bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0 },
+                virtues: {bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0},
                 bane: 0,
                 sighOfGraal: 0,
                 gold: 0,
@@ -124,13 +123,13 @@ export default function CampaignKnights() {
                 postgameDone: false,
                 firstDeath: false,
                 investigations: {},
-                vices: { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 },
+                vices: {cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0},
                 armory: [],
             },
             rapport: [],
             saints: [],
             mercenaries: [],
-        } as any;
+        } as unknown as Knight;
 
         // 1) add to knights store
         addKnight(k);
@@ -164,7 +163,8 @@ export default function CampaignKnights() {
                                 {activeMembers.map((m: any) => {
                                     const k = (knightsById as any)[m.knightUID];
                                     const label = k ? k.name : m.displayName;
-                                    const isLeader = c.partyLeaderKnightUID === m.knightUID;
+                                    const isLeader = c.partyLeaderUID === m.knightUID;
+                                    console.log(isLeader, c.partyLeaderUID, m.knightUID)
                                     return (
                                         <View key={m.knightUID} style={{ marginRight: 8, marginBottom: 8 }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>

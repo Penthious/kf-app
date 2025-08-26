@@ -1,62 +1,67 @@
+// app/campaign/[id]/kingdoms.tsx
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, ScrollView, Text } from 'react-native';
+import { useLocalSearchParams, useSegments } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+
+// stores
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
+
+// knight helpers
 import { ensureChapter, countCompletedInvestigations } from '@/models/knight';
+
+// catalogs
 import { allKingdomsCatalog } from '@/catalogs/kingdoms/kingdomLoader';
 
+// feature components
 import LeaderContextCard from '@/features/kingdoms/LeaderContextCard';
 import KingdomSelector from '@/features/kingdoms/KingdomSelector';
 import MonstersCard from '@/features/kingdoms/MonsterCard';
 import AdventuresCard from '@/features/kingdoms/AdventuresCard';
+
+// utils/types for kingdoms
 import { KingdomCatalog, resolveStagesForBestiary } from '@/features/kingdoms/utils';
 
 export default function CampaignKingdoms() {
-    const { id } = useLocalSearchParams<{ id: string }>();
     const { tokens } = useThemeTokens();
 
-    const { campaigns } = useCampaigns() as any;
-    const { knightsById } = useKnights() as any;
-    const c = id ? campaigns?.[id] : undefined;
+    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
 
-    // load kingdoms array/function
+    const leaderUID = useCampaigns(
+        (s) => (s as any).campaigns?.[campaignId!]?.partyLeaderUID
+    );
+
+    const leader = useKnights(
+        (s) => (leaderUID ? (s as any).knightsById?.[leaderUID] : undefined)
+    );
+
+
+    // --- Load kingdoms array/function ---
     const kingdoms: KingdomCatalog[] = useMemo(() => {
-        const kAny = allKingdomsCatalog as any;
-        if (Array.isArray(kAny)) return kAny as KingdomCatalog[];
-        if (typeof kAny === 'function') return (kAny() as KingdomCatalog[]) || [];
+        const any = allKingdomsCatalog as any;
+        if (Array.isArray(any)) return any as KingdomCatalog[];
+        if (typeof any === 'function') return (any() as KingdomCatalog[]) || [];
         return [];
     }, []);
 
-    // resolve leader
-    const activeMembers: any[] = c ? (c.members || []).filter((m: any) => m.isActive) : [];
-    const explicitCandidates: string[] = c ? [
-        c.settings?.partyLeaderUID,
-        (c as any).partyLeaderUID,
-        (c.members || []).find((m: any) => m.isLeader)?.knightUID,
-    ].filter(Boolean) as string[] : [];
-    const leaderUID: string | undefined = c
-        ? (explicitCandidates.find(uid => !!knightsById?.[uid])
-            || activeMembers.find((m: any) => !!knightsById?.[m.knightUID])?.knightUID)
-        : undefined;
-
-    const leader = leaderUID ? knightsById?.[leaderUID] : undefined;
+    // --- Derive leader progress ---
     const chapter: number | undefined = leader?.sheet?.chapter ?? 1;
-    const ch = leader && chapter ? ensureChapter(leader.sheet, chapter) : undefined;
+    const ch = leader ? ensureChapter(leader.sheet, chapter) : undefined;
     const questDone = !!ch?.quest?.completed;
     const completedInvs = ch ? countCompletedInvestigations(ch) : 0;
 
-    // selection
+    // --- UI: active kingdom picker ---
     const [activeKingdomId, setActiveKingdomId] = useState<string | null>(null);
     const activeKingdom = useMemo(
-        () => kingdoms.find(k => k.id === (activeKingdomId ?? kingdoms[0]?.id)),
+        () => kingdoms.find((k) => k.id === (activeKingdomId ?? kingdoms[0]?.id)),
         [kingdoms, activeKingdomId]
     );
 
-    // compute stage row
-    const { row: stageRow } =
-        resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs);
+    // --- Compute stage row for current leader + kingdom ---
+    const stageRow = leader
+        ? resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row
+        : {};
 
     return (
         <View style={{ flex: 1, backgroundColor: tokens.bg }}>
@@ -74,8 +79,18 @@ export default function CampaignKingdoms() {
                     onSelect={setActiveKingdomId}
                 />
 
-                <MonstersCard kingdom={activeKingdom} stageRow={stageRow} />
-                <AdventuresCard kingdom={activeKingdom} />
+                {leader ? (
+                    <>
+                        <MonstersCard kingdom={activeKingdom} stageRow={stageRow} />
+                        <AdventuresCard kingdom={activeKingdom} />
+                    </>
+                ) : (
+                    <View>
+                        <Text style={{ color: tokens.textMuted }}>
+                            Select a party leader to see available monsters and adventures.
+                        </Text>
+                    </View>
+                )}
             </ScrollView>
         </View>
     );

@@ -1,3 +1,4 @@
+// src/store/campaigns.ts
 import { create } from 'zustand';
 
 // ---- Types ----
@@ -6,6 +7,7 @@ export type CampaignMember = {
     catalogId: string;      // stable id like 'renholder'
     displayName: string;    // friendly name like 'Renholder'
     isActive: boolean;
+    isLeader?: boolean;     // optional; single source of truth is partyLeaderUID
 };
 
 export type CampaignSettings = {
@@ -18,7 +20,7 @@ export type Campaign = {
     name: string;
     members: CampaignMember[];
     settings: CampaignSettings;
-    partyLeaderKnightUID?: string;
+    partyLeaderUID?: string;
     createdAt: number;
     updatedAt: number;
 };
@@ -27,9 +29,14 @@ type Conflict = { conflict: { existingUID: string } };
 
 type CampaignsState = {
     campaigns: Record<string, Campaign>;
+    currentCampaignId?: string;  // optional: helpful for tabs fallback
 };
 
 type CampaignsActions = {
+    // app navigation helpers (optional)
+    openCampaign: (campaignId: string) => void;
+    closeCampaign: () => void;
+
     // create / delete / rename
     addCampaign: (campaignId: string, name: string) => void;
     renameCampaign: (campaignId: string, name: string) => void;
@@ -54,7 +61,12 @@ type CampaignsActions = {
     ) => void;
 
     /** Swap in the new knight as the active member for that catalogId. The previous active is benched. */
-    replaceCatalogKnight: (campaignId: string, catalogId: string, newKnightUID: string, meta?: { displayName?: string }) => void;
+    replaceCatalogKnight: (
+        campaignId: string,
+        catalogId: string,
+        newKnightUID: string,
+        meta?: { displayName?: string }
+    ) => void;
 
     /** Bench or activate an existing member by UID. */
     benchMember: (campaignId: string, knightUID: string, bench: boolean) => void;
@@ -64,10 +76,29 @@ type CampaignsActions = {
 
     /** Set party leader (must be a member; will be activated if benched). */
     setPartyLeader: (campaignId: string, knightUID: string) => void;
+    unsetPartyLeader: (campaignId: string) => void;
+};
+
+// Ensure a member exists; if adding, fill required fields.
+const ensureMember = (
+    members: CampaignMember[] | undefined,
+    knightUID: string,
+    meta?: { catalogId?: string; displayName?: string },
+): CampaignMember[] => {
+    const list = Array.isArray(members) ? members.map(m => ({ ...m })) : [];
+    const idx = list.findIndex(m => m.knightUID === knightUID);
+    if (idx >= 0) return list;
+    const { catalogId = 'unknown', displayName = 'Unknown Knight' } = meta ?? {};
+    return [...list, { knightUID, catalogId, displayName, isActive: true, isLeader: false }];
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => ({
     campaigns: {},
+    currentCampaignId: undefined,
+
+    // ---- app nav helpers (optional, useful for tabs fallback) ----
+    openCampaign: (campaignId) => set(() => ({ currentCampaignId: campaignId })),
+    closeCampaign: () => set(() => ({ currentCampaignId: undefined })),
 
     // ---- CRUD ----
     addCampaign: (campaignId, name) =>
@@ -81,7 +112,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 createdAt: now,
                 updatedAt: now,
             };
-            return { campaigns: { ...s.campaigns, [campaignId]: c } };
+            return { campaigns: { ...s.campaigns, [campaignId]: c }, currentCampaignId: campaignId };
         }),
 
     renameCampaign: (campaignId, name) =>
@@ -100,7 +131,9 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         set((s) => {
             const next = { ...s.campaigns };
             delete next[campaignId];
-            return { campaigns: next };
+            const currentCampaignId =
+                s.currentCampaignId === campaignId ? undefined : s.currentCampaignId;
+            return { campaigns: next, currentCampaignId };
         }),
 
     // ---- Settings ----
@@ -111,7 +144,11 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             return {
                 campaigns: {
                     ...s.campaigns,
-                    [campaignId]: { ...c, settings: { ...c.settings, fivePlayerMode: on }, updatedAt: Date.now() },
+                    [campaignId]: {
+                        ...c,
+                        settings: { ...c.settings, fivePlayerMode: on },
+                        updatedAt: Date.now(),
+                    },
                 },
             };
         }),
@@ -123,7 +160,11 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             return {
                 campaigns: {
                     ...s.campaigns,
-                    [campaignId]: { ...c, settings: { ...c.settings, notes }, updatedAt: Date.now() },
+                    [campaignId]: {
+                        ...c,
+                        settings: { ...c.settings, notes },
+                        updatedAt: Date.now(),
+                    },
                 },
             };
         }),
@@ -138,20 +179,31 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
 
             const already = c.members.find((m) => m.knightUID === knightUID);
             if (already) {
-                // If already a member, ensure active (if not) and return.
-                already.isActive = true;
-                return { campaigns: { ...s.campaigns, [campaignId]: { ...c, members: [...c.members], updatedAt: Date.now() } } };
+                // ensure active
+                const members = c.members.map((m) =>
+                    m.knightUID === knightUID ? { ...m, isActive: true } : m
+                );
+                return {
+                    campaigns: {
+                        ...s.campaigns,
+                        [campaignId]: { ...c, members, updatedAt: Date.now() },
+                    },
+                };
             }
 
             // uniqueness by catalog among active members
             const activeSame = c.members.find((m) => m.isActive && m.catalogId === catalogId);
             if (activeSame) {
                 conflict = { conflict: { existingUID: activeSame.knightUID } };
-                // DO NOT add automatically; caller will decide to replace or bench.
                 return {};
             }
 
-            const member: CampaignMember = { knightUID, catalogId, displayName, isActive: true };
+            const member: CampaignMember = {
+                knightUID,
+                catalogId,
+                displayName,
+                isActive: true,
+            };
             return {
                 campaigns: {
                     ...s.campaigns,
@@ -168,8 +220,12 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             if (!c) return {};
             const existing = c.members.find((m) => m.knightUID === knightUID);
             if (existing) {
-                if (existing.isActive) existing.isActive = false; // ensure benched
-                return { campaigns: { ...s.campaigns, [campaignId]: { ...c, members: [...c.members], updatedAt: Date.now() } } };
+                const members = c.members.map((m) =>
+                    m.knightUID === knightUID ? { ...m, isActive: false } : m
+                );
+                return {
+                    campaigns: { ...s.campaigns, [campaignId]: { ...c, members, updatedAt: Date.now() } },
+                };
             }
             const { catalogId = 'unknown', displayName = 'Unknown Knight' } = meta ?? {};
             const member: CampaignMember = { knightUID, catalogId, displayName, isActive: false };
@@ -209,16 +265,16 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 members[currentActiveIdx] = { ...currentActive, isActive: false };
             }
 
-            // If the party leader was the one we benched, keep leader as the new one
-            const newLeader =
-                c.partyLeaderKnightUID && c.partyLeaderKnightUID === currentActive?.knightUID
+            // Keep leader pointing to the new one if we replaced the former leader
+            const nextLeader =
+                c.partyLeaderUID && c.partyLeaderUID === currentActive?.knightUID
                     ? newKnightUID
-                    : c.partyLeaderKnightUID;
+                    : c.partyLeaderUID;
 
             return {
                 campaigns: {
                     ...s.campaigns,
-                    [campaignId]: { ...c, members, partyLeaderKnightUID: newLeader, updatedAt: now },
+                    [campaignId]: { ...c, members, partyLeaderUID: nextLeader, updatedAt: now },
                 },
             };
         }),
@@ -231,8 +287,13 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             if (idx < 0) return {};
             const members = [...c.members];
             members[idx] = { ...members[idx], isActive: !bench };
-            const leader = c.partyLeaderKnightUID === knightUID && bench ? undefined : c.partyLeaderKnightUID;
-            return { campaigns: { ...s.campaigns, [campaignId]: { ...c, members, partyLeaderKnightUID: leader, updatedAt: Date.now() } } };
+            const leader = c.partyLeaderUID === knightUID && bench ? undefined : c.partyLeaderUID;
+            return {
+                campaigns: {
+                    ...s.campaigns,
+                    [campaignId]: { ...c, members, partyLeaderUID: leader, updatedAt: Date.now() },
+                },
+            };
         }),
 
     removeMember: (campaignId, knightUID) =>
@@ -240,19 +301,50 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             const c = s.campaigns[campaignId];
             if (!c) return {};
             const members = c.members.filter((m) => m.knightUID !== knightUID);
-            const leader = c.partyLeaderKnightUID === knightUID ? undefined : c.partyLeaderKnightUID;
-            return { campaigns: { ...s.campaigns, [campaignId]: { ...c, members, partyLeaderKnightUID: leader, updatedAt: Date.now() } } };
+            const leader = c.partyLeaderUID === knightUID ? undefined : c.partyLeaderUID;
+            return {
+                campaigns: {
+                    ...s.campaigns,
+                    [campaignId]: { ...c, members, partyLeaderUID: leader, updatedAt: Date.now() },
+                },
+            };
         }),
 
-    setPartyLeader: (campaignId, knightUID) =>
+    setPartyLeader: (campaignId: string, knightUID: string) =>
         set((s) => {
-            const c = s.campaigns[campaignId];
+            const c = s.campaigns?.[campaignId];
+            if (!c || !knightUID) return {};
+
+            // ensure membership (fill minimal meta if needed)
+            const members1 = ensureMember(c.members, knightUID);
+            // activate the leader if benched
+            const members2 = members1.map((m) =>
+                m.knightUID === knightUID ? { ...m, isActive: true, isLeader: true } : { ...m, isLeader: false }
+            );
+
+            return {
+                campaigns: {
+                    ...s.campaigns,
+                    [campaignId]: {
+                        ...c,
+                        members: members2,
+                        partyLeaderUID: knightUID,
+                        updatedAt: Date.now(),
+                    },
+                },
+            };
+        }),
+
+    unsetPartyLeader: (campaignId: string) =>
+        set((s) => {
+            const c = s.campaigns?.[campaignId];
             if (!c) return {};
-            const idx = c.members.findIndex((m) => m.knightUID === knightUID);
-            if (idx < 0) return {};
-            const members = [...c.members];
-            // ensure leader is active
-            members[idx] = { ...members[idx], isActive: true };
-            return { campaigns: { ...s.campaigns, [campaignId]: { ...c, members, partyLeaderKnightUID: knightUID, updatedAt: Date.now() } } };
+            const members = (c.members ?? []).map((m) => ({ ...m, isLeader: false }));
+            return {
+                campaigns: {
+                    ...s.campaigns,
+                    [campaignId]: { ...c, members, partyLeaderUID: undefined, updatedAt: Date.now() },
+                },
+            };
         }),
 }));

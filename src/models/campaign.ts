@@ -22,7 +22,7 @@ export type Campaign = {
     settings: CampaignSettings;
     members: CampaignMember[];
 
-    partyLeaderKnightUID?: string;
+    partyLeaderUID?: string;
 
     selectedKingdomId?: string;
 

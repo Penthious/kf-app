@@ -1,55 +1,84 @@
-import React from 'react';
+// src/components/ChoiceMatrixCard.tsx
+import React, { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import Card from '@/components/Card';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import Card from '@/components/Card';
 import { useKnights } from '@/store/knights';
+import { ensureSheet } from '@/models/knight';
 
-const BASE = Array.from({ length: 30 }, (_, i) => String(i + 1));
-const EXTRAS = Array.from({ length: 10 }, (_, i) => `E${i + 1}`);
+type Props = {
+    knightUID: string;
+};
 
-function Cell({ code, on, onToggle }:{ code: string; on: boolean; onToggle:()=>void }) {
+/** Codes 1..30 + E1..E10 */
+const NUMBER_CODES = Array.from({ length: 30 }, (_, i) => String(i + 1));
+const EXTRA_CODES = Array.from({ length: 10 }, (_, i) => `E${i + 1}`);
+const BASE = [...NUMBER_CODES, ...EXTRA_CODES];
+
+function Pill({
+                  label,
+                  checked,
+                  onPress,
+              }: {
+    label: string;
+    checked?: boolean;
+    onPress?: () => void;
+}) {
     const { tokens } = useThemeTokens();
     return (
         <Pressable
-            onPress={onToggle}
+            onPress={onPress}
             style={{
-                width: 48, height: 36, margin: 4, borderRadius: 10,
-                alignItems:'center', justifyContent:'center',
-                backgroundColor: on ? tokens.accent : tokens.surface,
-                borderWidth:1, borderColor:'#0006'
-            }}>
-            <Text style={{ color: on ? '#0B0B0B' : tokens.textPrimary, fontWeight:'800' }}>{code}</Text>
+                paddingHorizontal: 12,
+                height: 28,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: checked ? tokens.accent : tokens.surface,
+                borderWidth: 1,
+                borderColor: '#0006',
+            }}
+        >
+            <Text style={{ color: checked ? '#0B0B0B' : tokens.textPrimary, fontWeight: '800' }}>
+                {label}
+            </Text>
         </Pressable>
     );
 }
 
-export default function ChoiceMatrixCard({ knightUID }:{ knightUID: string }) {
+export default function ChoiceMatrixCard({ knightUID }: Props) {
     const { tokens } = useThemeTokens();
     const { knightsById, updateKnightSheet } = useKnights() as any;
-    const k = knightsById[knightUID];
-    const chosen: string[] = k.sheet.choiceMatrix ?? [];
+
+    const k = knightsById?.[knightUID];
+    const sheet = ensureSheet(k?.sheet);
+
+    // choiceMatrix is a record<string, boolean>. Normalize and derive a Set for O(1) lookups.
+    const chosenSet = useMemo(() => {
+        const rec = sheet.choiceMatrix ?? {};
+        const on = Object.entries(rec)
+            .filter(([, v]) => !!v)
+            .map(([code]) => code);
+        return new Set(on);
+    }, [sheet.choiceMatrix]);
 
     const toggle = (code: string) => {
-        const set = new Set(chosen);
-        if (set.has(code)) set.delete(code); else set.add(code);
-        updateKnightSheet(knightUID, { choiceMatrix: Array.from(set).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true})) });
+        const current = !!sheet.choiceMatrix?.[code];
+        const next = { ...(sheet.choiceMatrix ?? {}) };
+        next[code] = !current;
+        updateKnightSheet(knightUID, { choiceMatrix: next });
     };
 
     return (
         <Card>
-            <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>Choice Matrix</Text>
-            <Text style={{ color: tokens.textMuted, marginBottom:8 }}>Tap to toggle. Selected cells are highlighted.</Text>
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+                Choice Matrix
+            </Text>
 
-            <View style={{ flexDirection:'row', flexWrap:'wrap', marginBottom:8 }}>
-                {BASE.map(code => (
-                    <Cell key={code} code={code} on={chosen.includes(code)} onToggle={()=>toggle(code)} />
-                ))}
-            </View>
-
-            <Text style={{ color: tokens.textPrimary, fontWeight:'700', marginTop:4, marginBottom:4 }}>Extras</Text>
-            <View style={{ flexDirection:'row', flexWrap:'wrap' }}>
-                {EXTRAS.map(code => (
-                    <Cell key={code} code={code} on={chosen.includes(code)} onToggle={()=>toggle(code)} />
+            {/* Grid of pills; wraps nicely on small screens */}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {BASE.map((code) => (
+                    <Pill key={code} label={code} checked={chosenSet.has(code)} onPress={() => toggle(code)} />
                 ))}
             </View>
         </Card>
