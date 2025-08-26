@@ -1,4 +1,3 @@
-// app/campaign/[id]/kingdoms.tsx
 import React, { useMemo, useState } from 'react';
 import { View, ScrollView, Text } from 'react-native';
 import { useLocalSearchParams, useSegments } from 'expo-router';
@@ -25,17 +24,13 @@ import { KingdomCatalog, resolveStagesForBestiary } from '@/features/kingdoms/ut
 
 export default function CampaignKingdoms() {
     const { tokens } = useThemeTokens();
-
     const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
-
     const leaderUID = useCampaigns(
         (s) => (s as any).campaigns?.[campaignId!]?.partyLeaderUID
     );
-
     const leader = useKnights(
         (s) => (leaderUID ? (s as any).knightsById?.[leaderUID] : undefined)
     );
-
 
     // --- Load kingdoms array/function ---
     const kingdoms: KingdomCatalog[] = useMemo(() => {
@@ -46,7 +41,7 @@ export default function CampaignKingdoms() {
     }, []);
 
     // --- Derive leader progress ---
-    const chapter: number | undefined = leader?.sheet?.chapter ?? 1;
+    const chapter: number = leader?.sheet?.chapter ?? 1;
     const ch = leader ? ensureChapter(leader.sheet, chapter) : undefined;
     const questDone = !!ch?.quest?.completed;
     const completedInvs = ch ? countCompletedInvestigations(ch) : 0;

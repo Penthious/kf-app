@@ -1,16 +1,15 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 
 export default function CampaignEncounter() {
     const { tokens } = useThemeTokens();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
     const { campaigns } = useCampaigns();
-    const c = id ? campaigns[id] : undefined;
+    const c = campaignId ? campaigns[campaignId] : undefined;
 
     return (
         <SafeAreaView style={{ flex:1, backgroundColor: tokens.bg }}>

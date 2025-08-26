@@ -12,7 +12,7 @@ import {Knight} from "@/models/knight";
 export default function CampaignKnights() {
     const { tokens } = useThemeTokens();
     const router = useRouter();
-    const { id } = useGlobalSearchParams<{ id: string }>();
+    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
 
     const {
         campaigns,
@@ -29,7 +29,7 @@ export default function CampaignKnights() {
     const [newName, setNewName] = useState('');
     const [newCatalog, setNewCatalog] = useState<string | null>(null);
 
-    const c = (id && campaigns[id]) || undefined;
+    const c = (campaignId && campaigns[campaignId]) || undefined;
     const activeSlots = c?.settings.fivePlayerMode ? 5 : 4;
     const members = c?.members ?? [];
     const activeMembers = members.filter((m: any) => m.isActive);
