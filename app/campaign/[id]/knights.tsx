@@ -1,166 +1,175 @@
 // app/campaign/[id]/knights.tsx
-import React from 'react';
-import { View, ScrollView, Pressable, Text } from 'react-native';
+import React, { useMemo, useCallback } from 'react';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import uuid from 'react-native-uuid';
-
 import { useThemeTokens } from '@/theme/ThemeProvider';
+
 import Card from '@/components/Card';
+
+import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
+
+import type { Campaign } from '@/models/campaign';
+import { Knight, defaultSheet } from '@/models/knight';
 
 import ActiveLineup from '@/features/knights/ui/ActiveLineup';
 import BenchedList from '@/features/knights/ui/BenchedList';
 import AddExistingKnights from '@/features/knights/ui/AddExistingKnights';
-import QuickCreateKnight, { type QuickCreateKnightProps } from '@/features/knights/ui/QuickCreateKnight';
+import QuickCreateKnight from '@/features/knights/ui/QuickCreateKnight';
 
-import {
-    useKnightsLists,
-    useCampaignActions,
-    useKnightsMap,
-    useKnightActions,
-} from '@/features/knights/selectors';
+import {getMemberSets} from '@/features/knights/selectors';
+import {KnightsById} from "@/features/knights/types";
+import uuid from "react-native-uuid";
 
-import type { Knight } from '@/models/knight';
-import {useCampaigns} from "@/store/campaigns";
-
-export default function CampaignKnights() {
+export default function CampaignKnightsPage() {
+    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
     const { tokens } = useThemeTokens();
     const router = useRouter();
-    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
 
-    // store-derived lists and actions
-    const {
-        campaign: c,
-        activeSlots,
-        activeCatalogIds,
-        lineupItems,
-        benchedItems,
-        availableItems,
-    } = useKnightsLists(campaignId);
+    // ---- Stores ----
+    const campaigns = useCampaigns((s) => s.campaigns);
+    const addKnightToCampaign = useCampaigns((s) => s.addKnightToCampaign);
+    const addKnightAsBenched = useCampaigns((s) => s.addKnightAsBenched);
+    const replaceCatalogKnight = useCampaigns((s) => s.replaceCatalogKnight);
+    const benchMember = useCampaigns((s) => s.benchMember);
+    const removeMember = useCampaigns((s) => s.removeMember);
+    const setPartyLeader = useCampaigns((s) => s.setPartyLeader);
 
-    const {
-        benchMember,
-        removeMember,
-        setPartyLeader,
-        addKnightToCampaign,
-        replaceCatalogKnight,
-        addKnightAsBenched,
-    } = useCampaignActions();
+    const knightsById = useKnights((s) => s.knightsById) as KnightsById;
 
-    const knightsById = useKnightsMap();
-    const { addKnight } = useKnightActions();
+    const knightsStore = useKnights();
 
-    const openAddExistingModal = () => {
-        if (campaignId) router.push(`/add-existing-knights?id=${campaignId}`);
-        else router.push('/add-existing-knights');
-    };
+    const campaign: Campaign | undefined = campaignId ? campaigns[campaignId] : undefined;
 
-    // --- helpers ---------------------------------------------------------------
+    // ---- Derived lists (pure; model-aware) ----
+    const { active, benched, available, activeCatalogIds } = useMemo(
+        () => getMemberSets(campaign, knightsById),
+        [campaign, knightsById]
+    );
 
-    const hasActiveCatalog = (catalogId: string) => activeCatalogIds.has(catalogId);
+    // ---- Handlers: Active lineup ----
+    const handleSetLeader = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            setPartyLeader(campaignId, knightUID);
+        },
+        [campaignId, setPartyLeader]
+    );
 
-    /** Ensure the given knight becomes an active member, respecting single-catalog rule */
-    const ensureActive = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
-        if (!c) return;
-        const k = knightsById[knightUID];
-        const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
-        const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
+    const handleBench = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            benchMember(campaignId, knightUID, true);
+        },
+        [campaignId, benchMember]
+    );
 
-        const existing = c.members.find(m => m.knightUID === knightUID);
-        if (existing) {
-            // already in campaign
-            if (existing.isActive) return;
-            if (hasActiveCatalog(existing.catalogId)) {
-                // swap the existing active of this catalog for this knight
-                replaceCatalogKnight(c.campaignId, existing.catalogId, knightUID, { displayName });
-            } else {
-                // just activate
-                benchMember(c.campaignId, knightUID, false);
+    const handleRemove = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            Alert.alert('Remove knight from campaign?', 'This will not delete the knight.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Remove', style: 'destructive', onPress: () => removeMember(campaignId, knightUID) },
+            ]);
+        },
+        [campaignId, removeMember]
+    );
+
+    const handleEdit = useCallback(
+        (knightUID: string) => {
+            router.push(`/knight/${knightUID}`);
+        },
+        [router]
+    );
+
+    // ---- Handlers: Benched ----
+    const handleActivateFromBench = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            const k = knightsById[knightUID] as Knight | undefined;
+            const catalogId = k?.catalogId ?? 'unknown';
+            replaceCatalogKnight(campaignId, catalogId, knightUID, { displayName: k?.name });
+        },
+        [campaignId, replaceCatalogKnight, knightsById]
+    );
+
+    // ---- Handlers: Add Existing ----
+    const handleAddExistingActive = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            const k = knightsById[knightUID] as Knight | undefined;
+            const catalogId = k?.catalogId ?? 'unknown';
+            const displayName = k?.name ?? 'Unknown Knight';
+
+            const res = addKnightToCampaign(campaignId, knightUID, { catalogId, displayName }) as
+                | { conflict?: { existingUID: string } }
+                | {};
+
+            // If an active of same catalog exists, replace it.
+            if ('conflict' in res && res.conflict?.existingUID) {
+                replaceCatalogKnight(campaignId, catalogId, knightUID, { displayName });
             }
-            return;
-        }
+        },
+        [campaignId, addKnightToCampaign, replaceCatalogKnight, knightsById]
+    );
 
-        // not yet in campaign
-        if (hasActiveCatalog(catalogId)) {
-            replaceCatalogKnight(c.campaignId, catalogId, knightUID, { displayName });
-        } else {
-            addKnightToCampaign(c.campaignId, knightUID, { catalogId, displayName });
-        }
-    };
+    const handleAddExistingBench = useCallback(
+        (knightUID: string) => {
+            if (!campaignId) return;
+            const k = knightsById[knightUID] as Knight | undefined;
+            addKnightAsBenched(campaignId, knightUID, {
+                catalogId: k?.catalogId ?? 'unknown',
+                displayName: k?.name ?? 'Unknown Knight',
+            });
+        },
+        [campaignId, addKnightAsBenched, knightsById]
+    );
 
-    /** Ensure the given knight is present as benched (idempotent) */
-    const ensureBenched = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
-        if (!c) return;
-        const k = knightsById[knightUID];
-        const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
-        const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
+    // ---- Handler: Quick create ----
+    const handleQuickCreate = useCallback(
+        async ({ name, catalogId, asActive }: { name: string; catalogId: string; asActive: boolean }) => {
+            if (!campaignId) return;
 
-        const existing = c.members.find(m => m.knightUID === knightUID);
-        if (existing) {
-            if (existing.isActive) benchMember(c.campaignId, knightUID, true);
-            return;
-        }
-        addKnightAsBenched(c.campaignId, knightUID, { catalogId, displayName });
-    };
 
-    const onAddExisting = (knightUID: string, asActive = true) => {
-        const k = knightsById[knightUID];
-        const meta = { catalogId: k?.catalogId ?? 'unknown', displayName: k?.name ?? 'Unknown Knight' };
-        if (asActive) ensureActive(knightUID, meta);
-        else ensureBenched(knightUID, meta);
-    };
+            const uid = uuid.v4() as string;
 
-    const onCreateKnight: QuickCreateKnightProps['onCreate'] = ({ name, catalogId, asActive }) => {
-        if (!c) return;
+            const k: Omit<Knight, 'version' | 'updatedAt'> = {
+                knightUID: uid,
+                ownerUserId: 'me',
+                catalogId,
+                name: name.trim() || catalogId,
+                sheet: defaultSheet(),
+                rapport: [],
+            };
+            const result = knightsStore.addKnight(k);
+            const newUID = (result && result.knightUID) ?? undefined;
 
-        const k: Knight = {
-            knightUID: uuid.v4() as string,
-            ownerUserId: 'me',
-            catalogId,
-            name: name.trim(),
-            sheet: {
-                virtues: { bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0 },
-                vices: { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 },
-                bane: 0,
-                sighOfGraal: 0,
-                gold: 0,
-                leads: 0,
-                chapter: 1,
-                chapters: {},
-                prologueDone: false,
-                postgameDone: false,
-                armory: [],
-                firstDeath: false,
-                choiceMatrix: {},
-                saints: [],
-                mercenaries: [],
-                notes: [],
-            },
-            rapport: [],
-            version: 1,
-            updatedAt: Date.now(),
-        };
+            if (!newUID) {
+                Alert.alert('Failed to create knight', 'Could not determine new knight id.');
+                return;
+            }
 
-        const saved = addKnight(k);
-        const meta = { catalogId: saved.catalogId, displayName: saved.name };
-        if (asActive) ensureActive(saved.knightUID, meta);
-        else ensureBenched(saved.knightUID, meta);
-    };
+            // Add to campaign (active or benched)
+            const displayName = name;
+            if (asActive) {
+                const res = addKnightToCampaign(campaignId, newUID, { catalogId, displayName }) as
+                    | { conflict?: { existingUID: string } }
+                    | {};
+                if ('conflict' in res && res.conflict?.existingUID) {
+                    replaceCatalogKnight(campaignId, catalogId, newUID, { displayName });
+                }
+            } else {
+                addKnightAsBenched(campaignId, newUID, { catalogId, displayName });
+            }
+        },
+        [campaignId, knightsStore, addKnightToCampaign, addKnightAsBenched, replaceCatalogKnight]
+    );
 
-    const onEditKnight = (uid: string) => router.push(`/knight/${uid}`);
-
-    // --- render ----------------------------------------------------------------
-
-    if (!c) {
+    // ---- Render ----
+    if (!campaignId || !campaign) {
         return (
-            <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-                <ScrollView contentContainerStyle={{ padding: 16 }}>
-                    <Card>
-                        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 6 }}>
-                            Campaign not found
-                        </Text>
-                        <Text style={{ color: tokens.textMuted }}>Reopen it from the Campaigns list.</Text>
-                    </Card>
-                </ScrollView>
+            <View style={{ flex: 1, backgroundColor: tokens.bg, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Campaign not found</Text>
             </View>
         );
     }
@@ -168,40 +177,53 @@ export default function CampaignKnights() {
     return (
         <View style={{ flex: 1, backgroundColor: tokens.bg }}>
             <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-                <Card>
-                    <Card.Title>Active Lineup</Card.Title>
-                    <ActiveLineup
-                        list={lineupItems}
-                        maxSlots={activeSlots}
-                        onSetLeader={(uid) => setPartyLeader(c.campaignId, uid)}
-                        onBench={(uid) => onAddExisting(uid, false)}
-                        onEdit={onEditKnight}
-                    />
-                </Card>
-
-                <Card>
-                    <Card.Title>Benched Knights</Card.Title>
-                    <BenchedList
-                        list={benchedItems}
-                        activeCatalogIds={activeCatalogIds}
-                        onActivate={(uid) => onAddExisting(uid, true)}
-                        onRemove={(uid) => removeMember(c.campaignId, uid)}
-                        onEdit={onEditKnight}
-                    />
-                </Card>
-
+                {/* Active lineup */}
                 <Card>
                     <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-                        Add Existing (inline)
+                        Active Knights
                     </Text>
-                    <AddExistingKnights
-                        list={availableItems}
-                        onAddActive={(uid) => onAddExisting(uid, true)}
-                        onBench={(uid) => onAddExisting(uid, false)}
+                    <ActiveLineup
+                        list={active}
+                        maxSlots={campaign.settings.fivePlayerMode ? 5 : 4}
+                        onSetLeader={handleSetLeader}
+                        onBench={handleBench}
+                        onEdit={handleEdit}
                     />
                 </Card>
 
-                <QuickCreateKnight onCreate={onCreateKnight} />
+                {/* Benched list */}
+                <Card>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+                        Benched
+                    </Text>
+                    <BenchedList
+                        list={benched}
+                        activeCatalogIds={activeCatalogIds}
+                        onActivate={handleActivateFromBench}
+                        onRemove={handleRemove}
+                        onEdit={handleEdit}
+                    />
+                </Card>
+
+                {/* Add existing knights */}
+                <Card>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+                        Add Existing Knights
+                    </Text>
+                    <AddExistingKnights
+                        list={available}
+                        onAddActive={handleAddExistingActive}
+                        onBench={handleAddExistingBench}
+                    />
+                </Card>
+
+                {/* Quick create */}
+                <Card>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+                        Quick Create Knight
+                    </Text>
+                    <QuickCreateKnight onCreate={handleQuickCreate} />
+                </Card>
             </ScrollView>
         </View>
     );

@@ -1,27 +1,6 @@
-import type { Campaign, CampaignMember } from '@/models/campaign';
 import type { Knight } from '@/models/knight';
 
 export type KnightsById = Record<string, Knight>;
-
-export type MemberSets = {
-    active: CampaignMember[];
-    benched: CampaignMember[];
-    byUID: Set<string>;
-    activeCatalogIds: Set<string>;
-};
-
-export function getMemberSets(c?: Campaign): MemberSets {
-    const members = c?.members ?? [];
-    const active = members.filter(m => m.isActive);
-    const benched = members.filter(m => !m.isActive);
-
-    return {
-        active,
-        benched,
-        byUID: new Set(members.map(m => m.knightUID)),
-        activeCatalogIds: new Set(active.map(m => m.catalogId)),
-    };
-}
 
 export type AddExistingKnightsProps = {
     list: Array<{ knightUID: string; name: string; catalogId: string }>;
@@ -43,4 +22,30 @@ export type ActiveLineupProps = {
     onSetLeader: (knightUID: string) => void;
     onBench: (knightUID: string) => void;
     onEdit: (knightUID: string) => void;
+};
+
+// ---- shared types for UI lists ----
+export type LineupItem = {
+    knightUID: string;
+    name: string;
+    catalogId: string;
+    isLeader?: boolean;
+};
+
+export type AvailableKnight = {
+    knightUID: string;
+    name: string;
+    catalogId: string;
+};
+
+export type MemberSets = {
+    /** Active lineup, decorated for UI. */
+    active: LineupItem[];
+    /** Benched members, decorated for UI. */
+    benched: LineupItem[];
+    /** Knights you could add (in this profile) but aren’t in the campaign yet. */
+    available: AvailableKnight[];
+    /** Fast lookups for membership & uniqueness checks. */
+    byUID: Set<string>;
+    activeCatalogIds: Set<string>;
 };

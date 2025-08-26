@@ -1,14 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-
-type AvailableKnight = { knightUID: string; name: string; catalogId: string };
-
-export type AddExistingKnightsProps = {
-    list: AvailableKnight[];
-    onAddActive: (uid: string) => void;
-    onBench: (uid: string) => void;
-};
+import {AddExistingKnightsProps} from "@/features/knights/types";
 
 export default function AddExistingKnights({
                                                list,

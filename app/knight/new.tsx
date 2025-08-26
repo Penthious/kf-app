@@ -14,10 +14,6 @@ import KNIGHTS_CATALOG from '@/catalogs/knights.json';
 
 type KnightCatalogItem = { id: string; name: string };
 
-function initialSheet(): Knight['sheet'] {
-  return defaultSheet();
-}
-
 export default function NewKnightScreen() {
     const { tokens } = useThemeTokens();
     const { addKnight } = useKnights();
@@ -28,19 +24,19 @@ export default function NewKnightScreen() {
 
 
     const onCreate = () => {
-        const uid = uuid.v4() as string; // ✅ pre-generate ID
+        const uid = uuid.v4() as string;
 
         const k: Omit<Knight, 'version' | 'updatedAt'> = {
             knightUID: uid,
             ownerUserId: 'me',
             catalogId,
             name: name.trim() || defaultName,
-            sheet: initialSheet(),
+            sheet: defaultSheet(),
             rapport: [],
         };
 
-        addKnight(k); // store may return void — that's fine
-        router.replace({ pathname: '/knight/[id]', params: { id: uid } }); // ✅ navigate with the known id
+        const knight = addKnight(k);
+        router.replace({ pathname: '/knight/[id]', params: { id: knight.knightUID } });
     };
 
     const onCancel = () => router.back();
