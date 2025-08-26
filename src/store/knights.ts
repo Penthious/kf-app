@@ -11,30 +11,26 @@ import {
     normalLocked,
 } from '@/models/knight';
 
-type KnightsState = {
+export type KnightsState = {
     knightsById: Record<UUID, Knight>;
 };
 
 type OpResult = { ok: true } | { ok: false; error: string };
 
-type KnightsActions = {
+export type KnightsActions = {
     /** Insert a new Knight and return the saved (normalized) object. */
     addKnight: (k: Omit<Knight, 'version' | 'updatedAt'>) => Knight;
 
     /** Rename (display name only). */
     renameKnight: (knightUID: UUID, name: string) => void;
 
-    /** Merge a partial patch into the sheet (auto‑normalizes + bumps version). */
+    /** Merge a partial patch into the sheet (auto-normalizes + bumps version). */
     updateKnightSheet: (knightUID: UUID, patch: Partial<Knight['sheet']>) => OpResult;
 
-    /** Mark the chapter quest completed; optional explicit outcome. */
-    completeQuest: (
-        knightUID: UUID,
-        chapter: number,
-        outcome?: InvestigationResult
-    ) => OpResult;
+    /** Mark the chapter quest completed; optional explicit outcome ('pass' | 'fail'). */
+    completeQuest: (knightUID: UUID, chapter: number, outcome?: InvestigationResult) => OpResult;
 
-    /** Add a normal (non‑lead) investigation attempt with result. */
+    /** Add a normal (non-lead) investigation attempt with result. */
     addNormalInvestigation: (
         knightUID: UUID,
         chapter: number,
@@ -46,7 +42,7 @@ type KnightsActions = {
     addLeadCompletion: (knightUID: UUID, chapter: number, invId: string) => OpResult;
 
     /**
-     * Keep the fail attempt in history, but also add a lead-pass completion
+     * Keep the prior fail in history, but also add a lead-pass completion
      * for the same investigation code.
      */
     convertFailToLead: (knightUID: UUID, chapter: number, invId: string) => OpResult;
@@ -59,11 +55,8 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     knightsById: {},
 
     addKnight: (k) => {
-        // Normalize on insert so all optional fields exist.
         const saved: Knight = ensureKnight({
             ...k,
-            version: (k as any).version ?? 1,
-            updatedAt: Date.now(),
             sheet: ensureSheet(k.sheet),
         } as Knight);
 
@@ -180,7 +173,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
         if (!k) return { ok: false, error: 'Knight not found' };
 
         const ch = ensureChapter(k.sheet, chapter);
-        // Domain will keep history and add a new lead‑pass completion.
+        // Domain keeps history; we add a new lead-pass completion.
         const r = addInvestigationDomain(ch, invId, 'lead', 'pass', Date.now());
         if (!r.ok) return r;
 

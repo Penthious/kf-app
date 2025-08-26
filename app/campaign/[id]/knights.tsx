@@ -1,70 +1,85 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+// app/campaign/[id]/knights.tsx
+import React from 'react';
+import { View, ScrollView, Pressable, Text } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import uuid from 'react-native-uuid';
+
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
-import TextRow from '@/components/TextRow';
-import { useCampaigns } from '@/store/campaigns';
-import { useKnights } from '@/store/knights';
-import uuid from 'react-native-uuid';
-import {Knight} from "@/models/knight";
+
+import ActiveLineup from '@/features/knights/ui/ActiveLineup';
+import BenchedList from '@/features/knights/ui/BenchedList';
+import AddExistingKnights from '@/features/knights/ui/AddExistingKnights';
+import QuickCreateKnight, { type QuickCreateKnightProps } from '@/features/knights/ui/QuickCreateKnight';
+
+import {
+    useKnightsLists,
+    useCampaignActions,
+    useKnightsMap,
+    useKnightActions,
+} from '@/features/knights/selectors';
+
+import type { Knight } from '@/models/knight';
+import {useCampaigns} from "@/store/campaigns";
 
 export default function CampaignKnights() {
     const { tokens } = useThemeTokens();
     const router = useRouter();
     const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
 
+    // store-derived lists and actions
     const {
-        campaigns,
+        campaign: c,
+        activeSlots,
+        activeCatalogIds,
+        lineupItems,
+        benchedItems,
+        availableItems,
+    } = useKnightsLists(campaignId);
+
+    const {
         benchMember,
         removeMember,
         setPartyLeader,
         addKnightToCampaign,
         replaceCatalogKnight,
         addKnightAsBenched,
-    } = useCampaigns() as any;
+    } = useCampaignActions();
 
-    const { knightsById, addKnight } = useKnights() as any;
+    const knightsById = useKnightsMap();
+    const { addKnight } = useKnightActions();
 
-    const [newName, setNewName] = useState('');
-    const [newCatalog, setNewCatalog] = useState<string | null>(null);
+    const openAddExistingModal = () => {
+        if (campaignId) router.push(`/add-existing-knights?id=${campaignId}`);
+        else router.push('/add-existing-knights');
+    };
 
-    const c = (campaignId && campaigns[campaignId]) || undefined;
-    const activeSlots = c?.settings.fivePlayerMode ? 5 : 4;
-    const members = c?.members ?? [];
-    const activeMembers = members.filter((m: any) => m.isActive);
-    const benchedMembers = members.filter((m: any) => !m.isActive);
+    // --- helpers ---------------------------------------------------------------
 
-    const memberUIDs = useMemo(() => new Set(members.map((m: any) => m.knightUID)), [members]);
-    const availableKnights = useMemo(
-        () => Object.values(knightsById).filter((k: any) => !memberUIDs.has(k.knightUID)),
-        [knightsById, memberUIDs]
-    );
+    const hasActiveCatalog = (catalogId: string) => activeCatalogIds.has(catalogId);
 
-    const hasActiveCatalog = (catalogId: string) =>
-        activeMembers.some((m: any) => m.catalogId === catalogId);
-
-    /** Ensure a knight ends up ACTIVE.
-     * Works even if knightsById doesn't have this UID yet by using meta fallback. */
+    /** Ensure the given knight becomes an active member, respecting single-catalog rule */
     const ensureActive = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
         if (!c) return;
-
-        const k = (knightsById as any)[knightUID];
+        const k = knightsById[knightUID];
         const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
         const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
 
-        const existing = members.find((m: any) => m.knightUID === knightUID);
+        const existing = c.members.find(m => m.knightUID === knightUID);
         if (existing) {
-            if (existing.isActive) return; // already active
+            // already in campaign
+            if (existing.isActive) return;
             if (hasActiveCatalog(existing.catalogId)) {
+                // swap the existing active of this catalog for this knight
                 replaceCatalogKnight(c.campaignId, existing.catalogId, knightUID, { displayName });
             } else {
+                // just activate
                 benchMember(c.campaignId, knightUID, false);
             }
             return;
         }
 
-        // not yet a member
+        // not yet in campaign
         if (hasActiveCatalog(catalogId)) {
             replaceCatalogKnight(c.campaignId, catalogId, knightUID, { displayName });
         } else {
@@ -72,313 +87,121 @@ export default function CampaignKnights() {
         }
     };
 
-    /** Ensure a knight exists BENCHED (idempotent). */
+    /** Ensure the given knight is present as benched (idempotent) */
     const ensureBenched = (knightUID: string, meta?: { catalogId: string; displayName: string }) => {
         if (!c) return;
-        const k = (knightsById as any)[knightUID];
+        const k = knightsById[knightUID];
         const catalogId = k?.catalogId ?? meta?.catalogId ?? 'unknown';
         const displayName = k?.name ?? meta?.displayName ?? 'Unknown Knight';
 
-        const existing = members.find((m: any) => m.knightUID === knightUID);
+        const existing = c.members.find(m => m.knightUID === knightUID);
         if (existing) {
             if (existing.isActive) benchMember(c.campaignId, knightUID, true);
-            return; // already benched or just benched
+            return;
         }
         addKnightAsBenched(c.campaignId, knightUID, { catalogId, displayName });
     };
 
-    // Add existing (from the list)
     const onAddExisting = (knightUID: string, asActive = true) => {
-        const k = (knightsById as any)[knightUID];
+        const k = knightsById[knightUID];
         const meta = { catalogId: k?.catalogId ?? 'unknown', displayName: k?.name ?? 'Unknown Knight' };
         if (asActive) ensureActive(knightUID, meta);
         else ensureBenched(knightUID, meta);
     };
 
-    // Quick-create
-    const CATALOG_CHOICES = [
-        'kara', 'ser-sonch', 'renholder', 'fleishritter', 'paracelsa',
-        'stoneface', 'delphine', 'reiner',
-        'absolute-bastard', 'ser-gallant',
-    ];
-    const canCreate = newName.trim().length > 0 && !!newCatalog;
+    const onCreateKnight: QuickCreateKnightProps['onCreate'] = ({ name, catalogId, asActive }) => {
+        if (!c) return;
 
-    const onCreateKnight = (asActive = true) => {
-        if (!c || !canCreate) return;
-        const knightUID = uuid.v4() as string;
-
-        const k = {
-            knightUID,
+        const k: Knight = {
+            knightUID: uuid.v4() as string,
             ownerUserId: 'me',
-            catalogId: newCatalog as string,
-            name: newName.trim(),
+            catalogId,
+            name: name.trim(),
             sheet: {
-                virtues: {bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0},
+                virtues: { bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0 },
+                vices: { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 },
                 bane: 0,
                 sighOfGraal: 0,
                 gold: 0,
                 leads: 0,
                 chapter: 1,
+                chapters: {},
                 prologueDone: false,
                 postgameDone: false,
-                firstDeath: false,
-                investigations: {},
-                vices: {cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0},
                 armory: [],
+                firstDeath: false,
+                choiceMatrix: {},
+                saints: [],
+                mercenaries: [],
+                notes: [],
             },
             rapport: [],
-            saints: [],
-            mercenaries: [],
-        } as unknown as Knight;
+            version: 1,
+            updatedAt: Date.now(),
+        };
 
-        // 1) add to knights store
-        addKnight(k);
-
-        // 2) immediately ensure campaign state using meta (works even before knightsById refreshes)
-        const meta = { catalogId: k.catalogId, displayName: k.name };
-        if (asActive) ensureActive(knightUID, meta);
-        else ensureBenched(knightUID, meta);
-
-        // 3) reset creator inputs
-        setNewName('');
-        setNewCatalog(null);
+        const saved = addKnight(k);
+        const meta = { catalogId: saved.catalogId, displayName: saved.name };
+        if (asActive) ensureActive(saved.knightUID, meta);
+        else ensureBenched(saved.knightUID, meta);
     };
+
+    const onEditKnight = (uid: string) => router.push(`/knight/${uid}`);
+
+    // --- render ----------------------------------------------------------------
+
+    if (!c) {
+        return (
+            <View style={{ flex: 1, backgroundColor: tokens.bg }}>
+                <ScrollView contentContainerStyle={{ padding: 16 }}>
+                    <Card>
+                        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 6 }}>
+                            Campaign not found
+                        </Text>
+                        <Text style={{ color: tokens.textMuted }}>Reopen it from the Campaigns list.</Text>
+                    </Card>
+                </ScrollView>
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-            <ScrollView contentContainerStyle={{ padding: 16 }}>
-                {!c ? (
-                    <Card>
-                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Campaign not found</Text>
-                        <Text style={{ color: tokens.textMuted, marginTop: 4 }}>Reopen from the Campaigns list.</Text>
-                    </Card>
-                ) : (
-                    <>
-                        {/* Active lineup */}
-                        <Card style={{ marginBottom: 12 }}>
-                            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-                                Active Lineup ({activeMembers.length}/{activeSlots})
-                            </Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                {activeMembers.map((m: any) => {
-                                    const k = (knightsById as any)[m.knightUID];
-                                    const label = k ? k.name : m.displayName;
-                                    const isLeader = c.partyLeaderUID === m.knightUID;
-                                    console.log(isLeader, c.partyLeaderUID, m.knightUID)
-                                    return (
-                                        <View key={m.knightUID} style={{ marginRight: 8, marginBottom: 8 }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Pressable
-                                                    onPress={() => setPartyLeader(c.campaignId, m.knightUID)}
-                                                    style={{
-                                                        paddingHorizontal: 12,
-                                                        height: 32,
-                                                        borderRadius: 16,
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        backgroundColor: isLeader ? tokens.accent : tokens.surface,
-                                                        borderWidth: 1,
-                                                        borderColor: '#0006',
-                                                    }}
-                                                >
-                                                    <Text style={{ color: isLeader ? '#0B0B0B' : tokens.textPrimary, fontWeight: '800' }}>
-                                                        {label}{isLeader ? ' • Leader' : ''}
-                                                    </Text>
-                                                </Pressable>
-                                                <View style={{ width: 6 }} />
-                                                <Pressable
-                                                    onPress={() => router.push(`/knight/${m.knightUID}`)}
-                                                    style={{
-                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
-                                                    }}
-                                                >
-                                                    <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Edit</Text>
-                                                </Pressable>
-                                                <View style={{ width: 6 }} />
-                                                <Pressable
-                                                    onPress={() => benchMember(c.campaignId, m.knightUID, true)}
-                                                    style={{
-                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
-                                                    }}
-                                                >
-                                                    <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Bench</Text>
-                                                </Pressable>
-                                                <View style={{ width: 6 }} />
-                                                <Pressable
-                                                    onPress={() => removeMember(c.campaignId, m.knightUID)}
-                                                    style={{
-                                                        paddingHorizontal: 10, height: 28, borderRadius: 14,
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        backgroundColor: '#2A1313', borderWidth: 1, borderColor: '#0006',
-                                                    }}
-                                                >
-                                                    <Text style={{ color: '#F9DADA', fontWeight: '700' }}>Remove</Text>
-                                                </Pressable>
-                                            </View>
-                                        </View>
-                                    );
-                                })}
-                                {activeMembers.length === 0 ? (
-                                    <Text style={{ color: tokens.textMuted }}>No active knights.</Text>
-                                ) : null}
-                            </View>
-                        </Card>
+            <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+                <Card>
+                    <Card.Title>Active Lineup</Card.Title>
+                    <ActiveLineup
+                        list={lineupItems}
+                        maxSlots={activeSlots}
+                        onSetLeader={(uid) => setPartyLeader(c.campaignId, uid)}
+                        onBench={(uid) => onAddExisting(uid, false)}
+                        onEdit={onEditKnight}
+                    />
+                </Card>
 
-                        {/* Benched */}
-                        <Card style={{ marginBottom: 12 }}>
-                            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>Benched</Text>
-                            <View>
-                                {benchedMembers.length === 0 ? (
-                                    <Text style={{ color: tokens.textMuted }}>No benched knights.</Text>
-                                ) : (
-                                    benchedMembers.map((m: any) => {
-                                        const k = (knightsById as any)[m.knightUID];
-                                        const label = k ? k.name : m.displayName;
-                                        const conflict = hasActiveCatalog(m.catalogId);
-                                        return (
-                                            <View key={m.knightUID} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                                <Text style={{ color: tokens.textPrimary }}>
-                                                    {label} <Text style={{ color: tokens.textMuted }}>({m.catalogId})</Text>
-                                                </Text>
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Pressable
-                                                        onPress={() => router.push(`/knight/${m.knightUID}`)}
-                                                        style={{
-                                                            paddingHorizontal: 12, height: 32, borderRadius: 16,
-                                                            alignItems: 'center', justifyContent: 'center',
-                                                            backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006', marginRight: 8,
-                                                        }}
-                                                    >
-                                                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Edit</Text>
-                                                    </Pressable>
+                <Card>
+                    <Card.Title>Benched Knights</Card.Title>
+                    <BenchedList
+                        list={benchedItems}
+                        activeCatalogIds={activeCatalogIds}
+                        onActivate={(uid) => onAddExisting(uid, true)}
+                        onRemove={(uid) => removeMember(c.campaignId, uid)}
+                        onEdit={onEditKnight}
+                    />
+                </Card>
 
-                                                    <Pressable
-                                                        onPress={() => ensureActive(m.knightUID)}
-                                                        style={{
-                                                            paddingHorizontal: 12, height: 32, borderRadius: 16,
-                                                            alignItems: 'center', justifyContent: 'center',
-                                                            backgroundColor: conflict ? '#3a2a1a' : tokens.surface,
-                                                            borderWidth: 1, borderColor: '#0006',
-                                                        }}
-                                                    >
-                                                        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
-                                                            {conflict ? 'Replace…' : 'Activate'}
-                                                        </Text>
-                                                    </Pressable>
-                                                </View>
-                                            </View>
-                                        );
-                                    })
-                                )}
-                            </View>
-                        </Card>
+                <Card>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+                        Add Existing (inline)
+                    </Text>
+                    <AddExistingKnights
+                        list={availableItems}
+                        onAddActive={(uid) => onAddExisting(uid, true)}
+                        onBench={(uid) => onAddExisting(uid, false)}
+                    />
+                </Card>
 
-                        {/* Add existing knights */}
-                        <Card style={{ marginBottom: 12 }}>
-                            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>Add Existing Knights</Text>
-                            {availableKnights.length === 0 ? (
-                                <Text style={{ color: tokens.textMuted }}>No other knights available. Create a new one below.</Text>
-                            ) : (
-                                <View>
-                                    {availableKnights.map((k: any) => (
-                                        <View key={k.knightUID} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                            <View>
-                                                <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{k.name}</Text>
-                                                <Text style={{ color: tokens.textMuted, fontSize: 12 }}>{k.catalogId}</Text>
-                                            </View>
-                                            <View style={{ flexDirection: 'row' }}>
-                                                <Pressable
-                                                    onPress={() => onAddExisting(k.knightUID, true)}
-                                                    style={{
-                                                        paddingHorizontal: 12, height: 32, borderRadius: 16,
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        backgroundColor: tokens.accent, marginRight: 8,
-                                                    }}
-                                                >
-                                                    <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>Add Active</Text>
-                                                </Pressable>
-                                                <Pressable
-                                                    onPress={() => onAddExisting(k.knightUID, false)}
-                                                    style={{
-                                                        paddingHorizontal: 12, height: 32, borderRadius: 16,
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        backgroundColor: tokens.surface, borderWidth: 1, borderColor: '#0006',
-                                                    }}
-                                                >
-                                                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Bench</Text>
-                                                </Pressable>
-                                            </View>
-                                        </View>
-                                    ))}
-                                </View>
-                            )}
-                        </Card>
-
-                        {/* Quick-create new knight */}
-                        <Card>
-                            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>Quick‑Create Knight</Text>
-                            <TextRow label="Name" value={newName} onChangeText={setNewName} placeholder="e.g., Renholder" />
-                            <Text style={{ color: tokens.textMuted, marginBottom: 6 }}>Catalog</Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
-                                {[
-                                    'kara','ser-sonch','renholder','fleishritter','paracelsa',
-                                    'stoneface','delphine','reiner','absolute-bastard','ser-gallant',
-                                ].map((idOpt) => {
-                                    const selected = newCatalog === idOpt;
-                                    return (
-                                        <Pressable
-                                            key={idOpt}
-                                            onPress={() => setNewCatalog(idOpt)}
-                                            style={{
-                                                marginRight: 8, marginBottom: 8,
-                                                paddingHorizontal: 12, height: 32, borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center',
-                                                backgroundColor: selected ? tokens.accent : tokens.surface,
-                                                borderWidth: 1, borderColor: '#0006',
-                                            }}
-                                        >
-                                            <Text style={{ color: selected ? '#0B0B0B' : tokens.textPrimary, fontWeight: '800' }}>
-                                                {idOpt}
-                                            </Text>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
-
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <Pressable
-                                    disabled={!canCreate}
-                                    onPress={() => onCreateKnight(false)}
-                                    style={{
-                                        paddingHorizontal: 12, height: 40, borderRadius: 12,
-                                        alignItems: 'center', justifyContent: 'center',
-                                        backgroundColor: canCreate ? tokens.surface : '#333',
-                                        borderWidth: 1, borderColor: '#0006', marginRight: 8,
-                                        opacity: canCreate ? 1 : 0.5,
-                                    }}
-                                >
-                                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Create as Benched</Text>
-                                </Pressable>
-                                <Pressable
-                                    disabled={!canCreate}
-                                    onPress={() => onCreateKnight(true)}
-                                    style={{
-                                        paddingHorizontal: 12, height: 40, borderRadius: 12,
-                                        alignItems: 'center', justifyContent: 'center',
-                                        backgroundColor: canCreate ? tokens.accent : '#333',
-                                        opacity: canCreate ? 1 : 0.5,
-                                    }}
-                                >
-                                    <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>Create & Activate</Text>
-                                </Pressable>
-                            </View>
-                        </Card>
-                    </>
-                )}
+                <QuickCreateKnight onCreate={onCreateKnight} />
             </ScrollView>
         </View>
     );

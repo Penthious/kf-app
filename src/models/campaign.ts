@@ -1,4 +1,3 @@
-// src/models/campaign.ts
 import type { KingdomState } from '@/models/kingdom';
 
 export type CampaignMember = {
@@ -7,6 +6,7 @@ export type CampaignMember = {
     catalogId: string;
     isActive: boolean;
     joinedAt: number;
+    isLeader?: boolean
 };
 
 export type CampaignSettings = {

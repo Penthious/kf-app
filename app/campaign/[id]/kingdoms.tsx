@@ -23,8 +23,10 @@ import AdventuresCard from '@/features/kingdoms/AdventuresCard';
 import { KingdomCatalog, resolveStagesForBestiary } from '@/features/kingdoms/utils';
 
 export default function CampaignKingdoms() {
+    console.log("1")
     const { tokens } = useThemeTokens();
     const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
+    console.log("2")
     const leaderUID = useCampaigns(
         (s) => (s as any).campaigns?.[campaignId!]?.partyLeaderUID
     );
@@ -57,6 +59,8 @@ export default function CampaignKingdoms() {
     const stageRow = leader
         ? resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row
         : {};
+
+    console.log("3")
 
     return (
         <View style={{ flex: 1, backgroundColor: tokens.bg }}>

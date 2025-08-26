@@ -1,38 +1,16 @@
 // src/store/campaigns.ts
+import type {Campaign, CampaignMember} from "@/models/campaign";
 import { create } from 'zustand';
 
-// ---- Types ----
-export type CampaignMember = {
-    knightUID: string;
-    catalogId: string;      // stable id like 'renholder'
-    displayName: string;    // friendly name like 'Renholder'
-    isActive: boolean;
-    isLeader?: boolean;     // optional; single source of truth is partyLeaderUID
-};
-
-export type CampaignSettings = {
-    fivePlayerMode: boolean;
-    notes?: string;
-};
-
-export type Campaign = {
-    campaignId: string;
-    name: string;
-    members: CampaignMember[];
-    settings: CampaignSettings;
-    partyLeaderUID?: string;
-    createdAt: number;
-    updatedAt: number;
-};
 
 type Conflict = { conflict: { existingUID: string } };
 
-type CampaignsState = {
+export type CampaignsState = {
     campaigns: Record<string, Campaign>;
-    currentCampaignId?: string;  // optional: helpful for tabs fallback
+    currentCampaignId?: string;
 };
 
-type CampaignsActions = {
+export type CampaignsActions = {
     // app navigation helpers (optional)
     openCampaign: (campaignId: string) => void;
     closeCampaign: () => void;
@@ -41,6 +19,7 @@ type CampaignsActions = {
     addCampaign: (campaignId: string, name: string) => void;
     renameCampaign: (campaignId: string, name: string) => void;
     removeCampaign: (campaignId: string) => void;
+    setCurrentCampaignId: (id: string) => void;
 
     // settings
     setFivePlayerMode: (campaignId: string, on: boolean) => void;
@@ -89,7 +68,10 @@ const ensureMember = (
     const idx = list.findIndex(m => m.knightUID === knightUID);
     if (idx >= 0) return list;
     const { catalogId = 'unknown', displayName = 'Unknown Knight' } = meta ?? {};
-    return [...list, { knightUID, catalogId, displayName, isActive: true, isLeader: false }];
+    return [...list, {
+        knightUID, catalogId, displayName, isActive: true, isLeader: false,
+        joinedAt: 0
+    }];
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => ({
@@ -105,12 +87,13 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         set((s) => {
             const now = Date.now();
             const c: Campaign = {
+                kingdoms: [],
                 campaignId,
                 name,
                 members: [],
                 settings: { fivePlayerMode: false },
                 createdAt: now,
-                updatedAt: now,
+                updatedAt: now
             };
             return { campaigns: { ...s.campaigns, [campaignId]: c }, currentCampaignId: campaignId };
         }),
@@ -135,6 +118,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 s.currentCampaignId === campaignId ? undefined : s.currentCampaignId;
             return { campaigns: next, currentCampaignId };
         }),
+    setCurrentCampaignId: (campaignId) => set({currentCampaignId: campaignId}),
 
     // ---- Settings ----
     setFivePlayerMode: (campaignId, on) =>
@@ -199,10 +183,11 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             }
 
             const member: CampaignMember = {
+                joinedAt: 0,
                 knightUID,
                 catalogId,
                 displayName,
-                isActive: true,
+                isActive: true
             };
             return {
                 campaigns: {
@@ -228,7 +213,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 };
             }
             const { catalogId = 'unknown', displayName = 'Unknown Knight' } = meta ?? {};
-            const member: CampaignMember = { knightUID, catalogId, displayName, isActive: false };
+            const member: CampaignMember = {joinedAt: 0, knightUID, catalogId, displayName, isActive: false };
             return {
                 campaigns: {
                     ...s.campaigns,
@@ -256,7 +241,9 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 members[existingIdx] = { ...members[existingIdx], isActive: true, catalogId };
             } else {
                 // Insert as new active
-                const newMember: CampaignMember = { knightUID: newKnightUID, catalogId, displayName, isActive: true };
+                const newMember: CampaignMember = {
+                    joinedAt: 0,
+                    knightUID: newKnightUID, catalogId, displayName, isActive: true };
                 members.push(newMember);
             }
 

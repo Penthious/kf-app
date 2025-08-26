@@ -1,24 +1,63 @@
+// src/components/ui/Pill.tsx
 import React from 'react';
 import { Pressable, Text } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 
+type PillProps = {
+    label: string;
+    selected?: boolean;
+    disabled?: boolean;
+    tone?: 'default' | 'accent' | 'success' | 'danger';
+    onPress?: () => void;
+};
+
 export default function Pill({
-                                 label, tone = 'default', onPress,
-                             }: { label: string; tone?: 'default' | 'accent' | 'success' | 'danger'; onPress?: () => void }) {
+                                 label,
+                                 selected = false,
+                                 disabled = false,
+                                 tone = 'default',
+                                 onPress,
+                             }: PillProps) {
     const { tokens } = useThemeTokens();
-    const bg =
+
+    // base colors
+    const baseBg =
         tone === 'accent' ? tokens.accent :
             tone === 'success' ? '#2b6b3f' :
-                tone === 'danger' ? '#7a2d2d' : tokens.surface;
-    const color = tone === 'accent' ? '#0B0B0B' : tokens.textPrimary;
+                tone === 'danger' ? '#7a2d2d' :
+                    tokens.surface;
+
+    // selected override
+    const bg = selected
+        ? (tone === 'accent' ? tokens.accent : tokens.card)
+        : baseBg;
+
+    const textColor =
+        tone === 'accent'
+            ? (selected ? '#0B0B0B' : '#0B0B0B')
+            : selected
+                ? tokens.textPrimary
+                : tokens.textPrimary;
 
     return (
-        <Pressable onPress={onPress} style={{
-            paddingHorizontal: 12, height: 28, borderRadius: 14,
-            alignItems: 'center', justifyContent: 'center',
-            backgroundColor: bg, borderWidth: 1, borderColor: '#0006'
-        }}>
-            <Text style={{ color, fontWeight: '800' }}>{label}</Text>
+        <Pressable
+            onPress={disabled ? undefined : onPress}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityState={{ disabled, selected }}
+            style={{
+                paddingHorizontal: 12,
+                height: 32,
+                borderRadius: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: bg,
+                borderWidth: 1,
+                borderColor: selected ? tokens.accent : '#0006',
+                opacity: disabled ? 0.5 : 1,
+            }}
+        >
+            <Text style={{ color: textColor, fontWeight: '800' }}>{label}</Text>
         </Pressable>
     );
 }
