@@ -30,7 +30,7 @@ export type CampaignsActions = {
         campaignId: string,
         knightUID: string,
         meta?: { catalogId: string; displayName: string }
-    ) => {} | Conflict;
+    ) => object | Conflict;
 
     /** Add (or ensure) the knight exists in the campaign **as benched**. Idempotent. */
     addKnightAsBenched: (
@@ -74,7 +74,7 @@ const ensureMember = (
     }];
 };
 
-export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => ({
+export const useCampaigns = create<CampaignsState & CampaignsActions>((set) => ({
     campaigns: {},
     currentCampaignId: undefined,
 
@@ -155,7 +155,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
 
     // ---- Roster helpers ----
     addKnightToCampaign: (campaignId, knightUID, meta) => {
-        let conflict: Conflict | {} = {};
+        let conflict: Conflict | object = {};
         set((s) => {
             const c = s.campaigns[campaignId];
             if (!c) return {};

@@ -84,7 +84,7 @@ export function defaultVices(): ViceCounter {
 }
 
 export function defaultVirtues(): Virtues {
-    return { bravery: 1, tenacity: 1, sagacity: 1, fortitude: 1, might: 1, insight: 1 };
+    return { bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0 };
 }
 
 export function defaultChapterProgress(): ChapterProgress {
@@ -113,25 +113,29 @@ export function defaultSheet(): KnightSheet {
     };
 }
 
-/**
- * Count distinct investigations in this chapter that were completed by a NORMAL pass (not lead).
- * We dedupe by investigation code and only count attempts where result === 'pass' and lead !== true.
- */
-export function countDistinctNormal(ch?: ChapterProgress): number {
+/** Count distinct investigations that have been ATTEMPTED (pass, fail, or lead). */
+export function countDistinctAttempted(ch?: ChapterProgress): number {
     if (!ch) return 0;
     const seen = new Set<string>();
     for (const a of ch.attempts ?? []) {
-        if (!a) continue;
-        if (a.lead) continue;        // exclude lead completions
-        if (a.result !== 'pass') continue;
-        if (a.code) seen.add(a.code);
+        if (!a?.code) continue;
+        seen.add(a.code);
     }
     return seen.size;
 }
-
 /** Count total distinct completed investigations (normal or lead). */
 export function countDistinctTotal(ch?: ChapterProgress): number {
     return ch?.completed?.length ?? 0;
+}
+
+/** UI: cap Normal display at 3 (lock threshold). */
+export function countNormalDisplay(ch?: ChapterProgress): number {
+    return Math.min(3, countDistinctAttempted(ch));
+}
+
+/** UI: cap Total display at 5 (rule limit). */
+export function countTotalDisplay(ch?: ChapterProgress): number {
+    return Math.min(5, countDistinctTotal(ch));
 }
 
 /** Ensure a sheet has all new fields with safe defaults (non‑destructive). */
@@ -172,15 +176,16 @@ type InvestigationKind = 'normal' | 'lead';
 type DomainOk = { ok: true };
 type DomainErr = { ok: false; error: string };
 type DomainResult = DomainOk | DomainErr;
+
 /**
  * Whether further NORMAL investigations are locked for the chapter.
- * Rules we’ve been using:
- * - After the chapter quest is completed AND you have 3 completed investigations,
- *   you can’t do more normal investigations in that chapter (you may still add LEAD completions).
+ * Lock when there are 3 NORMAL passes (distinct by code).
+ * Only LEAD completions remain allowed after this point.
  */
 export function normalLocked(ch: ChapterProgress): boolean {
-    return !!ch.quest?.completed && (ch.completed?.length ?? 0) >= 3;
+    return countDistinctAttempted(ch) >= 3;
 }
+
 
 /** Mark the chapter quest as completed; failing still counts as completed. */
 export function completeQuestDomain(ch: ChapterProgress, outcome?: InvestigationResult): void {
@@ -215,6 +220,8 @@ export function addInvestigationDomain(
     ch.completed = ch.completed ?? [];
 
     // Normal attempts may be locked by progression
+    console.log("normal: ", kind)
+    console.log("locked: ", normalLocked(ch))
     if (kind === 'normal' && normalLocked(ch)) {
         return { ok: false, error: 'Normal investigations are locked for this chapter' };
     }

@@ -9,9 +9,9 @@ import { useKnights } from '@/store/knights';
 import {
     ensureSheet,
     ensureChapter,
-    countDistinctNormal,
-    countDistinctTotal,
     InvestigationResult,
+    countNormalDisplay,
+    countTotalDisplay,
 } from '@/models/knight';
 
 type Props = {
@@ -38,8 +38,8 @@ export default function ChapterInvestigations({ knightUID, chapter }: Props) {
     const sheet = ensureSheet(k?.sheet);
     const ch = ensureChapter(sheet, chapter);
 
-    const normalDone = countDistinctNormal(ch);
-    const totalDone = countDistinctTotal(ch);
+    const normalDone = countNormalDisplay(ch);
+    const totalDone = countTotalDisplay(ch);
     const locked = isNormalLocked?.(knightUID, chapter) ?? false;
 
     // derive entries from attempts + completed

@@ -41,12 +41,6 @@ export type KnightsActions = {
     /** Add a lead completion (always counted as pass). */
     addLeadCompletion: (knightUID: UUID, chapter: number, invId: string) => OpResult;
 
-    /**
-     * Keep the prior fail in history, but also add a lead-pass completion
-     * for the same investigation code.
-     */
-    convertFailToLead: (knightUID: UUID, chapter: number, invId: string) => OpResult;
-
     /** Whether normal investigations are locked for the given chapter. */
     isNormalLocked: (knightUID: UUID, chapter: number) => boolean;
 };
@@ -151,29 +145,6 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
         if (!k) return { ok: false, error: 'Knight not found' };
 
         const ch = ensureChapter(k.sheet, chapter);
-        const r = addInvestigationDomain(ch, invId, 'lead', 'pass', Date.now());
-        if (!r.ok) return r;
-
-        set({
-            knightsById: {
-                ...s.knightsById,
-                [knightUID]: {
-                    ...k,
-                    version: (k.version ?? 0) + 1,
-                    updatedAt: Date.now(),
-                },
-            },
-        });
-        return { ok: true };
-    },
-
-    convertFailToLead: (knightUID, chapter, invId) => {
-        const s = get();
-        const k = s.knightsById[knightUID];
-        if (!k) return { ok: false, error: 'Knight not found' };
-
-        const ch = ensureChapter(k.sheet, chapter);
-        // Domain keeps history; we add a new lead-pass completion.
         const r = addInvestigationDomain(ch, invId, 'lead', 'pass', Date.now());
         if (!r.ok) return r;
 
