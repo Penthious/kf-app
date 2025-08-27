@@ -1,16 +1,7 @@
-export type MonsterRef = { id: string; name: string };
-export type StageRowRaw = Record<string, number | null>;
-export type Bestiary = { monsters: MonsterRef[]; stages: StageRowRaw[] };
-export type Adventure = { id: string; name: string; repeatable?: boolean; note?: string };
-
-export type KingdomCatalog = {
-    id: string;
-    name: string;
-    bestiary?: Bestiary;
-    adventures?: Adventure[];
-};
 
 // --- helpers ---
+import {BestiaryStageRow, KingdomCatalog} from "@/models/kingdom";
+
 export function progressKey(questCompleted: boolean, invsDone: number): 0 | 1 | 2 | 3 {
     if (questCompleted && invsDone >= 3) return 3; // I3
     if (invsDone >= 2) return 2;                   // I2
@@ -18,7 +9,7 @@ export function progressKey(questCompleted: boolean, invsDone: number): 0 | 1 | 
     return 0;                                      // Q
 }
 
-export function normalizeRow(row?: StageRowRaw): Record<string, number> {
+export function normalizeRow(row?: BestiaryStageRow): Record<string, number> {
     const out: Record<string, number> = {};
     if (!row) return out;
     for (const [k, v] of Object.entries(row)) out[k] = v ?? 0;

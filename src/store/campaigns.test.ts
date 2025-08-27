@@ -264,4 +264,61 @@ describe('campaigns store', () => {
         expect(c.partyLeaderUID).toBeUndefined();
         expect(c.members.every(m => m.isLeader === false)).toBe(true);
     });
+
+    it('marks single-attempt adventure as completed (idempotent) and creates kingdom state', () => {
+        // Arrange
+        const t1 = 1_700_000_000_000;
+        vi.setSystemTime(t1);
+        useCampaigns.getState().addCampaign('cmp-1', 'Campaign One');
+
+        const advId = 'principality-of-stone:secret-hall';
+        const kingdomId = 'principality-of-stone';
+
+        // Act: mark complete once
+        useCampaigns.getState().setAdventureProgress('cmp-1', kingdomId, advId, { singleAttempt: true });
+
+        // Assert: kingdom and adventure state created with count = 1
+        let c = useCampaigns.getState().campaigns['cmp-1'];
+        let k = c.kingdoms.find(k => k.kingdomId === kingdomId);
+        expect(k).toBeTruthy();
+        expect(Array.isArray(k!.adventures)).toBe(true);
+        let a = (k!.adventures as any[]).find(x => x.id === advId);
+        expect(a).toBeTruthy();
+        expect(a.completedCount).toBe(1);
+
+        // Act: calling again should remain at 1 (idempotent)
+        useCampaigns.getState().setAdventureProgress('cmp-1', kingdomId, advId, { singleAttempt: true });
+        c = useCampaigns.getState().campaigns['cmp-1'];
+        k = c.kingdoms.find(k => k.kingdomId === kingdomId);
+        a = (k!.adventures as any[]).find(x => x.id === advId);
+        expect(a.completedCount).toBe(1);
+
+        // updatedAt should be set
+        expect(c.updatedAt).toBe(t1);
+    });
+
+    it('increments repeatable adventure by delta and does not affect others', () => {
+        useCampaigns.getState().addCampaign('cmp-2', 'Campaign Two');
+
+        const kingdomId = 'principality-of-stone';
+        const advA = `${kingdomId}:scout-the-ravine`;
+        const advB = `${kingdomId}:resupply-at-fort`;
+
+        // A: +1, +1, +2 => 4
+        useCampaigns.getState().setAdventureProgress('cmp-2', kingdomId, advA, { delta: 1 });
+        useCampaigns.getState().setAdventureProgress('cmp-2', kingdomId, advA, { delta: 1 });
+        useCampaigns.getState().setAdventureProgress('cmp-2', kingdomId, advA, { delta: 2 });
+
+        // B: +1 => 1 (independent)
+        useCampaigns.getState().setAdventureProgress('cmp-2', kingdomId, advB, { delta: 1 });
+
+        const c = useCampaigns.getState().campaigns['cmp-2'];
+        const k = c.kingdoms.find(k => k.kingdomId === kingdomId)!;
+        const aA = (k.adventures as any[]).find(x => x.id === advA);
+        const aB = (k.adventures as any[]).find(x => x.id === advB);
+
+        expect(aA?.completedCount).toBe(4);
+        expect(aB?.completedCount).toBe(1);
+    });
+
 });

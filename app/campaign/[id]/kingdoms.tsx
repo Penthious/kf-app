@@ -13,12 +13,13 @@ import { useKnights } from '@/store/knights';
 import { ensureChapter, countCompletedInvestigations } from '@/models/knight';
 import type { Campaign } from '@/models/campaign';
 
-import { allKingdomsCatalog } from '@/catalogs/kingdoms/kingdomLoader';
+import { allKingdomsCatalog } from '@/store/kingdoms';
+import type { KingdomCatalog } from '@/models/kingdom';
 import LeaderContextCard from '@/features/kingdoms/LeaderContextCard';
 import KingdomSelector from '@/features/kingdoms/KingdomSelector';
 import MonstersCard from '@/features/kingdoms/MonsterCard';
 import AdventuresCard from '@/features/kingdoms/AdventuresCard';
-import { KingdomCatalog, resolveStagesForBestiary } from '@/features/kingdoms/utils';
+import { resolveStagesForBestiary } from '@/features/kingdoms/utils';
 
 import {getMemberSets,} from '@/features/knights/selectors';
 import {KnightsById} from "@/features/knights/types";

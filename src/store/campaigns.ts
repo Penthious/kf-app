@@ -1,6 +1,8 @@
 // src/store/campaigns.ts
 import type {Campaign, CampaignMember} from "@/models/campaign";
 import { create } from 'zustand';
+import type { KingdomState, KingdomAdventureState } from '@/models/kingdom';
+
 
 
 type Conflict = { conflict: { existingUID: string } };
@@ -56,6 +58,19 @@ export type CampaignsActions = {
     /** Set party leader (must be a member; will be activated if benched). */
     setPartyLeader: (campaignId: string, knightUID: string) => void;
     unsetPartyLeader: (campaignId: string) => void;
+
+    /**
+     * Record progress for a kingdom adventure.
+     * - singleAttempt: when true, marks as completed (count = 1, idempotent).
+     * - delta: increment amount for repeatable adventures (default 1).
+     */
+    setAdventureProgress: (
+        campaignId: string,
+        kingdomId: string,
+        adventureId: string,
+        opts?: { singleAttempt?: boolean; delta?: number }
+    ) => void;
+
 };
 
 // Ensure a member exists; if adding, fill required fields.
@@ -74,7 +89,7 @@ const ensureMember = (
     }];
 };
 
-export const useCampaigns = create<CampaignsState & CampaignsActions>((set) => ({
+export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => ({
     campaigns: {},
     currentCampaignId: undefined,
 
@@ -334,4 +349,66 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set) => (
                 },
             };
         }),
+
+    setAdventureProgress: (campaignId, kingdomId, adventureId, opts) => {
+        const { singleAttempt = false, delta = 1 } = opts ?? {};
+        const s = get();
+        const c = s.campaigns[campaignId];
+        if (!c) return;
+
+        const kingdoms: KingdomState[] = Array.isArray(c.kingdoms) ? [...c.kingdoms] : [];
+
+        let kIdx = kingdoms.findIndex(k => k.kingdomId === kingdomId);
+        if (kIdx === -1) {
+            kingdoms.push({
+                kingdomId,
+                name: '',
+                chapter: 1,
+                adventures: [],
+            });
+            kIdx = kingdoms.length - 1;
+        }
+
+        const ks = { ...kingdoms[kIdx] };
+
+        const computeNext = (cur: number) =>
+            singleAttempt ? (cur >= 1 ? 1 : 1) : Math.max(0, cur + delta);
+
+        // Array shape: KingdomAdventureState[]
+        if (Array.isArray(ks.adventures)) {
+            const advs: KingdomAdventureState[] = [...(ks.adventures as KingdomAdventureState[])];
+            const idx = advs.findIndex(a => a.id === adventureId);
+            const cur = idx === -1 ? 0 : advs[idx].completedCount;
+            const next = computeNext(cur);
+            const updated: KingdomAdventureState = { id: adventureId, completedCount: next };
+            if (idx === -1) advs.push(updated);
+            else advs[idx] = updated;
+            ks.adventures = advs;
+        } else {
+            // Record shape: Record<string, number> | Record<string, { completedCount: number }>
+            const advRec: Record<string, any> = { ...(ks.adventures as Record<string, any>) };
+            const curRaw = advRec[adventureId];
+            const cur = typeof curRaw === 'number'
+                ? curRaw
+                : (curRaw && typeof curRaw === 'object' ? Number(curRaw.completedCount ?? 0) : 0);
+            const next = computeNext(cur);
+            // store as number for compactness
+            advRec[adventureId] = next;
+            ks.adventures = advRec as any;
+        }
+
+        kingdoms[kIdx] = ks;
+
+        set({
+            campaigns: {
+                ...s.campaigns,
+                [campaignId]: {
+                    ...c,
+                    kingdoms,
+                    updatedAt: Date.now(),
+                },
+            },
+        });
+    },
+
 }));

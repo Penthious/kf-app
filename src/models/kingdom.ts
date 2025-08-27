@@ -1,35 +1,35 @@
-export type MonsterTier = 0 | 1 | 2 | 3 | 4; // 0 = locked
-
 export type KingdomMonster = { id: string; name: string };
+export type BestiaryStageRow = Record<string, number | null>;
 
-export type RuleWhen = {
-    // pick ONE of: exact or range; omit a field to ignore it
-    q?: number;         // exact quests
-    qMin?: number;      // inclusive
-    qMax?: number;      // inclusive
-    inv?: number;       // exact investigations
-    invMin?: number;    // inclusive
-    invMax?: number;    // inclusive
+export type Bestiary = {
+    monsters: KingdomMonster[];
+    stages: BestiaryStageRow[];
 };
 
-export type KingdomProgressRule = {
-    order?: number; // optional explicit priority (higher wins)
-    when: RuleWhen;
-    // explicit mapping per monsterId; unspecified ids default to 0 (locked)
-    tiersByMonster: Record<string, MonsterTier>;
+
+/**
+ * Adventure catalog entry:
+ * - name: display name
+ * - roll: inclusive range that triggers this adventure
+ * - singleAttempt: true if it can only be attempted once (not repeatable)
+ */
+export type KingdomAdventureDef = {
+    name: string;
+    roll: RollRange;
+    singleAttempt: boolean;
 };
 
-export type KingdomAdventureDef = { id: string; name: string; repeatable: boolean };
+/**
+ * Inclusive roll range for an adventure (e.g., 2..5 on a d6)
+ */
+export type RollRange = { min: number; max: number };
 
 export type KingdomCatalog = {
-    kingdomId: string;
+    id: string;
     name: string;
-    monsters: KingdomMonster[];         // catalog order (UI only; logic uses ids)
-    states: KingdomProgressRule[];      // rules keyed by (q, inv) conditions
-    chapterAdvance?: { when: RuleWhen; toChapter: number };
+    bestiary: Bestiary;
     adventures: KingdomAdventureDef[];
 };
-
 // persisted in Campaign
 export type KingdomAdventureState = { id: string; completedCount: number };
 export type KingdomState = {
