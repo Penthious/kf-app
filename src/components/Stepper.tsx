@@ -1,6 +1,8 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { View, Text, TextInput } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import SmallButton from '@/components/SmallButton';
+
 
 type Props = {
     label?: string;
@@ -9,26 +11,140 @@ type Props = {
     min?: number;
     max?: number;
     step?: number;
+    editable?: boolean;
+    disabled?: boolean;
+    tone?: 'default' | 'accent';
+    // Optional formatting/parsing hooks
+    formatValue?: (v: number) => string;
+    parseValue?: (s: string) => number;
+    // Optional TextInput props pass-through
+    inputProps?: Partial<React.ComponentProps<typeof TextInput>>;
+
 };
 
-export default function Stepper({ label, value, onChange, min = 0, max = Number.MAX_SAFE_INTEGER, step = 1 }: Props){
+export default function Stepper({
+                                    value,
+                                    onChange,
+                                    step = 1,
+                                    min = Number.NEGATIVE_INFINITY,
+                                    max = Number.POSITIVE_INFINITY,
+                                    disabled = false,
+                                    tone = 'default',
+                                    editable = false,
+                                    formatValue,
+                                    parseValue,
+                                    inputProps,
+                                }: Props) {
     const { tokens } = useThemeTokens();
-    const dec = () => onChange(Math.max(min, value - step));
-    const inc = () => onChange(Math.min(max, value + step));
+
+    const clamp = useCallback(
+        (n: number) => Math.min(max, Math.max(min, n)),
+        [min, max]
+    );
+
+    const display = useMemo(
+        () => (formatValue ? formatValue(value) : String(value)),
+        [formatValue, value]
+    );
+
+    // local text state only when editable
+    const [text, setText] = useState(display);
+    useEffect(() => {
+        if (!editable) return;
+        setText(display);
+    }, [display, editable]);
+
+    const commitText = useCallback(
+        (s: string) => {
+            const parsed = clamp(
+                parseValue
+                    ? parseValue(s)
+                    : Math.floor(Number(s || '0'))
+            );
+            if (!Number.isFinite(parsed)) return;
+            if (parsed !== value) onChange(parsed);
+            // snap input to formatted version
+            setText(formatValue ? formatValue(parsed) : String(parsed));
+        },
+        [clamp, formatValue, onChange, parseValue, value]
+    );
+
+    const stepBy = useCallback(
+        (delta: number) => {
+            const next = clamp(value + delta * step);
+            if (next !== value) onChange(next);
+            if (editable) setText(formatValue ? formatValue(next) : String(next));
+        },
+        [clamp, editable, formatValue, step, value, onChange]
+    );
+
+    const border = '#0006';
+
     return (
-        <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingVertical:8}}>
-            {label ? <Text style={{color: tokens.textPrimary, fontWeight:'600'}}>{label}</Text> : <View />}
-            <View style={{flexDirection:'row', alignItems:'center'}}>
-                <Pressable onPress={dec} style={{backgroundColor: tokens.surface, paddingVertical:6, paddingHorizontal:12, borderTopLeftRadius:10, borderBottomLeftRadius:10, borderWidth:1, borderColor:'#0006'}}>
-                    <Text style={{color: tokens.textPrimary, fontWeight:'800'}}>-</Text>
-                </Pressable>
-                <View style={{backgroundColor: tokens.card, paddingVertical:6, paddingHorizontal:14, borderTopWidth:1, borderBottomWidth:1, borderColor:'#0006'}}>
-                    <Text style={{color: tokens.textPrimary, minWidth:28, textAlign:'center'}}>{value}</Text>
+        <View
+            style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+            }}
+        >
+            <SmallButton
+                label="−"
+                onPress={() => stepBy(-1)}
+                disabled={disabled || value <= min}
+                tone={tone}
+            />
+
+            {editable ? (
+                <TextInput
+                    value={text}
+                    onChangeText={setText}
+                    onBlur={() => commitText(text)}
+                    keyboardType={inputProps?.keyboardType ?? 'number-pad'}
+                    inputMode={inputProps?.inputMode ?? 'numeric'}
+                    placeholder={inputProps?.placeholder ?? '0'}
+                    style={{
+                        minWidth: 72,
+                        height: 36,
+                        borderRadius: 8,
+                        backgroundColor: tokens.surface,
+                        color: tokens.textPrimary,
+                        borderWidth: 1,
+                        borderColor: border,
+                        textAlign: 'center',
+                        fontWeight: '800',
+                        ...(inputProps?.style as object),
+                    }}
+                    accessibilityLabel={inputProps?.accessibilityLabel ?? 'Stepper value'}
+                    editable={!disabled}
+                    {...inputProps}
+                />
+            ) : (
+                <View
+                    style={{
+                        minWidth: 72,
+                        height: 36,
+                        borderRadius: 8,
+                        backgroundColor: tokens.surface,
+                        borderWidth: 1,
+                        borderColor: border,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingHorizontal: 12,
+                    }}
+                >
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
+                        {display}
+                    </Text>
                 </View>
-                <Pressable onPress={inc} style={{backgroundColor: tokens.surface, paddingVertical:6, paddingHorizontal:12, borderTopRightRadius:10, borderBottomRightRadius:10, borderWidth:1, borderColor:'#0006'}}>
-                    <Text style={{color: tokens.textPrimary, fontWeight:'800'}}>+</Text>
-                </Pressable>
-            </View>
+            )}
+
+            <SmallButton
+                label="+"
+                onPress={() => stepBy(1)}
+                disabled={disabled || value >= max}
+                tone={tone}
+            />
         </View>
     );
 }

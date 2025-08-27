@@ -64,6 +64,7 @@ export type KnightSheet = {
     mercenaries: string[];                   // catalog ids
     armory: string[];                        // gear ids (for now)
     notes: Note[];                           // player notes
+    cipher: number;
 };
 
 export type Knight = {
@@ -110,6 +111,7 @@ export function defaultSheet(): KnightSheet {
         mercenaries: [],
         armory: [],
         notes: [],
+        cipher: 0,
     };
 }
 
@@ -157,6 +159,7 @@ export function ensureSheet(s: Partial<KnightSheet> | undefined): KnightSheet {
         firstDeath: !!s?.firstDeath,
         prologueDone: !!s?.prologueDone,
         postgameDone: !!s?.postgameDone,
+        cipher: typeof s?.cipher === 'number' ? s!.cipher : base.cipher,
     };
     return out;
 }

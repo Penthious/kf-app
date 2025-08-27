@@ -6,5 +6,10 @@ module.exports = defineConfig([
   expoConfig,
   {
     ignores: ['dist/*'],
+
+  },
+  {
+    default: 'array-simple', // enforces T[] by default
+    readonly: 'generic',     // but allows ReadonlyArray<T>
   },
 ]);

@@ -2,7 +2,9 @@
   {
     "id": "kara",
     "name": "Kara",
-    "source": "Core"
+    "source": "Core",
+    "startingVirtues": {"bravery":  2},
+    "cipherStart": 68
   },
   {
     "id": "ser-sonch",

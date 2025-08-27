@@ -10,6 +10,8 @@ import {
     completeQuestDomain,
     normalLocked,
 } from '@/models/knight';
+import KNIGHT_CATALOG from '@/catalogs/knights.json';
+
 
 export type KnightsState = {
     knightsById: Record<UUID, Knight>;
@@ -49,9 +51,20 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     knightsById: {},
 
     addKnight: (k) => {
+        const cat = Array.isArray(KNIGHT_CATALOG)
+            ? (KNIGHT_CATALOG as Array<{ id: string; startingVirtues?: any; cipherStart?: number }>)
+                .find((c) => c.id === k.catalogId)
+            : undefined;
+
+        const seededSheet = ensureSheet({
+            ...k.sheet,
+            virtues: cat?.startingVirtues ?? k.sheet?.virtues,
+            cipher: typeof cat?.cipherStart === 'number' ? cat!.cipherStart : k.sheet?.cipher,
+        });
+
         const saved: Knight = ensureKnight({
             ...k,
-            sheet: ensureSheet(k.sheet),
+            sheet: seededSheet,
         } as Knight);
 
         set((s) => ({
