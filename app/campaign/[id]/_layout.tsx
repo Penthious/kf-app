@@ -15,7 +15,7 @@ export default function CampaignTabsLayout() {
 
     useEffect(() => {
         setCurrentCampaignId(campaignId);
-        return () => setCurrentCampaignId(undefined); // clear when leaving this stack
+        return () => setCurrentCampaignId(undefined);
     }, [campaignId, setCurrentCampaignId]);
 
 
@@ -34,7 +34,8 @@ export default function CampaignTabsLayout() {
             <Tabs.Screen name="kingdoms" options={{ title: 'Kingdoms' }} />
             <Tabs.Screen name="knights"  options={{ title: 'Knights'  }} />
             <Tabs.Screen name="gear"     options={{ title: 'Gear'     }} />
-            <Tabs.Screen name="encounter" options={{ title: 'Encounter' }} />
+            <Tabs.Screen name="delve"    options={{ title: 'Delve'   }} />
+            <Tabs.Screen name="clash"    options={{ title: 'Clash'   }} />
         </Tabs>
     );
 }

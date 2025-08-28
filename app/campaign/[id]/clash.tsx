@@ -15,7 +15,7 @@ export default function CampaignEncounter() {
         <SafeAreaView style={{ flex:1, backgroundColor: tokens.bg }}>
             <ScrollView contentContainerStyle={{ padding:16 }}>
                 <Card>
-                    <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>Encounter</Text>
+                    <Text style={{ color: tokens.textPrimary, fontWeight:'800', marginBottom:8 }}>Clash</Text>
                     {!c ? (
                         <Text style={{ color: tokens.textMuted }}>Campaign not found</Text>
                     ) : (

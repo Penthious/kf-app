@@ -1,4 +1,4 @@
-export type KingdomMonster = { id: string; name: string };
+export type KingdomMonster = { id: string;  };
 export type BestiaryStageRow = Record<string, number | null>;
 
 export type Bestiary = {

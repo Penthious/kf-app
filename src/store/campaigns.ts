@@ -21,7 +21,7 @@ export type CampaignsActions = {
     addCampaign: (campaignId: string, name: string) => void;
     renameCampaign: (campaignId: string, name: string) => void;
     removeCampaign: (campaignId: string) => void;
-    setCurrentCampaignId: (id: string) => void;
+    setCurrentCampaignId: (id?: string) => void;
 
     // settings
     setFivePlayerMode: (campaignId: string, on: boolean) => void;

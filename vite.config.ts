@@ -5,9 +5,14 @@ export default defineConfig({
     plugins: [
         tsconfigPaths(),
     ],
+    resolve: {
+        alias: {
+            'react-native': 'react-native-web',
+        },
+    },
+
     test: {
-        // put your Vitest options here if needed
-        // environment: 'node',
-        // globals: true,
+        environment: 'jsdom',
+        setupFiles: ['vite.setup.ts'],
     },
 });
