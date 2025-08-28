@@ -14,6 +14,7 @@ import { ensureChapter, countCompletedInvestigations } from '@/models/knight';
 import type { Campaign } from '@/models/campaign';
 
 import { allKingdomsCatalog } from '@/store/kingdoms';
+import { buildKingdomView } from '@/features/kingdoms/kingdomView';
 import type { KingdomCatalog } from '@/models/kingdom';
 import LeaderContextCard from '@/features/kingdoms/LeaderContextCard';
 import KingdomSelector from '@/features/kingdoms/KingdomSelector';
@@ -23,6 +24,7 @@ import { resolveStagesForBestiary } from '@/features/kingdoms/utils';
 
 import {getMemberSets,} from '@/features/knights/selectors';
 import {KnightsById} from "@/features/knights/types";
+
 
 export default function CampaignKingdoms() {
     const { tokens } = useThemeTokens();
@@ -95,6 +97,9 @@ export default function CampaignKingdoms() {
         ? resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row
         : {};
 
+    const kv = buildKingdomView(activeKingdom?.id ?? '', c, allKingdomsCatalog);
+
+
     // ----- Guard if no campaign -----
     if (!c) {
         return (
@@ -140,8 +145,8 @@ export default function CampaignKingdoms() {
                 {/* Monsters and adventures (only when a leader is selected) */}
                 {leader ? (
                     <>
-                        <MonstersCard kingdom={activeKingdom} stageRow={stageRow} />
-                        <AdventuresCard kingdom={activeKingdom} />
+                        <MonstersCard kingdom={kv} stageRow={stageRow} />
+                        <AdventuresCard kingdom={kv} />
                     </>
                 ) : (
                     <View>

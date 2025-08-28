@@ -5,11 +5,12 @@ import { useThemeTokens } from '@/theme/ThemeProvider';
 import StageBadge from './StageBadge';
 import { KingdomCatalog, KingdomMonster } from '@/models/kingdom';
 import { useMonsters } from '@/store/monsters';
+import {KingdomView} from "@/features/kingdoms/kingdomView";
 
 export default function MonstersCard({
                                          kingdom, stageRow, availableOnly = true,
                                      }: {
-    kingdom?: KingdomCatalog;
+    kingdom?: KingdomView;
     stageRow: Record<string, number | null>;
     availableOnly?: boolean;
 }) {

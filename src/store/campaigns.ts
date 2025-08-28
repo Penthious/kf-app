@@ -1,16 +1,10 @@
-// src/store/campaigns.ts
-import type {Campaign, CampaignMember} from "@/models/campaign";
+import type {Campaign, CampaignMember, CampaignsState} from "@/models/campaign";
 import { create } from 'zustand';
 import type { KingdomState, KingdomAdventureState } from '@/models/kingdom';
 
 
 
 type Conflict = { conflict: { existingUID: string } };
-
-export type CampaignsState = {
-    campaigns: Record<string, Campaign>;
-    currentCampaignId?: string;
-};
 
 export type CampaignsActions = {
     // app navigation helpers (optional)

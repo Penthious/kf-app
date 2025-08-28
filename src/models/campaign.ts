@@ -28,3 +28,8 @@ export type Campaign = {
 
     kingdoms: KingdomState[];
 };
+
+export type CampaignsState = {
+    campaigns: Record<string, Campaign>;
+    currentCampaignId?: string;
+};

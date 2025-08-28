@@ -5,9 +5,11 @@ import Pill from '@/components/ui/Pill';
 import Stepper from '@/components/Stepper';
 import { useCampaigns } from '@/store/campaigns';
 import type { KingdomCatalog } from '@/models/kingdom';
+import {KingdomView} from "@/features/kingdoms/kingdomView";
 
-export default function AdventuresCard({ kingdom }: { kingdom?: KingdomCatalog }) {
+export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
     const { tokens } = useThemeTokens();
+
     const campaigns = useCampaigns(s => s.campaigns);
     const currentCampaignId = useCampaigns(s => (s as any).currentCampaignId) as string | undefined;
     const setAdventureProgress = useCampaigns(s => (s as any).setAdventureProgress) as (
@@ -16,6 +18,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomCatalog }
         adventureId: string,
         opts?: { singleAttempt?: boolean; delta?: number }
     ) => void;
+
 
     const c = currentCampaignId ? campaigns[currentCampaignId] : undefined;
 
@@ -113,6 +116,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomCatalog }
                                         label={completed ? 'Completed' : 'Mark Complete'}
                                         selected={completed}
                                         onPress={() => onCompleteOnce(advId)}
+                                        testID={`adventure-${advId}`}
                                     />
                                 </View>
                             );

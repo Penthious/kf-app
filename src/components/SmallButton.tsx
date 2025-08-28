@@ -38,6 +38,7 @@ export default function SmallButton({
                 opacity,
             }}
             accessibilityRole="button"
+            accessibilityLabel={label}
             accessibilityState={{ disabled }}
         >
             <Text style={{ color: textColor, fontWeight: '800' }}>{label}</Text>

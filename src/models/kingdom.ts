@@ -30,6 +30,7 @@ export type KingdomCatalog = {
     bestiary: Bestiary;
     adventures: KingdomAdventureDef[];
 };
+
 // persisted in Campaign
 export type KingdomAdventureState = { id: string; completedCount: number };
 export type KingdomState = {

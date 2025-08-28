@@ -9,6 +9,7 @@ type PillProps = {
     disabled?: boolean;
     tone?: 'default' | 'accent' | 'success' | 'danger';
     onPress?: () => void;
+    testID?: string;
 };
 
 export default function Pill({
@@ -17,6 +18,7 @@ export default function Pill({
                                  disabled = false,
                                  tone = 'default',
                                  onPress,
+                                 testID,
                              }: PillProps) {
     const { tokens } = useThemeTokens();
 
@@ -44,7 +46,9 @@ export default function Pill({
             onPress={disabled ? undefined : onPress}
             hitSlop={8}
             accessibilityRole="button"
+            accessibilityLabel={label}
             accessibilityState={{ disabled, selected }}
+            testID={testID}
             style={{
                 paddingHorizontal: 12,
                 height: 32,

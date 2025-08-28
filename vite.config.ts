@@ -5,14 +5,14 @@ export default defineConfig({
     plugins: [
         tsconfigPaths(),
     ],
-    resolve: {
-        alias: {
-            'react-native': 'react-native-web',
-        },
-    },
-
     test: {
-        environment: 'jsdom',
-        setupFiles: ['vite.setup.ts'],
-    },
+        include: [
+            '**/*.spec.ts',
+            '**/*.spec.tsx'
+        ],
+        exclude: [
+            '**/node_modules/**',
+            '**/dist/**'
+        ]
+    }
 });
