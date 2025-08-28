@@ -13,14 +13,14 @@ export default function RootTabsLayout() {
                 headerStyle: { backgroundColor: tokens.surface },
                 headerTitleStyle: { color: tokens.textPrimary },
                 headerTintColor: tokens.textPrimary,
-                headerRight: () => <HeaderMenuButton />,  // 👈 hamburger on root pages
+                headerRight: () => <HeaderMenuButton />,  // hamburger on root pages
                 tabBarStyle: { backgroundColor: tokens.surface },
                 tabBarActiveTintColor: tokens.accent,
                 tabBarInactiveTintColor: tokens.textMuted,
                 tabBarIcon: ({ color, size }) => {
                     const m: Record<string, string> = {
-                        index: 'albums',        // Campaigns
-                        knights: 'person',      // (if you still have global Knights tab)
+                        index: 'albums',
+                        knights: 'person',
                     };
                     const name = m[route.name] || 'apps';
                     return <Ionicons name={name as any} size={size} color={color} />;
