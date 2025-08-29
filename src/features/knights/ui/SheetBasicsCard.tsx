@@ -1,7 +1,7 @@
 import Card from '@/components/Card';
 import Stepper from '@/components/ui/Stepper';
 import SwitchRow from '@/components/ui/SwitchRow';
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Pressable, Text, View } from 'react-native';
 

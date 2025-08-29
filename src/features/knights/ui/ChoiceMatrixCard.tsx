@@ -1,7 +1,7 @@
 // src/components/ChoiceMatrixCard.tsx
 import Card from '@/components/Card';
 import { ensureSheet } from '@/models/knight';
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';

@@ -9,6 +9,7 @@ module.exports = defineConfig([
   },
   {
     rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
       // Enforce consistent import paths
       'no-restricted-imports': [
         'error',
@@ -29,7 +30,18 @@ module.exports = defineConfig([
     },
   },
   {
-    default: 'array-simple', // enforces T[] by default
-    readonly: 'generic', // but allows ReadonlyArray<T>
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/__tests__/**/*.{ts,tsx}',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'import/first': 'off',
+      'react/display-name': 'off',
+    },
   },
 ]);

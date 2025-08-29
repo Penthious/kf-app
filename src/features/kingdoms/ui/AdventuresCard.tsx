@@ -1,7 +1,7 @@
 import Pill from '@/components/ui/Pill';
 import Stepper from '@/components/ui/Stepper';
 import { KingdomView } from '@/features/kingdoms/kingdomView';
-import { useCampaigns } from '@/store/campaigns';
+import { useCampaigns } from '@/store';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';

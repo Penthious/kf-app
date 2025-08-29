@@ -1,5 +1,6 @@
 import type { Gear } from '@/models/gear';
-import { useGear } from '@/store/gear';
+import { useGear } from '@/store';
+import type { GearStore } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ interface GearActionsProps {
 
 export function GearActions({ gear, knightId, isGearInstance = false }: GearActionsProps) {
   const { tokens } = useThemeTokens();
+  // Select only needed fields to ease test mocking compatibility
   const {
     attachUpgrade,
     detachUpgrade,
@@ -22,7 +24,16 @@ export function GearActions({ gear, knightId, isGearInstance = false }: GearActi
     isReforged,
     getAvailableQuantity,
     allGear,
-  } = useGear();
+  } = useGear((s: GearStore) => ({
+    attachUpgrade: s.attachUpgrade,
+    detachUpgrade: s.detachUpgrade,
+    getAttachedUpgrade: s.getAttachedUpgrade,
+    getUpgradeTargets: s.getUpgradeTargets,
+    reforgeMerchantGear: s.reforgeMerchantGear,
+    isReforged: s.isReforged,
+    getAvailableQuantity: s.getAvailableQuantity,
+    allGear: s.allGear,
+  }));
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -59,8 +70,8 @@ export function GearActions({ gear, knightId, isGearInstance = false }: GearActi
 
   const getAvailableUpgrades = () => {
     if (!isGearInstance) return [];
-    return Object.values(allGear).filter(
-      item =>
+    return (Object.values(allGear) as Gear[]).filter(
+      (item: Gear) =>
         item.type === 'upgrade' &&
         getUpgradeTargets(item.id).includes(gear.id) &&
         getAvailableQuantity(item.id) > 0
@@ -134,7 +145,7 @@ export function GearActions({ gear, knightId, isGearInstance = false }: GearActi
           <View style={[styles.modalContent, { backgroundColor: tokens.surface }]}>
             <Text style={[styles.modalTitle, { color: tokens.textPrimary }]}>Select Upgrade</Text>
 
-            {availableUpgrades.map(upgrade => (
+            {availableUpgrades.map((upgrade: Gear) => (
               <Pressable
                 key={upgrade.id}
                 style={[styles.upgradeOption, { borderColor: tokens.textMuted }]}

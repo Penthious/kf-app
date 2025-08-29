@@ -222,3 +222,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     return normalLocked(chapterProgress);
   },
 }));
+
+// Typed selector helper
+export const useKnightsSelector = <T>(selector: (s: KnightsState & KnightsActions) => T): T =>
+  useKnights(selector);

@@ -1,4 +1,4 @@
-import { useGear } from '@/store/gear';
+import { useGear } from '@/store';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Alert } from 'react-native';

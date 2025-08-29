@@ -18,13 +18,13 @@ export default function RootTabsLayout() {
         tabBarActiveTintColor: tokens.accent,
         tabBarInactiveTintColor: tokens.textMuted,
         tabBarIcon: ({ color, size }) => {
-          const m: Record<string, string> = {
+          const m: Record<string, keyof typeof Ionicons.glyphMap> = {
             index: 'albums',
             knights: 'person',
             gear: 'shield',
           };
-          const name = m[route.name] || 'apps';
-          return <Ionicons name={name as any} size={size} color={color} />;
+          const name: keyof typeof Ionicons.glyphMap = (m[route.name] || 'apps') as keyof typeof Ionicons.glyphMap;
+          return <Ionicons name={name} size={size} color={color} />;
         },
       })}
     >

@@ -5,7 +5,7 @@ import {
   ensureSheet,
   InvestigationResult,
 } from '@/models/knight';
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useMemo } from 'react';
 
 export interface InvestigationEntry {

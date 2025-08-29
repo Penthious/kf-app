@@ -1,5 +1,5 @@
 import ALLIES_CATALOG from '@/catalogs/allies';
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useMemo } from 'react';
 
 export interface AllyOption {

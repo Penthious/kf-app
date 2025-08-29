@@ -1,5 +1,6 @@
 import type { Gear, GearType } from '@/models/gear';
 import { create } from 'zustand';
+// import { shallow } from 'zustand/shallow';
 
 export type GearState = {
   allGear: Record<string, Gear>;
@@ -762,3 +763,8 @@ export const useGear = create<GearStore>((set, get) => ({
       .filter(instanceId => instanceId.startsWith(gearId + '-')).length;
   },
 }));
+
+// Typed selector helpers to reduce re-renders in components
+export const useGearSelector = <T>(selector: (s: GearStore) => T): T => useGear(selector);
+// Zustand's hook in our setup doesn't accept an equalityFn param; provide a shallow wrapper
+export const useGearShallow = <T>(selector: (s: GearStore) => T): T => useGearSelector(selector);

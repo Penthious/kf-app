@@ -1,6 +1,6 @@
 import Card from '@/components/Card';
 import Stepper from '@/components/ui/Stepper';
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Text, View } from 'react-native';
 

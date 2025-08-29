@@ -1,4 +1,4 @@
-import { useKnights } from '@/store/knights';
+import { useKnights } from '@/store';
 import { useMemo } from 'react';
 import uuid from 'react-native-uuid';
 

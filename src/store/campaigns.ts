@@ -490,3 +490,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
       };
     }),
 }));
+
+// Typed selector helper
+export const useCampaignsSelector = <T>(selector: (s: CampaignsState & CampaignsActions) => T): T =>
+  useCampaigns(selector);

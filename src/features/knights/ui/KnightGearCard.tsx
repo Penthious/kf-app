@@ -1,8 +1,9 @@
 import Card from '@/components/Card';
 import { GearActions } from '@/features/gear/ui/GearActions';
 import type { Gear } from '@/models/gear';
+import { useGearShallow } from '@/store';
 import { useCampaigns } from '@/store/campaigns';
-import { useGear } from '@/store/gear';
+import type { GearStore } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -25,7 +26,18 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     getAvailableQuantity,
     getEquippedQuantity,
     gearInstanceData,
-  } = useGear();
+  } = useGearShallow((s: GearStore) => ({
+    allGear: s.allGear,
+    getEquippedGear: s.getEquippedGear,
+    getAvailableGearForKnight: s.getAvailableGearForKnight,
+    getGearOwner: s.getGearOwner,
+    equipGear: s.equipGear,
+    unequipGear: s.unequipGear,
+    transferGear: s.transferGear,
+    getAvailableQuantity: s.getAvailableQuantity,
+    getEquippedQuantity: s.getEquippedQuantity,
+    gearInstanceData: s.gearInstanceData,
+  }));
   const { currentCampaignId } = useCampaigns();
 
   const [showUnlockModal, setShowUnlockModal] = useState(false);
@@ -37,9 +49,11 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     : [];
 
   const equippedGear = equippedGearInstanceIds
-    .map(instanceId => gearInstanceData[instanceId])
+    .map((instanceId: string) => gearInstanceData[instanceId])
     .filter(Boolean);
-  const availableGear = availableGearIds.map(id => allGear[id]).filter(Boolean);
+  const availableGear: Gear[] = (availableGearIds as string[])
+    .map((id: string) => allGear[id])
+    .filter((g): g is Gear => Boolean(g));
 
   // Get all unlocked gear for this campaign
   const allAvailableGear = Object.values(allGear);
@@ -162,9 +176,9 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
         </Text>
         {equippedGear.length > 0 ? (
           <View style={styles.gearList}>
-            {equippedGear.map(gear => {
+            {equippedGear.map((gear: Gear) => {
               const instanceId = equippedGearInstanceIds.find(
-                id => gearInstanceData[id]?.id === gear.id
+                (id: string) => gearInstanceData[id]?.id === gear.id
               );
               return renderGearItem(gear, true, instanceId);
             })}
@@ -183,12 +197,12 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
           <View style={styles.gearList}>
             {availableGear
               .filter(
-                gear =>
+                (gear: Gear) =>
                   !equippedGearInstanceIds.some(
-                    instanceId => gearInstanceData[instanceId]?.id === gear.id
+                    (instanceId: string) => gearInstanceData[instanceId]?.id === gear.id
                   )
               )
-              .map(gear => renderGearItem(gear))}
+              .map((gear: Gear) => renderGearItem(gear))}
           </View>
         ) : (
           <Text style={[styles.emptyText, { color: tokens.textMuted }]}>No gear available</Text>
@@ -212,13 +226,13 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
             </View>
 
             <View style={styles.availableGearList}>
-              {Object.entries(gearInstanceData)
-                .filter(([instanceId, gearInstance]) => {
+              {(Object.entries(gearInstanceData) as Array<[string, Gear]>)
+                .filter(([instanceId]) => {
                   // Only show gear instances that are equipped by other knights
                   const owner = getGearOwner(instanceId);
                   return owner && owner !== knightUID;
                 })
-                .map(([instanceId, gearInstance]) => {
+                .map(([instanceId, gearInstance]: [string, Gear]) => {
                   const owner = getGearOwner(instanceId);
                   return (
                     <Pressable
