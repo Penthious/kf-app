@@ -16,8 +16,10 @@ export type Gear = {
   monsterId?: string; // Only for monster gear
   upgradeType?: 'weapon' | 'armor'; // Only for upgrade gear
   attachedToGearId?: string; // Only for upgrade gear
+  upgrades?: string[]; // Array of upgrade gear IDs attached to this gear
   isReforged?: boolean; // Only for merchant gear
   side?: 'normal' | 'reforged'; // Only for merchant gear
+  reforgedStats?: GearStats; // Stats when reforged (for merchant gear)
   stats: GearStats;
   keywords: string[];
   description: string;
@@ -27,4 +29,5 @@ export type Gear = {
   consumable?: boolean;
   stackable?: boolean;
   maxStack?: number;
+  quantity: number; // Total quantity available for this gear
 };

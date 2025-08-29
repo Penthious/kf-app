@@ -72,6 +72,7 @@ describe('Gear Models', () => {
         keywords: ['piercing'],
         description: 'A test sword',
         rarity: 'common',
+        quantity: 2,
       };
 
       expect(gear.id).toBe('test-gear-123');
@@ -99,6 +100,7 @@ describe('Gear Models', () => {
         consumable: false,
         stackable: true,
         maxStack: 5,
+        quantity: 2,
       };
 
       expect(gear.kingdomId).toBe('principality-of-stone');
@@ -120,6 +122,7 @@ describe('Gear Models', () => {
         keywords: ['kingdom'],
         description: 'A kingdom sword',
         rarity: 'rare',
+        quantity: 2,
       };
 
       expect(kingdomGear.kingdomId).toBe('principality-of-stone');
@@ -137,6 +140,7 @@ describe('Gear Models', () => {
         keywords: ['monster'],
         description: 'A monster claw',
         rarity: 'common',
+        quantity: 2,
       };
 
       expect(monsterGear.kingdomId).toBe('principality-of-stone');
@@ -152,6 +156,7 @@ describe('Gear Models', () => {
         keywords: ['wandering'],
         description: 'A wandering staff',
         rarity: 'uncommon',
+        quantity: 2,
       };
 
       const consumableGear: Gear = {
@@ -165,6 +170,7 @@ describe('Gear Models', () => {
         consumable: true,
         stackable: true,
         maxStack: 10,
+        quantity: 2,
       };
 
       expect(wanderingGear.kingdomId).toBeUndefined();
@@ -183,6 +189,7 @@ describe('Gear Models', () => {
         keywords: ['sharpening'],
         description: 'A weapon upgrade',
         rarity: 'common',
+        quantity: 2,
       };
 
       const armorUpgrade: Gear = {
@@ -194,6 +201,7 @@ describe('Gear Models', () => {
         keywords: ['reinforcement'],
         description: 'An armor upgrade',
         rarity: 'uncommon',
+        quantity: 2,
       };
 
       expect(weaponUpgrade.upgradeType).toBe('weapon');
@@ -210,6 +218,7 @@ describe('Gear Models', () => {
         keywords: ['merchant'],
         description: 'A normal merchant sword',
         rarity: 'rare',
+        quantity: 2,
       };
 
       const reforgedMerchant: Gear = {
@@ -222,6 +231,7 @@ describe('Gear Models', () => {
         keywords: ['merchant', 'reforged'],
         description: 'A reforged merchant sword',
         rarity: 'rare',
+        quantity: 2,
       };
 
       expect(normalMerchant.side).toBe('normal');
@@ -242,6 +252,7 @@ describe('Gear Models', () => {
           keywords: [],
           description: 'Test gear',
           rarity,
+          quantity: 2,
         };
 
         expect(gear.rarity).toBe(rarity);

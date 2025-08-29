@@ -1,12 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-
 import Card from '@/components/Card';
+import { GearActions } from '@/features/gear/ui/GearActions';
 import type { Gear } from '@/models/gear';
 import { useCampaigns } from '@/store/campaigns';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface KnightGearCardProps {
   knightUID: string;
@@ -22,18 +22,23 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     equipGear,
     unequipGear,
     transferGear,
+    getAvailableQuantity,
+    getEquippedQuantity,
+    gearInstanceData,
   } = useGear();
   const { currentCampaignId } = useCampaigns();
 
   const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   // Get equipped and available gear for this knight
-  const equippedGearIds = getEquippedGear(knightUID);
+  const equippedGearInstanceIds = getEquippedGear(knightUID);
   const availableGearIds = currentCampaignId
     ? getAvailableGearForKnight(currentCampaignId, knightUID)
     : [];
 
-  const equippedGear = equippedGearIds.map(id => allGear[id]).filter(Boolean);
+  const equippedGear = equippedGearInstanceIds
+    .map(instanceId => gearInstanceData[instanceId])
+    .filter(Boolean);
   const availableGear = availableGearIds.map(id => allGear[id]).filter(Boolean);
 
   // Get all unlocked gear for this campaign
@@ -76,7 +81,7 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     return `${label}: ${value >= 0 ? '+' : ''}${value}`;
   };
 
-  const renderGearItem = (gear: Gear, isEquipped: boolean = false) => (
+  const renderGearItem = (gear: Gear, isEquipped: boolean = false, instanceId?: string) => (
     <View
       key={gear.id}
       style={[styles.gearItem, { backgroundColor: tokens.surface, borderColor: tokens.textMuted }]}
@@ -87,7 +92,7 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
           {isEquipped ? (
             <Pressable
               style={[styles.actionButton, { backgroundColor: tokens.accent }]}
-              onPress={() => handleUnequipGear(gear.id)}
+              onPress={() => handleUnequipGear(instanceId || gear.id)}
             >
               <Ionicons name='remove-circle' size={16} color='#0B0B0B' />
               <Text style={[styles.actionText, { color: '#0B0B0B' }]}>Unequip</Text>
@@ -107,6 +112,9 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
       <Text style={[styles.gearType, { color: tokens.textMuted }]}>
         {gear.type.charAt(0).toUpperCase() + gear.type.slice(1)} •{' '}
         {gear.rarity.charAt(0).toUpperCase() + gear.rarity.slice(1)}
+        {!isEquipped && (
+          <Text style={{ color: tokens.accent }}> • {getAvailableQuantity(gear.id)} remaining</Text>
+        )}
       </Text>
 
       {Object.entries(gear.stats).length > 0 && (
@@ -128,6 +136,9 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
           ))}
         </View>
       )}
+
+      {/* Show gear actions for equipped gear */}
+      {isEquipped && <GearActions gear={gear} knightId={knightUID} isGearInstance={true} />}
     </View>
   );
 
@@ -151,7 +162,12 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
         </Text>
         {equippedGear.length > 0 ? (
           <View style={styles.gearList}>
-            {equippedGear.map(gear => renderGearItem(gear, true))}
+            {equippedGear.map(gear => {
+              const instanceId = equippedGearInstanceIds.find(
+                id => gearInstanceData[id]?.id === gear.id
+              );
+              return renderGearItem(gear, true, instanceId);
+            })}
           </View>
         ) : (
           <Text style={[styles.emptyText, { color: tokens.textMuted }]}>No gear equipped</Text>
@@ -166,7 +182,12 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
         {availableGear.length > 0 ? (
           <View style={styles.gearList}>
             {availableGear
-              .filter(gear => !equippedGearIds.includes(gear.id))
+              .filter(
+                gear =>
+                  !equippedGearInstanceIds.some(
+                    instanceId => gearInstanceData[instanceId]?.id === gear.id
+                  )
+              )
               .map(gear => renderGearItem(gear))}
           </View>
         ) : (
@@ -191,34 +212,35 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
             </View>
 
             <View style={styles.availableGearList}>
-              {campaignUnlockedGear
-                .filter(gear => {
-                  const owner = getGearOwner(gear.id);
-                  return owner && owner !== knightUID; // Only show gear equipped by other knights
+              {Object.entries(gearInstanceData)
+                .filter(([instanceId, gearInstance]) => {
+                  // Only show gear instances that are equipped by other knights
+                  const owner = getGearOwner(instanceId);
+                  return owner && owner !== knightUID;
                 })
-                .map(gear => {
-                  const owner = getGearOwner(gear.id);
+                .map(([instanceId, gearInstance]) => {
+                  const owner = getGearOwner(instanceId);
                   return (
                     <Pressable
-                      key={gear.id}
+                      key={instanceId}
                       style={[
                         styles.availableGearItem,
                         { backgroundColor: tokens.card, borderColor: tokens.textMuted },
                       ]}
                       onPress={() => {
                         if (owner) {
-                          transferGear(gear.id, owner, knightUID);
+                          transferGear(instanceId, owner, knightUID);
                           Alert.alert('Success', 'Gear transferred!');
                           setShowUnlockModal(false);
                         }
                       }}
                     >
                       <Text style={[styles.availableGearName, { color: tokens.textPrimary }]}>
-                        {gear.name}
+                        {gearInstance.name}
                       </Text>
                       <Text style={[styles.availableGearType, { color: tokens.textMuted }]}>
-                        {gear.type.charAt(0).toUpperCase() + gear.type.slice(1)} •{' '}
-                        {gear.rarity.charAt(0).toUpperCase() + gear.rarity.slice(1)}
+                        {gearInstance.type.charAt(0).toUpperCase() + gearInstance.type.slice(1)} •{' '}
+                        {gearInstance.rarity.charAt(0).toUpperCase() + gearInstance.rarity.slice(1)}
                       </Text>
                       <Text style={[styles.availableGearType, { color: tokens.textMuted }]}>
                         Equipped by: {owner}
@@ -229,8 +251,8 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
                 })}
             </View>
 
-            {campaignUnlockedGear.filter(gear => {
-              const owner = getGearOwner(gear.id);
+            {Object.entries(gearInstanceData).filter(([instanceId, gearInstance]) => {
+              const owner = getGearOwner(instanceId);
               return owner && owner !== knightUID;
             }).length === 0 && (
               <Text style={[styles.emptyText, { color: tokens.textMuted }]}>

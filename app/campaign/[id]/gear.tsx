@@ -31,6 +31,7 @@ export default function CampaignGear() {
   const { campaigns } = useCampaigns();
   const c = campaignId ? campaigns[campaignId] : undefined;
   const { allGear, getGearByKingdom, getGearByType, getGlobalGear, getEquippedGear } = useGear();
+  const { isGearUnlockedForCampaign } = useGear();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -259,6 +260,7 @@ export default function CampaignGear() {
                     onGallery={handleGearGallery}
                     onDelete={handleGearDelete}
                     onUnlock={handleGearUnlock}
+                    isUnlocked={campaignId ? isGearUnlockedForCampaign(campaignId, gear.id) : false}
                   />
                 ))}
               </View>

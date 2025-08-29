@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Gear } from '@/models/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +11,7 @@ interface GearCardProps {
   onGallery?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
   onUnlock?: (gear: Gear) => void;
+  isUnlocked?: boolean;
 }
 
 export function GearCard({
@@ -21,6 +21,7 @@ export function GearCard({
   onGallery,
   onDelete,
   onUnlock,
+  isUnlocked,
 }: GearCardProps) {
   const { tokens } = useThemeTokens();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
@@ -103,18 +104,29 @@ export function GearCard({
             {gear.isReforged && (
               <Text style={[styles.propertyText, { color: tokens.textMuted }]}>Reforged</Text>
             )}
+            <Text style={[styles.propertyText, { color: tokens.accent }]}>
+              Quantity: {gear.quantity}
+            </Text>
           </View>
 
-          {onUnlock && (
-            <Pressable
-              style={[styles.unlockButton, { backgroundColor: tokens.accent }]}
-              onPress={() => onUnlock(gear)}
-              testID='gear-unlock-button'
-            >
-              <Ionicons name='add-circle' size={16} color='#0B0B0B' />
-              <Text style={[styles.unlockButtonText, { color: '#0B0B0B' }]}>Unlock</Text>
-            </Pressable>
-          )}
+          {onUnlock &&
+            (isUnlocked ? (
+              <View style={[styles.unlockButton, { backgroundColor: tokens.textMuted }]}>
+                <Ionicons name='checkmark-circle' size={16} color={tokens.textPrimary} />
+                <Text style={[styles.unlockButtonText, { color: tokens.textPrimary }]}>
+                  Unlocked
+                </Text>
+              </View>
+            ) : (
+              <Pressable
+                style={[styles.unlockButton, { backgroundColor: tokens.accent }]}
+                onPress={() => onUnlock(gear)}
+                testID='gear-unlock-button'
+              >
+                <Ionicons name='add-circle' size={16} color='#0B0B0B' />
+                <Text style={[styles.unlockButtonText, { color: '#0B0B0B' }]}>Unlock</Text>
+              </Pressable>
+            ))}
         </View>
 
         {/* Right side - Image */}
