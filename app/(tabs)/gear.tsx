@@ -5,8 +5,8 @@ import type { Gear } from '@/models/gear';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
+import { ImageHandler } from '@/utils/image-handler';
 
-// import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import {
   Alert,
@@ -121,27 +121,52 @@ export default function GearScreen() {
   };
 
   const handleGearCamera = async (gear: Gear) => {
-    // Temporarily disabled to prevent crashes
-    console.log('Camera button pressed for:', gear.name);
-    Alert.alert(
-      'Camera Disabled',
-      'Camera functionality is temporarily disabled to prevent crashes. Please use the gallery option instead.'
-    );
+    try {
+      const imageResult = await ImageHandler.takePhoto();
+      if (imageResult) {
+        const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
+        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        useGear.getState().setGearImage(gear.id, savedUri);
+        console.log('Image saved for', gear.name);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
   };
 
   const handleGearGallery = async (gear: Gear) => {
-    // Temporarily disabled to prevent crashes
-    console.log('Gallery button pressed for:', gear.name);
-    Alert.alert(
-      'Gallery Disabled',
-      'Gallery functionality is temporarily disabled to prevent crashes.'
-    );
+    try {
+      const imageResult = await ImageHandler.pickFromGallery();
+      if (imageResult) {
+        const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
+        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        useGear.getState().setGearImage(gear.id, savedUri);
+        console.log('Image saved for', gear.name);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
+    }
   };
 
   const handleGearDelete = (gear: Gear) => {
     // TODO: Add confirmation dialog
     useGear.getState().removeGearImage(gear.id);
     console.log('Image deleted for', gear.name);
+  };
+
+  const handleGearShare = async (gear: Gear) => {
+    try {
+      if (gear.imageUrl) {
+        await ImageHandler.shareImage(gear.imageUrl, `${gear.name} - Gear Image`);
+      } else {
+        Alert.alert('No Image', 'This gear item has no image to share.');
+      }
+    } catch (error) {
+      console.error('Error sharing image:', error);
+      Alert.alert('Error', 'Failed to share image.');
+    }
   };
 
   const handleKingdomSelect = (kingdomId: string | null) => {
@@ -259,6 +284,7 @@ export default function GearScreen() {
                       onCamera={handleGearCamera}
                       onGallery={handleGearGallery}
                       onDelete={handleGearDelete}
+                      onShare={handleGearShare}
                     />
                   ))
                 ) : (

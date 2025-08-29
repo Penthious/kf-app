@@ -52,6 +52,9 @@ export type GearActions = {
   // Image management
   setGearImage: (gearId: string, imageUrl: string) => void;
   removeGearImage: (gearId: string) => void;
+  addGearImageFromCamera: (gearId: string) => Promise<void>;
+  addGearImageFromGallery: (gearId: string) => Promise<void>;
+  shareGearImage: (gearId: string) => Promise<void>;
 
   // Upgrade management
   attachUpgrade: (upgradeId: string, targetGearId: string) => void;
@@ -461,6 +464,21 @@ export const useGear = create<GearStore>((set, get) => ({
       newState.allGear[gearId] = gearWithoutImage;
       return newState;
     });
+  },
+
+  addGearImageFromCamera: async (gearId: string) => {
+    // TODO: Implement with ImageHandler
+    console.log('Camera functionality to be implemented');
+  },
+
+  addGearImageFromGallery: async (gearId: string) => {
+    // TODO: Implement with ImageHandler
+    console.log('Gallery functionality to be implemented');
+  },
+
+  shareGearImage: async (gearId: string) => {
+    // TODO: Implement with ImageHandler
+    console.log('Share functionality to be implemented');
   },
 
   // Campaign gear management

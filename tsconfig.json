@@ -17,7 +17,8 @@
       "@/catalogs/*": ["src/catalogs/*"],
       "@/features/*": ["src/features/*"],
       "@/models/*": ["src/models/*"],
-      "@/db/*": ["src/db/*"]
+      "@/db/*": ["src/db/*"],
+      "@/utils/*": ["src/utils/*"]
     }
   },
 

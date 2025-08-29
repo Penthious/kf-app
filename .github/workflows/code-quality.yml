@@ -35,6 +35,6 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=your-project-key
-            -Dsonar.organization=your-organization
+            -Dsonar.organization=penthious
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.testExecutionReportPaths=coverage/test-report.xml

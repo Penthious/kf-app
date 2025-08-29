@@ -10,6 +10,7 @@ interface GearCardProps {
   onCamera?: (gear: Gear) => void;
   onGallery?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
+  onShare?: (gear: Gear) => void;
   onUnlock?: (gear: Gear) => void;
   isUnlocked?: boolean;
 }
@@ -20,6 +21,7 @@ export function GearCard({
   onCamera,
   onGallery,
   onDelete,
+  onShare,
   onUnlock,
   isUnlocked,
 }: GearCardProps) {
@@ -236,6 +238,22 @@ export function GearCard({
                   <Ionicons name='trash' size={20} color={tokens.textPrimary} />
                   <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>
                     Delete
+                  </Text>
+                </Pressable>
+              )}
+
+              {onShare && gear.imageUrl && (
+                <Pressable
+                  style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
+                  onPress={() => {
+                    onShare(gear);
+                    setIsImageModalVisible(false);
+                  }}
+                  testID='gear-share-button'
+                >
+                  <Ionicons name='share-outline' size={20} color={tokens.textPrimary} />
+                  <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>
+                    Share
                   </Text>
                 </Pressable>
               )}
