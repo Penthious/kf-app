@@ -9,30 +9,14 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/components/*": [
-        "src/components/*"
-      ],
-      "@/screens/*": [
-        "app/(tabs)/*"
-      ],
-      "@/store/*": [
-        "src/store/*"
-      ],
-      "@/theme/*": [
-        "src/theme/*"
-      ],
-      "@/catalogs/*": [
-        "src/catalogs/*"
-      ],
-      "@/features/*": [
-        "src/features/*"
-      ],
-      "@/models/*": [
-        "src/models/*"
-      ],
-      "@/db/*": [
-        "src/db/*"
-      ]
+      "@/components/*": ["src/components/*"],
+      "@/screens/*": ["app/(tabs)/*"],
+      "@/store/*": ["src/store/*"],
+      "@/theme/*": ["src/theme/*"],
+      "@/catalogs/*": ["src/catalogs/*"],
+      "@/features/*": ["src/features/*"],
+      "@/models/*": ["src/models/*"],
+      "@/db/*": ["src/db/*"]
     }
   },
   "extends": "expo/tsconfig.base"

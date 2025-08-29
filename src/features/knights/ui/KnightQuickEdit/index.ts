@@ -5,4 +5,3 @@ export { KnightNameSection } from './KnightNameSection';
 export { ModalWrapper } from './ModalWrapper';
 export type { KnightQuick, QuickEditPatch, QuickEditProps } from './types';
 export { useKnightQuickEdit } from './useKnightQuickEdit';
-

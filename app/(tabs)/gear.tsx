@@ -3,11 +3,13 @@ import { View, Text, ScrollView } from 'react-native';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 
-export default function GearScreen(){
+export default function GearScreen() {
   return (
-    <View style={{flex:1}}>
-      <ScrollView contentContainerStyle={{padding:16, gap:12}}>
-        <Card><Text style={{color:'#fff'}}>This is the Gear tab.</Text></Card>
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+        <Card>
+          <Text style={{ color: '#fff' }}>This is the Gear tab.</Text>
+        </Card>
       </ScrollView>
     </View>
   );

@@ -3,9 +3,20 @@
 
 echo "🔍 Running pre-commit checks..."
 
+# Format code with Prettier
+echo "🎨 Formatting code with Prettier..."
+yarn format
+
+if [ $? -ne 0 ]; then
+  echo "❌ Prettier formatting failed. Please fix the formatting issues before committing."
+  exit 1
+fi
+
+echo "✅ Code formatting completed"
+
 # Run TypeScript compilation check
 echo "📝 Checking TypeScript compilation..."
-npx tsc --noEmit --skipLibCheck
+yarn type-check
 
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript compilation failed. Please fix the errors before committing."
@@ -16,7 +27,7 @@ echo "✅ TypeScript compilation check passed"
 
 # Run tests
 echo "🧪 Running tests..."
-npm run test:spec
+yarn test:spec
 
 if [ $? -ne 0 ]; then
   echo "❌ Tests failed. Please fix the failing tests before committing."

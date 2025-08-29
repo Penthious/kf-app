@@ -1,11 +1,10 @@
-export type KingdomMonster = { id: string;  };
+export type KingdomMonster = { id: string };
 export type BestiaryStageRow = Record<string, number | null>;
 
 export type Bestiary = {
-    monsters: KingdomMonster[];
-    stages: BestiaryStageRow[];
+  monsters: KingdomMonster[];
+  stages: BestiaryStageRow[];
 };
-
 
 /**
  * Adventure catalog entry:
@@ -14,9 +13,9 @@ export type Bestiary = {
  * - singleAttempt: true if it can only be attempted once (not repeatable)
  */
 export type KingdomAdventureDef = {
-    name: string;
-    roll: RollRange;
-    singleAttempt: boolean;
+  name: string;
+  roll: RollRange;
+  singleAttempt: boolean;
 };
 
 /**
@@ -25,17 +24,17 @@ export type KingdomAdventureDef = {
 export type RollRange = { min: number; max: number };
 
 export type KingdomCatalog = {
-    id: string;
-    name: string;
-    bestiary: Bestiary;
-    adventures: KingdomAdventureDef[];
+  id: string;
+  name: string;
+  bestiary: Bestiary;
+  adventures: KingdomAdventureDef[];
 };
 
 // persisted in Campaign
 export type KingdomAdventureState = { id: string; completedCount: number };
 export type KingdomState = {
-    kingdomId: string;
-    name: string;
-    chapter: number;
-    adventures: KingdomAdventureState[];
+  kingdomId: string;
+  name: string;
+  chapter: number;
+  adventures: KingdomAdventureState[];
 };

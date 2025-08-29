@@ -30,6 +30,6 @@ module.exports = defineConfig([
   },
   {
     default: 'array-simple', // enforces T[] by default
-    readonly: 'generic',     // but allows ReadonlyArray<T>
+    readonly: 'generic', // but allows ReadonlyArray<T>
   },
 ]);

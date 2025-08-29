@@ -9,12 +9,14 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "vitest run && jest",
-    "test:spec": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "yarn format && vitest run && jest && yarn type-check",
+    "test:spec": "yarn format && vitest run && yarn type-check",
     "test:watch": "vitest",
-    "test:ui": "jest --testPathPattern=\\.test\\.",
-    "test:coverage": "vitest run --coverage",
-    "test:update": "vitest -u",
+    "test:ui": "yarn format && jest --testPathPattern=\\.test\\. && yarn type-check",
+    "test:coverage": "yarn format && vitest run --coverage && yarn type-check",
+    "test:update": "yarn format && vitest -u && yarn type-check",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
@@ -63,6 +65,7 @@
     "husky": "^9.0.11",
     "jest": "^29.7.0",
     "jest-expo": "^53.0.9",
+    "prettier": "^3.6.2",
     "typescript": "~5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"

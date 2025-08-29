@@ -12,8 +12,8 @@ export type Tokens = {
   warning: string;
   danger: string;
   // optional scales (future)
-  spacing?: Record<'xs'|'sm'|'md'|'lg', number>;
-  radius?: Record<'sm'|'md'|'lg', number>;
+  spacing?: Record<'xs' | 'sm' | 'md' | 'lg', number>;
+  radius?: Record<'sm' | 'md' | 'lg', number>;
 };
 
 export const THEME_VERSION = 1;
@@ -28,7 +28,7 @@ export const darkTokens: Tokens = {
   accent: '#6CCAFF',
   success: '#4CC38A',
   warning: '#E7B549',
-  danger: '#E5484D'
+  danger: '#E5484D',
 };
 
 export const lightTokens: Tokens = {
@@ -41,5 +41,5 @@ export const lightTokens: Tokens = {
   accent: '#2563EB',
   success: '#16A34A',
   warning: '#D97706',
-  danger: '#DC2626'
+  danger: '#DC2626',
 };

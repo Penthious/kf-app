@@ -3,49 +3,49 @@ import { Pressable, Text } from 'react-native';
 import { InvestigationEntry } from './useChapterInvestigationsData';
 
 interface InvestigationPillProps {
-    entry: InvestigationEntry;
-    onPress: () => void;
+  entry: InvestigationEntry;
+  onPress: () => void;
 }
 
 export function InvestigationPill({ entry, onPress }: InvestigationPillProps) {
-    const { tokens } = useThemeTokens();
+  const { tokens } = useThemeTokens();
 
-    let tone: 'default' | 'success' | 'danger' | 'info' = 'default';
-    let suffix = '';
+  let tone: 'default' | 'success' | 'danger' | 'info' = 'default';
+  let suffix = '';
 
-    if (entry.isCompleted) {
-        tone = entry.via === 'lead' ? 'info' : 'success';
-        suffix = entry.via === 'lead' ? ' • Lead' : ' • Pass';
-    } else if (entry.lastResult === 'fail') {
-        tone = 'danger';
-        suffix = ' • Fail';
-    }
+  if (entry.isCompleted) {
+    tone = entry.via === 'lead' ? 'info' : 'success';
+    suffix = entry.via === 'lead' ? ' • Lead' : ' • Pass';
+  } else if (entry.lastResult === 'fail') {
+    tone = 'danger';
+    suffix = ' • Fail';
+  }
 
-    const bg =
-        tone === 'success'
-            ? '#2b6b3f'
-            : tone === 'danger'
-                ? '#7a2d2d'
-                : tone === 'info'
-                    ? '#2f6f95'
-                    : tokens.surface;
-    const fg = tokens.textPrimary;
+  const bg =
+    tone === 'success'
+      ? '#2b6b3f'
+      : tone === 'danger'
+        ? '#7a2d2d'
+        : tone === 'info'
+          ? '#2f6f95'
+          : tokens.surface;
+  const fg = tokens.textPrimary;
 
-    return (
-        <Pressable
-            onPress={onPress}
-            style={{
-                paddingHorizontal: 12,
-                height: 28,
-                borderRadius: 14,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: bg,
-                borderWidth: 1,
-                borderColor: '#0006',
-            }}
-        >
-            <Text style={{ color: fg, fontWeight: '800' }}>{`${entry.code}${suffix}`}</Text>
-        </Pressable>
-    );
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        paddingHorizontal: 12,
+        height: 28,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: bg,
+        borderWidth: 1,
+        borderColor: '#0006',
+      }}
+    >
+      <Text style={{ color: fg, fontWeight: '800' }}>{`${entry.code}${suffix}`}</Text>
+    </Pressable>
+  );
 }

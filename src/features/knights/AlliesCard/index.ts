@@ -4,4 +4,3 @@ export { AllyPickerModal } from './AllyPickerModal';
 export { AllySection } from './AllySection';
 export { useAlliesData } from './useAlliesData';
 export type { AlliesData, AllyOption } from './useAlliesData';
-
