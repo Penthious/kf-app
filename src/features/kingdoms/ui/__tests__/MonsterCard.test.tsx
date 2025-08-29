@@ -51,7 +51,7 @@ jest.mock('@/store/monsters', () => {
     };
 
     return {
-        useMonsters: (selector?: (s: any) => any) => {
+        useMonsters: (selector?: (s: MockMonstersState) => any) => {
             const state: MockMonstersState = {
                 all: Object.values(mockMonsters),
                 byId: mockMonsters,

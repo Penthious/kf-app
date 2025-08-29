@@ -15,7 +15,7 @@ jest.mock('../AllyChip', () => {
     const React = require('react');
     const { Text, Pressable } = require('react-native');
     
-    function MockAllyChip({ label, onRemove }: any) {
+    function MockAllyChip({ label, onRemove }: { label?: string; onRemove?: (name: string) => void }) {
         return (
             <Pressable onPress={onRemove} testID={`chip-${label}`}>
                 <Text>{label}</Text>

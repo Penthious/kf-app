@@ -7,7 +7,7 @@ jest.mock('@/components/ui/TextRow', () => {
     const React = require('react');
     const { View, Text, TextInput } = require('react-native');
     
-    return function MockTextRow({ label, value, onChangeText, placeholder, testID }: any) {
+    return function MockTextRow({ label, value, onChangeText, placeholder, testID }: { label?: string; value?: string; onChangeText?: (text: string) => void; placeholder?: string; testID?: string }) {
         return (
             <View testID={testID}>
                 <Text>{label}</Text>

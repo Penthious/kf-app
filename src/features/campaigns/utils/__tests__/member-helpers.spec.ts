@@ -1,4 +1,4 @@
-import type { Campaign, CampaignMember } from '@/models/campaign';
+import type { CampaignMember } from '@/models/campaign';
 import { describe, expect, it } from 'vitest';
 import {
     canBePartyLeader,

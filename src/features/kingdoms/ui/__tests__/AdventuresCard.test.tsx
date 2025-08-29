@@ -89,7 +89,7 @@ jest.mock('@/components/ui/Stepper', () => {
 
 
 
-    return ({ value, onChange, testID }: any) => (
+    return ({ value, onChange, testID }: { value?: number; onChange?: (value: number) => void; testID?: string }) => (
         <View testID={testID}>
             <Pressable
                 testID={testID ? `${testID}-decrease` : undefined}

@@ -7,7 +7,7 @@ jest.mock('@/components/ui/SwitchRow', () => {
     const React = require('react');
     const { View, Text, Switch } = require('react-native');
     
-    return function MockSwitchRow({ label, value, onValueChange, testID }: any) {
+    return function MockSwitchRow({ label, value, onValueChange, testID }: { label?: string; value?: boolean; onValueChange?: (value: boolean) => void; testID?: string }) {
         return (
             <View testID={testID}>
                 <Text>{label}</Text>

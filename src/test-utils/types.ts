@@ -133,9 +133,9 @@ export interface MockKnight {
         }>;
         virtues: Record<string, number>;
         vices: Record<string, number>;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export interface MockMonstersState {

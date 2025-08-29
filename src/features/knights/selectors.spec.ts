@@ -222,8 +222,8 @@ describe('getMemberSets', () => {
     it('filters out null/undefined knights from available list', () => {
         const knightsWithNulls: KnightsById = {
             'knight-1': mockKnightsById['knight-1'],
-            'knight-2': null as any,
-            'knight-3': undefined as any,
+            'knight-2': null as unknown as Knight,
+            'knight-3': undefined as unknown as Knight,
             'knight-4': mockKnightsById['knight-4'],
         };
 
