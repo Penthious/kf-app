@@ -42,9 +42,9 @@ export function useAlliesData(knightUID: string): AlliesData {
 
     const removeAlly = (kind: 'saints' | 'mercs', name: string) => {
         if (kind === 'saints') {
-            updateKnightSheet(knightUID, { saints: saintsSelected.filter(s => s !== name) });
+            updateKnightSheet(knightUID, { saints: saintsSelected.filter((s: string) => s !== name) });
         } else {
-            updateKnightSheet(knightUID, { mercenaries: mercenariesSelected.filter(s => s !== name) });
+            updateKnightSheet(knightUID, { mercenaries: mercenariesSelected.filter((s: string) => s !== name) });
         }
     };
 

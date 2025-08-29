@@ -1,12 +1,11 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
 import Button from '@/components/Button';
-import { useKnights } from '@/store/knights';
+import Card from '@/components/Card';
 import { Knight } from '@/models/knight';
+import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router } from 'expo-router';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function KnightsScreen(){
     const { tokens } = useThemeTokens();

@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
 import Card from '@/components/Card';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Pressable, Text, View } from 'react-native';
 
 function Tick({ on, onPress }:{ on:boolean; onPress:()=>void }){
     const { tokens } = useThemeTokens();

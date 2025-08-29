@@ -48,7 +48,7 @@ describe('useKnightQuickEdit', () => {
 
     it('updates state when knight changes', () => {
         const { result, rerender } = renderHook(
-            ({ knight }) => useKnightQuickEdit(knight),
+            (props: { knight: any }) => useKnightQuickEdit(props.knight),
             { initialProps: { knight: undefined } }
         );
 

@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
 import Card from '@/components/Card';
+import type { KingdomCatalog } from '@/models/kingdom';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { KingdomCatalog } from './utils';
+import { Pressable, Text, View } from 'react-native';
 
 export default function KingdomSelector({
                                             kingdoms, activeKingdomId, onSelect,

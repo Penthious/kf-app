@@ -1,11 +1,10 @@
-import React from 'react';
-import { useLocalSearchParams, Tabs } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
+import Title from '@/features/campaign/ui/Title';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
-import Title from '@/features/campaign/ui/Title';
+import { Tabs, useLocalSearchParams } from 'expo-router';
+import { useEffect, useMemo } from 'react';
 
 export default function CampaignTabsLayout() {
     const { tokens } = useThemeTokens();

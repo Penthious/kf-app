@@ -1,8 +1,8 @@
 // app/campaign/[id]/kingdoms.tsx
-import React, { useMemo, useState, useCallback } from 'react';
-import { View, ScrollView, Text, Alert } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 
 import Card from '@/components/Card';
 import ActiveLineup from '@/features/knights/ui/ActiveLineup';
@@ -10,20 +10,20 @@ import ActiveLineup from '@/features/knights/ui/ActiveLineup';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 
-import { ensureChapter, countCompletedInvestigations } from '@/models/knight';
 import type { Campaign } from '@/models/campaign';
+import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 
-import { allKingdomsCatalog } from '@/store/kingdoms';
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { buildKingdomView } from '@/features/kingdoms/kingdomView';
-import type { KingdomCatalog } from '@/models/kingdom';
-import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
-import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
-import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
 import AdventuresCard from '@/features/kingdoms/ui/AdventuresCard';
+import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
+import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
+import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
 import { resolveStagesForBestiary } from '@/features/kingdoms/utils';
+import type { KingdomCatalog } from '@/models/kingdom';
 
-import {getMemberSets,} from '@/features/knights/selectors';
-import {KnightsById} from "@/features/knights/types";
+import { getMemberSets, } from '@/features/knights/selectors';
+import { KnightsById } from "@/features/knights/types";
 
 
 export default function CampaignKingdoms() {

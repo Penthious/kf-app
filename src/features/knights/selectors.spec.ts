@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { getMemberSets } from './selectors';
+import type { KnightsById } from '@/features/knights/types';
 import type { Campaign } from '@/models/campaign';
 import type { Knight } from '@/models/knight';
-import type { KnightsById } from '@/features/knights/types';
+import { describe, expect, it } from 'vitest';
+import { getMemberSets } from './selectors';
 
 describe('getMemberSets', () => {
     const mockKnightsById: KnightsById = {
@@ -40,9 +40,13 @@ describe('getMemberSets', () => {
 
     it('returns empty sets when campaign has no members', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -56,14 +60,18 @@ describe('getMemberSets', () => {
 
     it('correctly categorizes active and benched members', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             partyLeaderUID: 'knight-1',
             members: [
-                { knightUID: 'knight-1', isActive: true, displayName: 'Galahad', catalogId: 'galahad' },
-                { knightUID: 'knight-2', isActive: true, displayName: 'Lancelot', catalogId: 'lancelot' },
-                { knightUID: 'knight-3', isActive: false, displayName: 'Gawain', catalogId: 'gawain' },
+                { knightUID: 'knight-1', isActive: true, displayName: 'Galahad', catalogId: 'galahad', joinedAt: 1234567890 },
+                { knightUID: 'knight-2', isActive: true, displayName: 'Lancelot', catalogId: 'lancelot', joinedAt: 1234567890 },
+                { knightUID: 'knight-3', isActive: false, displayName: 'Gawain', catalogId: 'gawain', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -108,11 +116,15 @@ describe('getMemberSets', () => {
 
     it('uses displayName when knight is not found in knightsById', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [
-                { knightUID: 'unknown-knight', isActive: true, displayName: 'Unknown Knight', catalogId: 'unknown' },
+                { knightUID: 'unknown-knight', isActive: true, displayName: 'Unknown Knight', catalogId: 'unknown', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -127,11 +139,15 @@ describe('getMemberSets', () => {
 
     it('falls back to "Unknown Knight" when neither knight nor displayName is available', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [
-                { knightUID: 'unknown-knight', isActive: true },
+                { knightUID: 'unknown-knight', isActive: true, displayName: 'Unknown Knight', catalogId: 'unknown', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -146,11 +162,15 @@ describe('getMemberSets', () => {
 
     it('uses catalogId from member when knight catalogId is not available', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [
-                { knightUID: 'unknown-knight', isActive: true, displayName: 'Test Knight', catalogId: 'test-catalog' },
+                { knightUID: 'unknown-knight', isActive: true, displayName: 'Test Knight', catalogId: 'test-catalog', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -160,13 +180,17 @@ describe('getMemberSets', () => {
 
     it('correctly identifies party leader', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             partyLeaderUID: 'knight-2',
             members: [
-                { knightUID: 'knight-1', isActive: true },
-                { knightUID: 'knight-2', isActive: true },
+                { knightUID: 'knight-1', isActive: true, displayName: 'Sir Galahad', catalogId: 'galahad', joinedAt: 1234567890 },
+                { knightUID: 'knight-2', isActive: true, displayName: 'Sir Lancelot', catalogId: 'lancelot', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -177,9 +201,13 @@ describe('getMemberSets', () => {
 
     it('handles campaign with undefined members', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
-            members: undefined,
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);
@@ -200,9 +228,13 @@ describe('getMemberSets', () => {
         };
 
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, knightsWithNulls);
@@ -213,14 +245,18 @@ describe('getMemberSets', () => {
 
     it('sorts active and benched members in order of appearance', () => {
         const campaign: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
             members: [
-                { knightUID: 'knight-3', isActive: false },
-                { knightUID: 'knight-1', isActive: true },
-                { knightUID: 'knight-2', isActive: true },
-                { knightUID: 'knight-4', isActive: false },
+                { knightUID: 'knight-3', isActive: false, displayName: 'Sir Gawain', catalogId: 'gawain', joinedAt: 1234567890 },
+                { knightUID: 'knight-1', isActive: true, displayName: 'Sir Galahad', catalogId: 'galahad', joinedAt: 1234567890 },
+                { knightUID: 'knight-2', isActive: true, displayName: 'Sir Lancelot', catalogId: 'lancelot', joinedAt: 1234567890 },
+                { knightUID: 'knight-4', isActive: false, displayName: 'Sir Percival', catalogId: 'percival', joinedAt: 1234567890 },
             ],
+            kingdoms: [],
         } as Campaign;
 
         const result = getMemberSets(campaign, mockKnightsById);

@@ -1,2 +1,2 @@
 import * as SQLite from 'expo-sqlite';
-export const db = SQLite.openDatabase('boardbuddy.db');
+export const db = SQLite.openDatabaseSync('boardbuddy.db');

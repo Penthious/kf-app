@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CampaignDelve() {
     const { tokens } = useThemeTokens();

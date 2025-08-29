@@ -19,7 +19,7 @@ jest.mock('@/store/campaigns', () => ({
     }),
 }));
 
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import Title from '../Title';
 

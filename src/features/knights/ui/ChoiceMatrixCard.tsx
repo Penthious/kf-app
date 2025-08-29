@@ -1,10 +1,10 @@
 // src/components/ChoiceMatrixCard.tsx
-import React, { useMemo } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
-import { useKnights } from '@/store/knights';
 import { ensureSheet } from '@/models/knight';
+import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useMemo } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 type Props = { knightUID: string };
 

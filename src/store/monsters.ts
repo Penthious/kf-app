@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import type { MonsterStats } from '@/models/monster';
 import { MONSTERS } from '@/catalogs/monsters';
+import type { MonsterStats } from '@/models/monster';
+import { create } from 'zustand';
 
-type MonstersState = {
+export type MonstersState = {
     all: ReadonlyArray<MonsterStats>;
     byId: Readonly<Record<string, MonsterStats>>;
 };

@@ -10,7 +10,7 @@ interface InvestigationPillProps {
 export function InvestigationPill({ entry, onPress }: InvestigationPillProps) {
     const { tokens } = useThemeTokens();
 
-    let tone: 'default' | 'accent' | 'success' | 'danger' | 'info' = 'default';
+    let tone: 'default' | 'success' | 'danger' | 'info' = 'default';
     let suffix = '';
 
     if (entry.isCompleted) {
@@ -22,16 +22,14 @@ export function InvestigationPill({ entry, onPress }: InvestigationPillProps) {
     }
 
     const bg =
-        tone === 'accent'
-            ? tokens.accent
-            : tone === 'success'
-                ? '#2b6b3f'
-                : tone === 'danger'
-                    ? '#7a2d2d'
-                    : tone === 'info'
-                        ? '#2f6f95'
-                        : tokens.surface;
-    const fg = tone === 'accent' ? '#0B0B0B' : tokens.textPrimary;
+        tone === 'success'
+            ? '#2b6b3f'
+            : tone === 'danger'
+                ? '#7a2d2d'
+                : tone === 'info'
+                    ? '#2f6f95'
+                    : tokens.surface;
+    const fg = tokens.textPrimary;
 
     return (
         <Pressable

@@ -1,11 +1,10 @@
 // app/(tabs)/index.tsx
-import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
+import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CampaignsScreen() {
     const router = useRouter();

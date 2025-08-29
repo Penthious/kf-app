@@ -1,8 +1,8 @@
 // app/campaign/[id]/knights.tsx
-import React, { useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useRouter } from 'expo-router';
+import { useCallback, useMemo } from 'react';
+import { Alert, ScrollView, Text, View } from 'react-native';
 
 import Card from '@/components/Card';
 
@@ -13,12 +13,12 @@ import type { Campaign } from '@/models/campaign';
 import { Knight, defaultSheet } from '@/models/knight';
 
 import ActiveLineup from '@/features/knights/ui/ActiveLineup';
-import BenchedList from '@/features/knights/ui/BenchedList';
 import AddExistingKnights from '@/features/knights/ui/AddExistingKnights';
+import BenchedList from '@/features/knights/ui/BenchedList';
 import QuickCreateKnight from '@/features/knights/ui/QuickCreateKnight';
 
-import {getMemberSets} from '@/features/knights/selectors';
-import {KnightsById} from "@/features/knights/types";
+import { getMemberSets } from '@/features/knights/selectors';
+import { KnightsById } from "@/features/knights/types";
 import uuid from "react-native-uuid";
 
 export default function CampaignKnightsPage() {

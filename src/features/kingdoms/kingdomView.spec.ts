@@ -1,6 +1,7 @@
+import type { Campaign } from '@/models/campaign';
+import type { KingdomCatalog } from '@/models/kingdom';
 import { describe, expect, it } from 'vitest';
 import { buildKingdomView } from './kingdomView';
-import type { Campaign, KingdomCatalog, KingdomState } from '@/models/kingdom';
 
 describe('buildKingdomView', () => {
     const mockKingdomCatalog: KingdomCatalog = {
@@ -24,6 +25,7 @@ describe('buildKingdomView', () => {
             },
         ],
         bestiary: {
+            monsters: [],
             stages: [
                 { 'monster-1': 1, 'monster-2': 0 },
                 { 'monster-1': 2, 'monster-2': 1 },
@@ -32,11 +34,17 @@ describe('buildKingdomView', () => {
     } as KingdomCatalog;
 
     const mockCampaign: Campaign = {
-        id: 'campaign-1',
+        campaignId: 'campaign-1',
         name: 'Test Campaign',
+        createdAt: 1234567890,
+        updatedAt: 1234567890,
+        settings: { fivePlayerMode: false },
+        members: [],
         kingdoms: [
             {
                 kingdomId: 'test-kingdom',
+                name: 'Test Kingdom',
+                chapter: 1,
                 adventures: [
                     { id: 'test-kingdom:first-adventure', completedCount: 1 },
                     { id: 'test-kingdom:second-adventure', completedCount: 3 },
@@ -94,8 +102,12 @@ describe('buildKingdomView', () => {
 
     it('handles campaign with no kingdoms', () => {
         const campaignWithoutKingdoms: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [],
         } as Campaign;
 
@@ -162,11 +174,17 @@ describe('buildKingdomView', () => {
 
     it('correctly determines completed status for single attempt adventures', () => {
         const campaignWithSingleAttempt: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [
                 {
                     kingdomId: 'test-kingdom',
+                    name: 'Test Kingdom',
+                    chapter: 1,
                     adventures: [
                         { id: 'test-kingdom:first-adventure', completedCount: 1 }, // completed
                         { id: 'test-kingdom:third-adventure', completedCount: 0 }, // not completed
@@ -183,11 +201,17 @@ describe('buildKingdomView', () => {
 
     it('always sets completed to false for non-single attempt adventures', () => {
         const campaignWithMultipleAttempts: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [
                 {
                     kingdomId: 'test-kingdom',
+                    name: 'Test Kingdom',
+                    chapter: 1,
                     adventures: [
                         { id: 'test-kingdom:second-adventure', completedCount: 5 }, // multiple attempts
                     ],
@@ -220,11 +244,17 @@ describe('buildKingdomView', () => {
 
     it('handles kingdom state with record-like adventures', () => {
         const campaignWithRecordState: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [
                 {
                     kingdomId: 'test-kingdom',
+                    name: 'Test Kingdom',
+                    chapter: 1,
                     adventures: {
                         'test-kingdom:first-adventure': 2,
                         'test-kingdom:second-adventure': { completedCount: 5 },
@@ -242,11 +272,17 @@ describe('buildKingdomView', () => {
 
     it('handles kingdom state with mixed adventure formats', () => {
         const campaignWithMixedState: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [
                 {
                     kingdomId: 'test-kingdom',
+                    name: 'Test Kingdom',
+                    chapter: 1,
                     adventures: [
                         { id: 'test-kingdom:first-adventure', completedCount: 1 },
                         { id: 'test-kingdom:second-adventure', completedCount: 3 },
@@ -264,12 +300,18 @@ describe('buildKingdomView', () => {
 
     it('handles undefined kingdom state', () => {
         const campaignWithUndefinedState: Campaign = {
-            id: 'campaign-1',
+            campaignId: 'campaign-1',
             name: 'Test Campaign',
+            createdAt: 1234567890,
+            updatedAt: 1234567890,
+            settings: { fivePlayerMode: false },
+            members: [],
             kingdoms: [
                 {
                     kingdomId: 'test-kingdom',
-                    adventures: undefined,
+                    name: 'Test Kingdom',
+                    chapter: 1,
+                    adventures: [],
                 },
             ],
         } as Campaign;

@@ -29,9 +29,24 @@ import KingdomSelector from '../KingdomSelector';
 describe('KingdomSelector', () => {
     const mockOnSelect = jest.fn();
     const mockKingdoms = [
-        { id: 'kingdom-1', name: 'Principality of Stone' },
-        { id: 'kingdom-2', name: 'Ten Thousand Succulent Fears' },
-        { id: 'kingdom-3', name: 'The Verdant Expanse' },
+        { 
+            id: 'kingdom-1', 
+            name: 'Principality of Stone',
+            bestiary: { monsters: [], stages: [] },
+            adventures: []
+        },
+        { 
+            id: 'kingdom-2', 
+            name: 'Ten Thousand Succulent Fears',
+            bestiary: { monsters: [], stages: [] },
+            adventures: []
+        },
+        { 
+            id: 'kingdom-3', 
+            name: 'The Verdant Expanse',
+            bestiary: { monsters: [], stages: [] },
+            adventures: []
+        },
     ];
 
     beforeEach(() => {
@@ -221,7 +236,12 @@ describe('KingdomSelector', () => {
     });
 
     it('handles single kingdom correctly', () => {
-        const singleKingdom = [{ id: 'kingdom-1', name: 'Single Kingdom' }];
+        const singleKingdom = [{ 
+            id: 'kingdom-1', 
+            name: 'Single Kingdom',
+            bestiary: { monsters: [], stages: [] },
+            adventures: []
+        }];
 
         const { getByText } = render(
             <KingdomSelector

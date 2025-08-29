@@ -17,8 +17,8 @@ import { ensureChapter, type Knight } from '@/models/knight';
 
 import AlliesCard from '@/features/knights/AlliesCard';
 import ChapterInvestigations from '@/features/knights/ChapterInvestigations';
-import ChoiceMatrixCard from '@/features/knights/ui/ChoiceMatrixCard';
 import NotesCard from '@/features/knights/NotesCard';
+import ChoiceMatrixCard from '@/features/knights/ui/ChoiceMatrixCard';
 import SheetBasicsCard from '@/features/knights/ui/SheetBasicsCard';
 import VicesCard from '@/features/knights/ui/VicesCard';
 import VirtuesCard from '@/features/knights/ui/VirtuesCard';

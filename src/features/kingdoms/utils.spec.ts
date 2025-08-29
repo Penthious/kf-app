@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { progressKey, normalizeRow, resolveStagesForBestiary } from './utils';
 import type { BestiaryStageRow, KingdomCatalog } from '@/models/kingdom';
+import { describe, expect, it } from 'vitest';
+import { normalizeRow, progressKey, resolveStagesForBestiary } from './utils';
 
 describe('progressKey', () => {
     it('returns 0 when quest is not completed and no investigations done', () => {
@@ -90,7 +90,9 @@ describe('resolveStagesForBestiary', () => {
     const mockKingdom: KingdomCatalog = {
         id: 'test-kingdom',
         name: 'Test Kingdom',
+        adventures: [],
         bestiary: {
+            monsters: [],
             stages: [
                 // Chapter 1 stages (0-3)
                 { 'monster-1': 1, 'monster-2': 0 }, // Q
@@ -206,7 +208,9 @@ describe('resolveStagesForBestiary', () => {
         const kingdomWithNulls: KingdomCatalog = {
             id: 'test-kingdom',
             name: 'Test Kingdom',
+            adventures: [],
             bestiary: {
+                monsters: [],
                 stages: [
                     { 'monster-1': 1, 'monster-2': null, 'monster-3': undefined as any },
                 ],

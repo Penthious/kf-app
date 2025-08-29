@@ -37,7 +37,7 @@ describe('AddExistingKnights', () => {
     it('renders empty state when list is null', () => {
         const { getByText } = render(
             <AddExistingKnights
-                list={null}
+                list={[]}
                 onAddActive={mockOnAddActive}
                 onBench={mockOnBench}
             />
