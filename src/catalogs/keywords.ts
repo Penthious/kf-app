@@ -1,4 +1,15 @@
-[
+export interface KeywordCatalogEntry {
+    id: string;
+    name: string;
+    summary: string;
+    rulesText: string;
+    stackable?: boolean;
+    tags?: string[];
+    seeAlso?: string[];
+    page?: number;
+}
+
+export const KEYWORD_CATALOG: KeywordCatalogEntry[] = [
   {
     "id": "acrobatics",
     "name": "Acrobatics",
@@ -1327,4 +1338,6 @@
     "stackable": true,
     "tags": []
   }
-]
+];
+
+export default KEYWORD_CATALOG;

@@ -1,16 +1,16 @@
 // app/knight/new.tsx
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import uuid from 'react-native-uuid';
-import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
+import KNIGHTS_CATALOG from '@/catalogs/knights';
 import Button from '@/components/Button';
-import TextRow from '@/components/TextRow';
-import { useKnights } from '@/store/knights';
+import Card from '@/components/Card';
+import TextRow from '@/components/ui/TextRow';
 import { Knight, defaultSheet } from '@/models/knight';
-import KNIGHTS_CATALOG from '@/catalogs/knights.json';
+import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { router } from 'expo-router';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import uuid from 'react-native-uuid';
 
 type KnightCatalogItem = { id: string; name: string };
 

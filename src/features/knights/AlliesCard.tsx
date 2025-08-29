@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, Modal, FlatList } from 'react-native';
+import ALLIES_CATALOG from '@/catalogs/allies';
 import Card from '@/components/Card';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useKnights } from '@/store/knights';
-import alliesDB from '@/catalogs/allies.json';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useMemo, useState } from 'react';
+import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 
 type AllyOpt = { id: string; name: string };
 
@@ -65,8 +65,8 @@ export default function AlliesCard({ knightUID }:{ knightUID: string }){
     const saintsSel: string[] = k.sheet.saints ?? [];
     const mercsSel: string[]  = k.sheet.mercenaries ?? [];
 
-    const saintsOpts = useMemo(()=> alliesDB.saints as AllyOpt[], []);
-    const mercsOpts  = useMemo(()=> alliesDB.mercenaries as AllyOpt[], []);
+    const saintsOpts = useMemo(()=> ALLIES_CATALOG.saints as AllyOpt[], []);
+    const mercsOpts  = useMemo(()=> ALLIES_CATALOG.mercenaries as AllyOpt[], []);
 
     const [pick, setPick] = useState<null | { kind:'saints'|'mercs'; title:string; options: AllyOpt[] }>(null);
 

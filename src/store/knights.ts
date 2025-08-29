@@ -1,16 +1,16 @@
-import { create } from 'zustand';
+import KNIGHT_CATALOG from '@/catalogs/knights';
 import {
+    InvestigationResult,
     Knight,
     UUID,
-    InvestigationResult,
-    ensureKnight,
-    ensureSheet,
-    ensureChapter,
     addInvestigationDomain,
     completeQuestDomain,
+    ensureChapter,
+    ensureKnight,
+    ensureSheet,
     normalLocked,
 } from '@/models/knight';
-import KNIGHT_CATALOG from '@/catalogs/knights.json';
+import { create } from 'zustand';
 
 
 export type KnightsState = {

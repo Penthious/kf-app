@@ -1,4 +1,4 @@
-import KNIGHT_CATALOG from '@/catalogs/knights.json';
+import KNIGHT_CATALOG from '@/catalogs/knights';
 import Card from '@/components/Card';
 import Pill from '@/components/ui/Pill';
 import TextRow from '@/components/ui/TextRow';

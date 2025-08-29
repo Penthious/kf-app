@@ -5,16 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const catalog: Array<{
-    id: string;
-    name: string;
-    summary: string;
-    rulesText: string;
-    stackable?: boolean;
-    tags?: string[];
-    seeAlso?: string[];
-    page?: number;
-}> = require('@/catalogs/keywords.json');
+import KEYWORD_CATALOG from '@/catalogs/keywords';
+
+const catalog = KEYWORD_CATALOG;
 
 const LETTERS = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
