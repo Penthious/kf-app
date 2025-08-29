@@ -1,5 +1,5 @@
 import type { Gear } from '@/models/gear';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useGear } from './gear';
 
 const mockGear: Gear[] = [
@@ -260,6 +260,35 @@ describe('Gear Store', () => {
   });
 
   describe('Equipped Gear Management', () => {
+    beforeEach(() => {
+      useGear.getState().resetGear();
+
+      // Add test gear to the store
+      useGear.getState().addGear({
+        id: 'sword-123',
+        name: 'Test Sword',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { attack: 2 },
+        keywords: ['sharp'],
+        description: 'A test sword',
+        rarity: 'common',
+        cost: 50,
+      });
+
+      useGear.getState().addGear({
+        id: 'helmet-456',
+        name: 'Test Helmet',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { defense: 2 },
+        keywords: ['protective'],
+        description: 'A test helmet',
+        rarity: 'common',
+        cost: 50,
+      });
+    });
+
     it('should equip gear to knight', () => {
       useGear.getState().equipGear('knight-123', 'sword-123');
       const state = useGear.getState();
@@ -340,6 +369,173 @@ describe('Gear Store', () => {
       const state = useGear.getState();
 
       expect(state.allGear['non-existent']).toBeUndefined();
+    });
+  });
+
+  describe('Campaign Gear Management', () => {
+    beforeEach(() => {
+      useGear.getState().resetGear();
+    });
+
+    it('should unlock gear for campaign', () => {
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      const state = useGear.getState();
+
+      expect(state.isGearUnlockedForCampaign('campaign-123', 'sword-123')).toBe(true);
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toContain('sword-123');
+    });
+
+    it('should not duplicate unlocked gear for campaign', () => {
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      const state = useGear.getState();
+
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toHaveLength(1);
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toContain('sword-123');
+    });
+
+    it('should return empty arrays for non-existent campaigns', () => {
+      const state = useGear.getState();
+
+      expect(state.getUnlockedGearForCampaign('non-existent')).toEqual([]);
+      expect(state.isGearUnlockedForCampaign('non-existent', 'sword-123')).toBe(false);
+    });
+
+    it('should handle multiple gear unlocks for campaign', () => {
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      useGear.getState().unlockGearForCampaign('campaign-123', 'helmet-456');
+      const state = useGear.getState();
+
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toHaveLength(2);
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toContain('sword-123');
+      expect(state.getUnlockedGearForCampaign('campaign-123')).toContain('helmet-456');
+    });
+  });
+
+  describe('Shared Gear Management', () => {
+    beforeEach(() => {
+      useGear.getState().resetGear();
+
+      // Add test gear to the store
+      useGear.getState().addGear({
+        id: 'sword-123',
+        name: 'Test Sword',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { attack: 2 },
+        keywords: ['sharp'],
+        description: 'A test sword',
+        rarity: 'common',
+        cost: 50,
+      });
+
+      useGear.getState().addGear({
+        id: 'helmet-456',
+        name: 'Test Helmet',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { defense: 2 },
+        keywords: ['protective'],
+        description: 'A test helmet',
+        rarity: 'common',
+        cost: 50,
+      });
+
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      useGear.getState().unlockGearForCampaign('campaign-123', 'helmet-456');
+    });
+
+    afterEach(() => {
+      useGear.getState().resetGear();
+    });
+
+    it('should track gear ownership', () => {
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      const state = useGear.getState();
+
+      expect(state.getGearOwner('sword-123')).toBe('knight-123');
+      expect(state.isGearEquippedByKnight('sword-123', 'knight-123')).toBe(true);
+    });
+
+    it('should transfer gear between knights', () => {
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      useGear.getState().transferGear('sword-123', 'knight-123', 'knight-456');
+      const state = useGear.getState();
+
+      expect(state.getGearOwner('sword-123')).toBe('knight-456');
+      expect(state.isGearEquippedByKnight('sword-123', 'knight-123')).toBe(false);
+      expect(state.isGearEquippedByKnight('sword-123', 'knight-456')).toBe(true);
+      expect(state.getEquippedGear('knight-123')).not.toContain('sword-123');
+      expect(state.getEquippedGear('knight-456')).toContain('sword-123');
+    });
+
+    it('should automatically transfer gear when equipping to different knight', () => {
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      useGear.getState().equipGear('knight-456', 'sword-123');
+      const state = useGear.getState();
+
+      expect(state.getGearOwner('sword-123')).toBe('knight-456');
+      expect(state.getEquippedGear('knight-123')).not.toContain('sword-123');
+      expect(state.getEquippedGear('knight-456')).toContain('sword-123');
+    });
+
+    it('should get available gear for knight', () => {
+      // Ensure we have a completely clean state for this test
+      useGear.getState().resetGear();
+
+      // Add test gear to the store
+      useGear.getState().addGear({
+        id: 'sword-123',
+        name: 'Test Sword',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { attack: 2 },
+        keywords: ['sharp'],
+        description: 'A test sword',
+        rarity: 'common',
+        cost: 50,
+      });
+
+      useGear.getState().addGear({
+        id: 'helmet-456',
+        name: 'Test Helmet',
+        type: 'kingdom',
+        kingdomId: 'test-kingdom',
+        stats: { defense: 2 },
+        keywords: ['protective'],
+        description: 'A test helmet',
+        rarity: 'common',
+        cost: 50,
+      });
+
+      // Unlock gear for campaign
+      useGear.getState().unlockGearForCampaign('campaign-123', 'sword-123');
+      useGear.getState().unlockGearForCampaign('campaign-123', 'helmet-456');
+
+      // Equip sword to knight-123
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      const state = useGear.getState();
+
+      const availableGear = state.getAvailableGearForKnight('campaign-123', 'knight-456');
+      expect(availableGear).toContain('helmet-456'); // Not equipped by anyone
+      expect(availableGear).not.toContain('sword-123'); // Equipped by knight-123
+    });
+
+    it('should include gear equipped by the knight in available gear', () => {
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      const state = useGear.getState();
+
+      const availableGear = state.getAvailableGearForKnight('campaign-123', 'knight-123');
+      expect(availableGear).toContain('sword-123'); // Equipped by this knight
+    });
+
+    it('should clear ownership when unequipping', () => {
+      useGear.getState().equipGear('knight-123', 'sword-123');
+      useGear.getState().unequipGear('knight-123', 'sword-123');
+      const state = useGear.getState();
+
+      expect(state.getGearOwner('sword-123')).toBeNull();
+      expect(state.isGearEquippedByKnight('sword-123', 'knight-123')).toBe(false);
     });
   });
 });

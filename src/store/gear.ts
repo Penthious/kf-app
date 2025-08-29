@@ -9,6 +9,9 @@ export type GearState = {
   consumableGear: string[]; // consumable gear IDs only
   userGear: Record<string, number>; // gearId -> quantity
   equippedGear: Record<string, string[]>; // knightId -> gearIds
+  // Campaign-specific gear management
+  campaignUnlockedGear: Record<string, string[]>; // campaignId -> unlocked gearIds
+  gearOwnership: Record<string, string | null>; // gearId -> knightId (null if unequipped)
 };
 
 export type GearActions = {
@@ -31,6 +34,17 @@ export type GearActions = {
   equipGear: (knightId: string, gearId: string) => void;
   unequipGear: (knightId: string, gearId: string) => void;
   getEquippedGear: (knightId: string) => string[];
+
+  // Campaign gear management
+  unlockGearForCampaign: (campaignId: string, gearId: string) => void;
+  isGearUnlockedForCampaign: (campaignId: string, gearId: string) => boolean;
+  getUnlockedGearForCampaign: (campaignId: string) => string[];
+
+  // Shared gear management
+  getGearOwner: (gearId: string) => string | null;
+  transferGear: (gearId: string, fromKnightId: string, toKnightId: string) => void;
+  isGearEquippedByKnight: (gearId: string, knightId: string) => boolean;
+  getAvailableGearForKnight: (campaignId: string, knightId: string) => string[];
 
   // Image management
   setGearImage: (gearId: string, imageUrl: string) => void;
@@ -175,6 +189,8 @@ const initialState: GearState = {
   consumableGear: ['healing-potion', 'magic-scroll'],
   userGear: {},
   equippedGear: {},
+  campaignUnlockedGear: {},
+  gearOwnership: {},
 };
 
 export const useGear = create<GearStore>((set, get) => ({
@@ -252,7 +268,26 @@ export const useGear = create<GearStore>((set, get) => ({
   },
 
   resetGear: () => {
-    set(initialState);
+    set({
+      allGear: sampleGear,
+      gearByKingdom: {
+        'principality-of-stone': ['sword-of-truth', 'stone-helm', 'ratwolf-claw'],
+      },
+      gearByType: {
+        kingdom: ['sword-of-truth', 'stone-helm'],
+        monster: ['ratwolf-claw'],
+        wandering: ['wandering-blade'],
+        consumable: ['healing-potion', 'magic-scroll'],
+        upgrade: ['sharpening-stone', 'reinforced-plating'],
+        merchant: ['merchant-sword', 'merchant-sword-reforged'],
+      },
+      wanderingGear: ['wandering-blade'],
+      consumableGear: ['healing-potion', 'magic-scroll'],
+      userGear: {},
+      equippedGear: {},
+      campaignUnlockedGear: {},
+      gearOwnership: {},
+    });
   },
 
   getGearByKingdom: (kingdomId: string) => {
@@ -306,10 +341,24 @@ export const useGear = create<GearStore>((set, get) => ({
         newState.equippedGear[knightId] = [];
       }
 
-      // Don't duplicate if already equipped
+      // Check if gear is already equipped by another knight
+      const currentOwner = newState.gearOwnership[gearId];
+      if (currentOwner && currentOwner !== knightId) {
+        // Remove from current owner
+        if (newState.equippedGear[currentOwner]) {
+          newState.equippedGear[currentOwner] = newState.equippedGear[currentOwner].filter(
+            id => id !== gearId
+          );
+        }
+      }
+
+      // Don't duplicate if already equipped by this knight
       if (!newState.equippedGear[knightId].includes(gearId)) {
         newState.equippedGear[knightId].push(gearId);
       }
+
+      // Update gear ownership
+      newState.gearOwnership[gearId] = knightId;
 
       return newState;
     });
@@ -324,6 +373,9 @@ export const useGear = create<GearStore>((set, get) => ({
           id => id !== gearId
         );
       }
+
+      // Update gear ownership
+      newState.gearOwnership[gearId] = null;
 
       return newState;
     });
@@ -354,6 +406,74 @@ export const useGear = create<GearStore>((set, get) => ({
       const { imageUrl, ...gearWithoutImage } = gear;
       newState.allGear[gearId] = gearWithoutImage;
       return newState;
+    });
+  },
+
+  // Campaign gear management
+  unlockGearForCampaign: (campaignId: string, gearId: string) => {
+    set(state => {
+      const newState = { ...state };
+      const currentUnlocked = newState.campaignUnlockedGear[campaignId] || [];
+      if (currentUnlocked.includes(gearId)) return state;
+
+      newState.campaignUnlockedGear[campaignId] = [...currentUnlocked, gearId];
+      return newState;
+    });
+  },
+
+  isGearUnlockedForCampaign: (campaignId: string, gearId: string) => {
+    const state = get();
+    return (state.campaignUnlockedGear[campaignId] || []).includes(gearId);
+  },
+
+  getUnlockedGearForCampaign: (campaignId: string) => {
+    const state = get();
+    return state.campaignUnlockedGear[campaignId] || [];
+  },
+
+  // Shared gear management
+  getGearOwner: (gearId: string) => {
+    const state = get();
+    return state.gearOwnership[gearId] || null;
+  },
+
+  transferGear: (gearId: string, fromKnightId: string, toKnightId: string) => {
+    set(state => {
+      const newState = { ...state };
+
+      // Remove from current owner
+      if (newState.equippedGear[fromKnightId]) {
+        newState.equippedGear[fromKnightId] = newState.equippedGear[fromKnightId].filter(
+          id => id !== gearId
+        );
+      }
+
+      // Add to new owner
+      if (!newState.equippedGear[toKnightId]) {
+        newState.equippedGear[toKnightId] = [];
+      }
+      newState.equippedGear[toKnightId].push(gearId);
+
+      // Update ownership
+      newState.gearOwnership[gearId] = toKnightId;
+
+      return newState;
+    });
+  },
+
+  isGearEquippedByKnight: (gearId: string, knightId: string) => {
+    const state = get();
+    return state.gearOwnership[gearId] === knightId;
+  },
+
+  getAvailableGearForKnight: (campaignId: string, knightId: string) => {
+    const state = get();
+    const unlockedGear = state.campaignUnlockedGear[campaignId] || [];
+
+    return unlockedGear.filter(gearId => {
+      const owner = state.gearOwnership[gearId];
+      // Available if not equipped by anyone, or equipped by this knight
+      return !owner || owner === knightId;
     });
   },
 }));

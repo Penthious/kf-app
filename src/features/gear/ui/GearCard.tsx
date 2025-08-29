@@ -11,9 +11,17 @@ interface GearCardProps {
   onCamera?: (gear: Gear) => void;
   onGallery?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
+  onUnlock?: (gear: Gear) => void;
 }
 
-export function GearCard({ gear, onUpload, onCamera, onGallery, onDelete }: GearCardProps) {
+export function GearCard({
+  gear,
+  onUpload,
+  onCamera,
+  onGallery,
+  onDelete,
+  onUnlock,
+}: GearCardProps) {
   const { tokens } = useThemeTokens();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -96,6 +104,17 @@ export function GearCard({ gear, onUpload, onCamera, onGallery, onDelete }: Gear
               <Text style={[styles.propertyText, { color: tokens.textMuted }]}>Reforged</Text>
             )}
           </View>
+
+          {onUnlock && (
+            <Pressable
+              style={[styles.unlockButton, { backgroundColor: tokens.accent }]}
+              onPress={() => onUnlock(gear)}
+              testID='gear-unlock-button'
+            >
+              <Ionicons name='add-circle' size={16} color='#0B0B0B' />
+              <Text style={[styles.unlockButtonText, { color: '#0B0B0B' }]}>Unlock</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Right side - Image */}
@@ -301,6 +320,20 @@ const styles = StyleSheet.create({
   propertyText: {
     fontSize: 11,
     marginBottom: 2,
+  },
+  unlockButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginTop: 8,
+  },
+  unlockButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginLeft: 8,
   },
   actionsContainer: {
     flexDirection: 'row',

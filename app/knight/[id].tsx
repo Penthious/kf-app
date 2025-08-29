@@ -19,6 +19,7 @@ import AlliesCard from '@/features/knights/AlliesCard';
 import ChapterInvestigations from '@/features/knights/ChapterInvestigations';
 import NotesCard from '@/features/knights/NotesCard';
 import ChoiceMatrixCard from '@/features/knights/ui/ChoiceMatrixCard';
+import { KnightGearCard } from '@/features/knights/ui/KnightGearCard';
 import SheetBasicsCard from '@/features/knights/ui/SheetBasicsCard';
 import VicesCard from '@/features/knights/ui/VicesCard';
 import VirtuesCard from '@/features/knights/ui/VirtuesCard';
@@ -279,6 +280,7 @@ export default function KnightDetail() {
         <VicesCard knightUID={k.knightUID} />
         <SheetBasicsCard knightUID={k.knightUID} />
         <ChoiceMatrixCard knightUID={k.knightUID} />
+        <KnightGearCard knightUID={k.knightUID} />
         <AlliesCard knightUID={k.knightUID} />
         <NotesCard knightUID={k.knightUID} />
 
