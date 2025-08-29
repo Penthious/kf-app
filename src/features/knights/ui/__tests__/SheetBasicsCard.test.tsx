@@ -1,9 +1,11 @@
+import type { MockCardProps, MockStepperProps, MockSwitchRowProps } from '../../../../test-utils/types';
+
 // Mock the Card component
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockCard({ children }: any) {
+    function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     }
     
@@ -14,19 +16,19 @@ jest.mock('@/components/Card', () => {
 jest.mock('@/components/ui/Stepper', () => {
     const React = require('react');
     const { View, Text, Pressable } = require('react-native');
-    return function MockStepper({ value, min, max, onChange, editable, formatValue, parseValue, testID }: any) {
-        const displayValue = formatValue ? formatValue(value) : value.toString();
+    return function MockStepper({ value, min, max, onChange, editable, formatValue, parseValue, testID }: MockStepperProps) {
+        const displayValue = formatValue ? formatValue(value || 0) : (value || 0).toString();
         return (
             <View testID={testID}>
                 <Text>{displayValue}</Text>
                 <Pressable
-                    onPress={() => onChange(Math.min(max, value + 1))}
+                    onPress={() => onChange?.(Math.min(max || 100, (value || 0) + 1))}
                     testID={testID ? `${testID}-increment` : undefined}
                 >
                     <Text>+</Text>
                 </Pressable>
                 <Pressable
-                    onPress={() => onChange(Math.max(min, value - 1))}
+                    onPress={() => onChange?.(Math.max(min || 0, (value || 0) - 1))}
                     testID={testID ? `${testID}-decrement` : undefined}
                 >
                     <Text>-</Text>
@@ -40,12 +42,12 @@ jest.mock('@/components/ui/Stepper', () => {
 jest.mock('@/components/ui/SwitchRow', () => {
     const React = require('react');
     const { View, Text, Pressable } = require('react-native');
-    return function MockSwitchRow({ label, value, onValueChange, testID }: any) {
+    return function MockSwitchRow({ label, value, onValueChange, testID }: MockSwitchRowProps) {
         return (
             <View testID={testID}>
                 <Text>{label}</Text>
                 <Pressable
-                    onPress={() => onValueChange(!value)}
+                    onPress={() => onValueChange?.(!value)}
                     testID={testID ? `${testID}-switch` : undefined}
                 >
                     <Text>{value ? 'ON' : 'OFF'}</Text>

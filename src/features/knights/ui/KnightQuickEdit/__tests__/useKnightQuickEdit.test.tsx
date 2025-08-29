@@ -86,7 +86,7 @@ describe('useKnightQuickEdit', () => {
                 investigations: {
                     3: {
                         questCompleted: true,
-                        completed: 'not-an-array' as any
+                        completed: 'not-an-array' as unknown as string[]
                     }
                 }
             }

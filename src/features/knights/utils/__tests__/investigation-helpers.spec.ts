@@ -132,14 +132,14 @@ describe('investigation-helpers', () => {
         });
 
         it('returns errors for invalid result', () => {
-            const result = validateInvestigationInput(1, 'inv-1', 'invalid' as any, 'normal');
+            const result = validateInvestigationInput(1, 'inv-1', 'invalid' as 'pass' | 'fail', 'normal');
 
             expect(result.valid).toBe(false);
             expect(result.errors).toContain('Result must be pass or fail');
         });
 
         it('returns errors for invalid type', () => {
-            const result = validateInvestigationInput(1, 'inv-1', 'pass', 'invalid' as any);
+            const result = validateInvestigationInput(1, 'inv-1', 'pass', 'invalid' as 'normal' | 'lead');
 
             expect(result.valid).toBe(false);
             expect(result.errors).toContain('Type must be normal or lead');

@@ -48,7 +48,7 @@ describe('BenchedList', () => {
     it('renders empty state when list is null', () => {
         const { getByText } = render(
             <BenchedList
-                list={null as any}
+                list={[]}
                 activeCatalogIds={new Set()}
                 onActivate={mockOnActivate}
                 onRemove={mockOnRemove}

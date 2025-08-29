@@ -1,9 +1,11 @@
+import type { MockCardProps, MockInvestigationPillsProps, MockInvestigationChooserProps } from '../../../../test-utils/types';
+
 // Mock the Card component
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockCard({ children }: any) {
+    function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     }
     
@@ -45,11 +47,11 @@ jest.mock('../InvestigationPills', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockInvestigationPills({ entries, onPress }: any) {
+    function MockInvestigationPills({ entries, onPress }: MockInvestigationPillsProps) {
         return (
             <View testID="investigation-pills">
-                {entries.map((entry: any) => (
-                    <View key={entry.code} testID={`pill-${entry.code}`} onPress={() => onPress(entry.code)} />
+                {entries?.map((entry) => (
+                    <View key={entry.code} testID={`pill-${entry.code}`} onPress={() => onPress?.(entry.code)} />
                 ))}
             </View>
         );
@@ -63,7 +65,7 @@ jest.mock('../InvestigationChooser', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockInvestigationChooser({ code, locked, onNormalPass, onNormalFail, onLeadComplete, onCancel }: any) {
+    function MockInvestigationChooser({ code, locked, onNormalPass, onNormalFail, onLeadComplete, onCancel }: MockInvestigationChooserProps) {
         return (
             <View testID="investigation-chooser">
                 <View testID="normal-pass" onPress={onNormalPass} />

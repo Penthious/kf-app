@@ -282,16 +282,16 @@ describe('campaigns store', () => {
         let k = c.kingdoms.find(k => k.kingdomId === kingdomId);
         expect(k).toBeTruthy();
         expect(Array.isArray(k!.adventures)).toBe(true);
-        let a = (k!.adventures as any[]).find(x => x.id === advId);
+        let a = (k!.adventures as Array<{ id: string; completedCount?: number }>).find(x => x.id === advId);
         expect(a).toBeTruthy();
-        expect(a.completedCount).toBe(1);
+        expect(a!.completedCount).toBe(1);
 
         // Act: calling again should remain at 1 (idempotent)
         useCampaigns.getState().setAdventureProgress('cmp-1', kingdomId, advId, { singleAttempt: true });
         c = useCampaigns.getState().campaigns['cmp-1'];
         k = c.kingdoms.find(k => k.kingdomId === kingdomId);
-        a = (k!.adventures as any[]).find(x => x.id === advId);
-        expect(a.completedCount).toBe(1);
+        a = (k!.adventures as Array<{ id: string; completedCount?: number }>).find(x => x.id === advId);
+        expect(a!.completedCount).toBe(1);
 
         // updatedAt should be set
         expect(c.updatedAt).toBe(t1);
@@ -314,8 +314,8 @@ describe('campaigns store', () => {
 
         const c = useCampaigns.getState().campaigns['cmp-2'];
         const k = c.kingdoms.find(k => k.kingdomId === kingdomId)!;
-        const aA = (k.adventures as any[]).find(x => x.id === advA);
-        const aB = (k.adventures as any[]).find(x => x.id === advB);
+        const aA = (k.adventures as Array<{ id: string; completedCount?: number }>).find(x => x.id === advA);
+        const aB = (k.adventures as Array<{ id: string; completedCount?: number }>).find(x => x.id === advB);
 
         expect(aA?.completedCount).toBe(4);
         expect(aB?.completedCount).toBe(1);

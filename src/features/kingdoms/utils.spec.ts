@@ -39,7 +39,7 @@ describe('normalizeRow', () => {
     });
 
     it('returns empty object when row is null', () => {
-        const result = normalizeRow(null as any);
+        const result = normalizeRow(undefined);
         expect(result).toEqual({});
     });
 
@@ -48,7 +48,7 @@ describe('normalizeRow', () => {
             'monster-1': 5,
             'monster-2': null,
             'monster-3': 10,
-            'monster-4': undefined as any,
+            'monster-4': null,
         };
 
         const result = normalizeRow(row);
@@ -128,7 +128,7 @@ describe('resolveStagesForBestiary', () => {
             id: 'test-kingdom',
             name: 'Test Kingdom',
             bestiary: {
-                stages: 'not-an-array' as any,
+                stages: 'not-an-array' as unknown as BestiaryStageRow[],
             },
         } as KingdomCatalog;
 
@@ -212,7 +212,7 @@ describe('resolveStagesForBestiary', () => {
             bestiary: {
                 monsters: [],
                 stages: [
-                    { 'monster-1': 1, 'monster-2': null, 'monster-3': undefined as any },
+                    { 'monster-1': 1, 'monster-2': null, 'monster-3': null },
                 ],
             },
         } as KingdomCatalog;

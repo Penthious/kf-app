@@ -1,4 +1,4 @@
-import type { MockCardProps, MockCardTitleProps, MockTextRowProps, MockPillProps } from '../../../../test-utils/types';
+import type { MockCardProps, MockCardTitleProps, MockPillProps, MockTextRowProps } from '../../../../test-utils/types';
 
 // Mock the Card component
 jest.mock('@/components/Card', () => {

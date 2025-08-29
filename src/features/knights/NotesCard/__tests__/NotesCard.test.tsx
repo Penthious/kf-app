@@ -1,9 +1,11 @@
+import type { MockCardProps, MockNoteInputProps, MockNotesListProps } from '../../../../test-utils/types';
+
 // Mock the Card component
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockCard({ children }: any) {
+    function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     }
     
@@ -40,8 +42,8 @@ jest.mock('../NoteInput', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockNoteInput({ onAdd }: any) {
-        return <View testID="note-input" onPress={() => onAdd('Test note')} />;
+    function MockNoteInput({ onAdd }: MockNoteInputProps) {
+        return <View testID="note-input" onPress={() => onAdd?.('Test note')} />;
     }
     
     return { NoteInput: MockNoteInput };
@@ -52,10 +54,10 @@ jest.mock('../NotesList', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockNotesList({ notes, editingId, editText, onEditTextChange, onBeginEdit, onCancelEdit, onSaveEdit, onDelete }: any) {
+    function MockNotesList({ notes, editingId, editText, onEditTextChange, onBeginEdit, onCancelEdit, onSaveEdit, onDelete }: MockNotesListProps) {
         return (
             <View testID="notes-list">
-                <View testID="notes-count">{notes.length}</View>
+                <View testID="notes-count">{notes?.length}</View>
                 {editingId && <View testID="editing-id">{editingId}</View>}
                 <View testID="edit-text">{editText}</View>
             </View>

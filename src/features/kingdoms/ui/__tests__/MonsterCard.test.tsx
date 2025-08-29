@@ -1,3 +1,4 @@
+import type { MockMonstersState } from '../../../../test-utils/types';
 import MonsterCard from '@/features/kingdoms/ui/MonsterCard';
 import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
@@ -51,7 +52,7 @@ jest.mock('@/store/monsters', () => {
 
     return {
         useMonsters: (selector?: (s: any) => any) => {
-            const state = {
+            const state: MockMonstersState = {
                 all: Object.values(mockMonsters),
                 byId: mockMonsters,
             };
@@ -231,7 +232,7 @@ describe('MonsterCard', () => {
 
     it('handles undefined stage values correctly', () => {
         const stageRowWithUndefineds: Record<string, number | null> = {
-            'goblin': undefined as any,
+            'goblin': null,
             'orc': 2,
             'troll': 0,
         };

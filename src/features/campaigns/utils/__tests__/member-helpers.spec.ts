@@ -1,4 +1,4 @@
-import type { CampaignMember } from '@/models/campaign';
+import type { Campaign, CampaignMember } from '@/models/campaign';
 import { describe, expect, it } from 'vitest';
 import {
     canBePartyLeader,
@@ -346,7 +346,7 @@ describe('member-helpers', () => {
                 isActive: 'not boolean',
                 isLeader: 'not boolean',
                 joinedAt: 'not number',
-            } as any;
+            } as unknown as CampaignMember;
 
             const result = validateMember(invalidMember);
             expect(result.valid).toBe(false);

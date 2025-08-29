@@ -1,9 +1,11 @@
+import type { MockCardProps } from '../../../../test-utils/types';
+
 // Mock the Card component
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View } = require('react-native');
     
-    function MockCard({ children }: any) {
+    function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     }
     

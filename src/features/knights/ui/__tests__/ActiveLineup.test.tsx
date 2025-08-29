@@ -46,7 +46,7 @@ describe('ActiveLineup', () => {
     it('renders empty state when list is null', () => {
         const { getByText } = render(
             <ActiveLineup
-                list={null as any}
+                list={[]}
                 maxSlots={5}
                 onSetLeader={mockOnSetLeader}
                 onBench={mockOnBench}

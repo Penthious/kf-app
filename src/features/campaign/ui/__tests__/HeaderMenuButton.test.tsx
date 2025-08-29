@@ -17,16 +17,18 @@ jest.mock('@/theme/ThemeProvider', () => ({
 }));
 
 // ---- ContextMenu mock ----
+import type { MockContextMenuProps } from '../../../../test-utils/types';
+
 jest.mock('@/components/ui/ContextMenu', () => {
     const React = require('react');
     const { View, Text, Pressable } = require('react-native');
     
-    const MockContextMenu = ({ visible, items, onRequestClose, testID }: any) => {
+    const MockContextMenu = ({ visible, items, onRequestClose, testID }: MockContextMenuProps) => {
         if (!visible) return null;
         
         return (
             <View testID={testID}>
-                {items.map((item: any) => (
+                {items?.map((item) => (
                     <Pressable
                         key={item.key}
                         onPress={item.onPress}

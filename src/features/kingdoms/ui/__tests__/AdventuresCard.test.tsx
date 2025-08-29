@@ -87,11 +87,13 @@ jest.mock('@/components/ui/Stepper', () => {
     const React = require('react');
     const { Pressable, Text, View } = require('react-native');
 
+
+
     return ({ value, onChange, testID }: any) => (
         <View testID={testID}>
             <Pressable
                 testID={testID ? `${testID}-decrease` : undefined}
-                onPress={() => onChange((value ?? 0) - 1)}
+                onPress={() => onChange?.((value ?? 0) - 1)}
             >
                 <Text>dec</Text>
             </Pressable>
@@ -102,7 +104,7 @@ jest.mock('@/components/ui/Stepper', () => {
             </View>
             <Pressable
                 testID={testID ? `${testID}-increase` : undefined}
-                onPress={() => onChange((value ?? 0) + 1)}
+                onPress={() => onChange?.((value ?? 0) + 1)}
             >
                 <Text>inc</Text>
             </Pressable>

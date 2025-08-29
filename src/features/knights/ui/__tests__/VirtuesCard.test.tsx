@@ -1,3 +1,4 @@
+import type { MockCardProps, MockStepperProps } from '../../../../test-utils/types';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
 import VirtuesCard from '../VirtuesCard';
@@ -6,7 +7,7 @@ import VirtuesCard from '../VirtuesCard';
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View } = require('react-native');
-    return function MockCard({ children }: any) {
+    return function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     };
 });
@@ -15,18 +16,18 @@ jest.mock('@/components/Card', () => {
 jest.mock('@/components/ui/Stepper', () => {
     const React = require('react');
     const { View, Pressable, Text } = require('react-native');
-    return function MockStepper({ value, min, max, onChange, testID }: any) {
+    return function MockStepper({ value, min, max, onChange, testID }: MockStepperProps) {
         return (
             <View testID={testID}>
                 <Text>{value}</Text>
                 <Pressable
-                    onPress={() => onChange(Math.min(max, value + 1))}
+                    onPress={() => onChange?.(Math.min(max || 100, (value || 0) + 1))}
                     testID={testID ? `${testID}-increment` : undefined}
                 >
                     <Text>+</Text>
                 </Pressable>
                 <Pressable
-                    onPress={() => onChange(Math.max(min, value - 1))}
+                    onPress={() => onChange?.(Math.max(min || 0, (value || 0) - 1))}
                     testID={testID ? `${testID}-decrement` : undefined}
                 >
                     <Text>-</Text>

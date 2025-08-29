@@ -116,3 +116,43 @@ export interface MockBenchedListProps {
     onActivate?: (uid: string) => void;
     onEdit?: (uid: string) => void;
 }
+
+export interface MockKnight {
+    knightUID: string;
+    name: string;
+    sheet: {
+        chapter: number;
+        chapters: Record<string, {
+            quest: { completed: boolean; outcome?: string };
+            attempts: Array<{
+                code: string;
+                result: 'pass' | 'fail';
+                lead?: boolean;
+            }>;
+            completed: string[];
+        }>;
+        virtues: Record<string, number>;
+        vices: Record<string, number>;
+        [key: string]: any;
+    };
+    [key: string]: any;
+}
+
+export interface MockMonstersState {
+    all: Array<{
+        id: string;
+        name: string;
+        level: number;
+        toHit: number;
+        wounds: number;
+        exhibitionStartingWounds: number;
+    }>;
+    byId: Record<string, {
+        id: string;
+        name: string;
+        level: number;
+        toHit: number;
+        wounds: number;
+        exhibitionStartingWounds: number;
+    }>;
+}
