@@ -15,6 +15,7 @@ jest.mock('react-native', () => ({
   Pressable: 'Pressable',
   Switch: 'Switch',
   Modal: 'Modal',
+  FlatList: 'FlatList',
   Dimensions: {
     get: jest.fn(() => ({ width: 375, height: 812 })),
   },

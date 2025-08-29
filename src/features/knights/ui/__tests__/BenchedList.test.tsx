@@ -10,9 +10,9 @@ jest.mock('@/theme/ThemeProvider', () => ({
     }),
 }));
 
-import BenchedList from '../BenchedList';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
+import BenchedList from '../BenchedList';
 
 describe('BenchedList', () => {
     const mockOnActivate = jest.fn();
