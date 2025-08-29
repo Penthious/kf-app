@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CampaignEncounter() {
     const { tokens } = useThemeTokens();
-    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
+    const campaignId = useCampaigns((s) => s.currentCampaignId);
     const { campaigns } = useCampaigns();
     const c = campaignId ? campaigns[campaignId] : undefined;
 

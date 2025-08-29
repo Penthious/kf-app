@@ -14,13 +14,8 @@ export default function AdventuresCard({ kingdom }: AdventuresCardProps) {
     const { tokens } = useThemeTokens();
 
     const campaigns = useCampaigns(s => s.campaigns);
-    const currentCampaignId = useCampaigns(s => (s as any).currentCampaignId) as string | undefined;
-    const setAdventureProgress = useCampaigns(s => (s as any).setAdventureProgress) as (
-        campaignId: string,
-        kingdomId: string,
-        adventureId: string,
-        opts?: { singleAttempt?: boolean; delta?: number }
-    ) => void;
+    const currentCampaignId = useCampaigns(s => s.currentCampaignId);
+    const setAdventureProgress = useCampaigns(s => s.setAdventureProgress);
 
     const c = currentCampaignId ? campaigns[currentCampaignId] : undefined;
 
@@ -44,8 +39,8 @@ export default function AdventuresCard({ kingdom }: AdventuresCardProps) {
 
         if (Array.isArray(advs)) {
             const found = (advs as unknown[]).find(
-                (a) => a && typeof a === 'object' && 'id' in (a as any) && (a as any).id === advId
-            ) as any | undefined;
+                (a) => a && typeof a === 'object' && 'id' in a && (a as { id: string }).id === advId
+            ) as { completedCount?: number } | undefined;
             return found ? Number(found.completedCount ?? 0) : 0;
         }
 
@@ -53,8 +48,8 @@ export default function AdventuresCard({ kingdom }: AdventuresCardProps) {
             const rec = advs as Record<string, unknown>;
             const v = rec[advId];
             if (typeof v === 'number') return v;
-            if (v && typeof v === 'object' && 'completedCount' in (v as any)) {
-                return Number((v as any).completedCount ?? 0);
+            if (v && typeof v === 'object' && 'completedCount' in v) {
+                return Number((v as { completedCount?: number }).completedCount ?? 0);
             }
         }
 

@@ -145,7 +145,7 @@ export function ensureSheet(s: Partial<KnightSheet> | undefined): KnightSheet {
     const base = defaultSheet();
     const out: KnightSheet = {
         ...base,
-        ...(s as any),
+        ...(s as Partial<KnightSheet>),
         virtues: { ...base.virtues, ...(s?.virtues ?? {}) },
         vices: { ...base.vices, ...(s?.vices ?? {}) },
         leads: s?.leads ?? 0,
@@ -168,7 +168,7 @@ export function ensureSheet(s: Partial<KnightSheet> | undefined): KnightSheet {
 export function ensureKnight(k: Knight): Knight {
     return {
         ...k,
-        sheet: ensureSheet(k.sheet as any),
+        sheet: ensureSheet(k.sheet),
         version: k.version ?? 1,
         updatedAt: k.updatedAt ?? Date.now(),
     };

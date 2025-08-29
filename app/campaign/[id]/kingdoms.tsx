@@ -31,7 +31,7 @@ export default function CampaignKingdoms() {
     const router = useRouter();
 
     // ----- Current Campaign -----
-    const campaignId = useCampaigns((s) => (s as any).currentCampaignId) as string | undefined;
+    const campaignId = useCampaigns((s) => s.currentCampaignId);
     const campaigns = useCampaigns((s) => s.campaigns);
     const c: Campaign | undefined = campaignId ? campaigns[campaignId] : undefined;
 
@@ -78,12 +78,7 @@ export default function CampaignKingdoms() {
     const completedInvs = ch ? countCompletedInvestigations(ch) : 0;
 
     // ----- Load kingdoms catalog -----
-    const kingdoms: KingdomCatalog[] = useMemo(() => {
-        const any = allKingdomsCatalog as any;
-        if (Array.isArray(any)) return any as KingdomCatalog[];
-        if (typeof any === 'function') return (any() as KingdomCatalog[]) || [];
-        return [];
-    }, []);
+    const kingdoms: KingdomCatalog[] = allKingdomsCatalog;
 
     // ----- Kingdom picker state -----
     const [activeKingdomId, setActiveKingdomId] = useState<string | null>(null);

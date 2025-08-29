@@ -1,13 +1,15 @@
+import type { MockCardProps, MockCardTitleProps, MockTextRowProps, MockPillProps } from '../../../../test-utils/types';
+
 // Mock the Card component
 jest.mock('@/components/Card', () => {
     const React = require('react');
     const { View, Text } = require('react-native');
     
-    function MockCard({ children }: any) {
+    function MockCard({ children }: MockCardProps) {
         return <View testID="card">{children}</View>;
     }
     
-    MockCard.Title = function MockCardTitle({ children }: any) {
+    MockCard.Title = function MockCardTitle({ children }: MockCardTitleProps) {
         return <Text testID="card-title">{children}</Text>;
     };
     
@@ -18,7 +20,7 @@ jest.mock('@/components/Card', () => {
 jest.mock('@/components/ui/TextRow', () => {
     const React = require('react');
     const { View, Text, TextInput } = require('react-native');
-    return function MockTextRow({ label, value, onChangeText, placeholder, testID }: any) {
+    return function MockTextRow({ label, value, onChangeText, placeholder, testID }: MockTextRowProps) {
         return (
             <View testID={testID}>
                 <Text>{label}</Text>
@@ -37,7 +39,7 @@ jest.mock('@/components/ui/TextRow', () => {
 jest.mock('@/components/ui/Pill', () => {
     const React = require('react');
     const { Pressable, Text } = require('react-native');
-    return function MockPill({ label, selected, onPress, testID }: any) {
+    return function MockPill({ label, selected, onPress, testID }: MockPillProps) {
         return (
             <Pressable
                 onPress={onPress}

@@ -21,7 +21,7 @@ export interface AlliesData {
 }
 
 export function useAlliesData(knightUID: string): AlliesData {
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
     const knight = knightsById[knightUID];
 
     const saintsSelected = knight?.sheet?.saints ?? [];

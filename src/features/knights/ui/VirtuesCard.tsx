@@ -6,7 +6,7 @@ import { Text, View } from 'react-native';
 
 export default function VirtuesCard({ knightUID }: { knightUID: string }){
     const { tokens } = useThemeTokens();
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
     const k = knightsById[knightUID];
     const v = k.sheet.virtues;
 

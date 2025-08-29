@@ -8,7 +8,7 @@ import { Pressable, Text, View } from 'react-native';
 
 export default function SheetBasicsCard({ knightUID }: { knightUID: string }) {
     const { tokens } = useThemeTokens();
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
     const k = knightsById[knightUID];
     const sheet = k.sheet;
     const leads = sheet.leads ?? 0;

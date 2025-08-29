@@ -59,7 +59,7 @@ export const selectAllKnights = (state: KnightsState) =>
     Object.values(state.knightsById);
 
 export const selectKnightsByCatalogId = (catalogId: string) => (state: KnightsState) => 
-    Object.values(state.knightsById).filter((k: any) => k.catalogId === catalogId);
+    Object.values(state.knightsById).filter((k) => k.catalogId === catalogId);
 
 // Monster Selectors
 export const selectMonsterById = (id?: string) => (state: MonstersState) =>

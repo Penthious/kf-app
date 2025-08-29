@@ -22,7 +22,7 @@ import { KnightsById } from "@/features/knights/types";
 import uuid from "react-native-uuid";
 
 export default function CampaignKnightsPage() {
-    const campaignId = useCampaigns((s) => (s as any).currentCampaignId);
+    const campaignId = useCampaigns((s) => s.currentCampaignId);
     const { tokens } = useThemeTokens();
     const router = useRouter();
 

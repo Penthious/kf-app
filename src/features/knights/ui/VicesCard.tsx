@@ -21,7 +21,7 @@ function Tick({ on, onPress }:{ on:boolean; onPress:()=>void }){
 
 export default function VicesCard({ knightUID }:{ knightUID: string }) {
     const { tokens } = useThemeTokens();
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
     const k = knightsById[knightUID];
     const v = k.sheet.vices;
 

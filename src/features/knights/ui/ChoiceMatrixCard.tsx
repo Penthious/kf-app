@@ -49,7 +49,7 @@ function Pill({
 
 export default function ChoiceMatrixCard({ knightUID }: Props) {
     const { tokens } = useThemeTokens();
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
 
     const k = knightsById?.[knightUID];
     const sheet = ensureSheet(k?.sheet);

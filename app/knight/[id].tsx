@@ -135,20 +135,21 @@ export default function KnightDetail() {
         knightsById,
         renameKnight,
         completeQuest,
-    } = useKnights() as any;
+        updateKnightSheet,
+    } = useKnights();
 
-    const { setPartyLeader } = useCampaigns() as any;
+    const { setPartyLeader } = useCampaigns();
 
     const k: Knight | undefined = useMemo(() => (id ? knightsById[id] : undefined), [id, knightsById]);
 
     // read current leader for this campaign (if any) so we can toggle UI
     const currentLeaderUID = useCampaigns(s => {
         if (!campaignId) return undefined;
-        const c = (s as any).campaigns?.[campaignId];
+        const c = s.campaigns?.[campaignId];
         if (!c) return undefined;
         return (
-            c.settings?.partyLeaderUID ||
-            c.members?.find((m: any) => m.isLeader)?.knightUID ||
+            c.partyLeaderUID ||
+            c.members?.find((m) => m.isLeader)?.knightUID ||
             undefined
         );
     });
@@ -227,13 +228,8 @@ export default function KnightDetail() {
                             min={1}
                             max={5}
                             onChange={(v) => {
-                                const now = Date.now();
-                                (useKnights.getState() as any).addKnight({
-                                    ...k,
-                                    sheet: { ...k.sheet, chapter: v },
-                                    version: k.version,
-                                    updatedAt: now,
-                                });
+                                const result = updateKnightSheet(k.knightUID, { chapter: v });
+                                if (!result.ok) Alert.alert('Error', result.error || 'Failed to update chapter.');
                             }}
                         />
                     </View>
@@ -284,26 +280,16 @@ export default function KnightDetail() {
                         label="Prologue done"
                         value={k.sheet.prologueDone}
                         onValueChange={(on) => {
-                            const now = Date.now();
-                            (useKnights.getState() as any).addKnight({
-                                ...k,
-                                sheet: { ...k.sheet, prologueDone: on },
-                                version: k.version,
-                                updatedAt: now,
-                            });
+                            const result = updateKnightSheet(k.knightUID, { prologueDone: on });
+                            if (!result.ok) Alert.alert('Error', result.error || 'Failed to update prologue status.');
                         }}
                     />
                     <SwitchRow
                         label="Postgame started"
                         value={k.sheet.postgameDone}
                         onValueChange={(on) => {
-                            const now = Date.now();
-                            (useKnights.getState() as any).addKnight({
-                                ...k,
-                                sheet: { ...k.sheet, postgameDone: on },
-                                version: k.version,
-                                updatedAt: now,
-                            });
+                            const result = updateKnightSheet(k.knightUID, { postgameDone: on });
+                            if (!result.ok) Alert.alert('Error', result.error || 'Failed to update postgame status.');
                         }}
                     />
                 </Card>

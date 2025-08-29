@@ -16,7 +16,7 @@ export interface NotesData {
 }
 
 export function useNotesData(knightUID: string): NotesData {
-    const { knightsById, updateKnightSheet } = useKnights() as any;
+    const { knightsById, updateKnightSheet } = useKnights();
     const k = knightsById[knightUID];
 
     const notes = useMemo(() => {

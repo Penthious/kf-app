@@ -28,13 +28,13 @@ function readCount(ks: KingdomState | undefined, advId: string): number {
     if (!advs) return 0;
 
     if (Array.isArray(advs)) {
-        const found = advs.find((a: any) => a && a.id === advId);
-        return Number(found?.completedCount ?? 0);
+        const found = advs.find((a) => a && typeof a === 'object' && 'id' in a && (a as { id: string }).id === advId);
+        return Number((found as { completedCount?: number })?.completedCount ?? 0);
     }
     if (typeof advs === 'object') {
-        const v: any = (advs as any)[advId];
+        const v = (advs as Record<string, unknown>)[advId];
         if (typeof v === 'number') return v;
-        if (v && typeof v === 'object') return Number(v.completedCount ?? 0);
+        if (v && typeof v === 'object' && 'completedCount' in v) return Number((v as { completedCount?: number }).completedCount ?? 0);
     }
     return 0;
 }

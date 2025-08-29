@@ -36,7 +36,7 @@ export function useChapterInvestigationsData(knightUID: string, chapter: number)
         addNormalInvestigation: storeAddNormalInvestigation,
         addLeadCompletion: storeAddLeadCompletion,
         isNormalLocked,
-    } = useKnights() as any;
+    } = useKnights();
 
     const k = knightsById?.[knightUID];
     const sheet = ensureSheet(k?.sheet);
