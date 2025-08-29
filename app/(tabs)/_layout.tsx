@@ -1,7 +1,7 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function RootTabsLayout() {
   const { tokens } = useThemeTokens();
@@ -21,6 +21,7 @@ export default function RootTabsLayout() {
           const m: Record<string, string> = {
             index: 'albums',
             knights: 'person',
+            gear: 'shield',
           };
           const name = m[route.name] || 'apps';
           return <Ionicons name={name as any} size={size} color={color} />;

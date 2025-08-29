@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useKnights } from './knights';
 import {
-  defaultSheet,
   countDistinctAttempted,
   countNormalDisplay,
   countTotalDisplay,
-} from '@/models/knight';
+  defaultSheet,
+} from '../models/knight';
+import { useKnights } from './knights';
 
 const resetKnightsStore = () => {
   // Partial update: do not replace the whole store or you'll lose actions

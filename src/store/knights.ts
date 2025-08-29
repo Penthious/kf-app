@@ -141,7 +141,8 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     const chapterProgress = ensureChapter(knight.sheet, chapter);
 
     const domainResult = addInvestigationDomain(chapterProgress, invId, 'normal', result);
-    if (!domainResult.ok) return { ok: false, error: domainResult.error };
+    if (!domainResult.ok)
+      return { ok: false, error: (domainResult as { ok: false; error: string }).error };
 
     set(s => {
       const k = s.knightsById[knightUID];
@@ -179,7 +180,8 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     const chapterProgress = ensureChapter(knight.sheet, chapter);
 
     const domainResult = addInvestigationDomain(chapterProgress, invId, 'lead', 'pass');
-    if (!domainResult.ok) return { ok: false, error: domainResult.error };
+    if (!domainResult.ok)
+      return { ok: false, error: (domainResult as { ok: false; error: string }).error };
 
     set(s => {
       const k = s.knightsById[knightUID];

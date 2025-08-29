@@ -43,6 +43,58 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(() => ({})),
 }));
 
+// Mock Expo Vector Icons
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  AntDesign: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  MaterialIcons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  FontAwesome: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  FontAwesome5: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  Feather: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  Entypo: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  EvilIcons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  MaterialCommunityIcons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  SimpleLineIcons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  Octicons: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+  Zocial: ({ name, size, color, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', { ...props, testID: `icon-${name}` });
+  },
+}));
+
 // Suppress deprecation warnings
 const originalConsoleError = console.error;
 jest.spyOn(global.console, 'error').mockImplementation((msg: any, ...rest: any[]) => {

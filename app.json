@@ -3,7 +3,31 @@
     "name": "Board Buddy",
     "slug": "board-buddy-expo",
     "scheme": "boardbuddy",
-    "plugins": ["expo-router", "expo-sqlite"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos",
+          "microphonePermission": "Allow Board Buddy to access your microphone for video recording"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Board Buddy to access your photos to select gear images",
+          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos"
+        }
+      ]
+    ],
+    "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow Board Buddy to access your camera to take gear photos",
+        "NSMicrophoneUsageDescription": "Allow Board Buddy to access your microphone for video recording",
+        "NSPhotoLibraryUsageDescription": "Allow Board Buddy to access your photos to select gear images"
+      }
+    },
     "sdkVersion": "53.0.0"
   }
 }

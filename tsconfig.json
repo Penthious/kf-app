@@ -19,5 +19,6 @@
       "@/db/*": ["src/db/*"]
     }
   },
+
   "extends": "expo/tsconfig.base"
 }
