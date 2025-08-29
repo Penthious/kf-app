@@ -2,7 +2,8 @@ import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, Pressable, Text } from 'react-native';
+import type { LayoutRectangle } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 interface HeaderMenuButtonProps {
   testID?: string;
@@ -12,9 +13,10 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
   const { tokens } = useThemeTokens();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
-  const anchorRef = useRef<any>(null);
+  // Ref typed to support measureInWindow without using any
+  const anchorRef = useRef<View | null>(null);
   const [open, setOpen] = useState(false);
-  const [frame, setFrame] = useState<any>(null);
+  const [frame, setFrame] = useState<LayoutRectangle | null>(null);
 
   const showMenu = async () => {
     const f = await measureInWindow(anchorRef);

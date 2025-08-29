@@ -111,12 +111,12 @@ export default function ContextMenu({
 
 /** Helper to get a LayoutRectangle for an element */
 export function measureInWindow(
-  ref: React.RefObject<{
-    measureInWindow?: (callback: (x: number, y: number, w: number, h: number) => void) => void;
-  }>
+  ref: React.RefObject<View | null>
 ): Promise<LayoutRectangle | null> {
   return new Promise(resolve => {
-    const node = ref.current;
+    const node = ref.current as unknown as {
+      measureInWindow?: (callback: (x: number, y: number, w: number, h: number) => void) => void;
+    } | null;
     if (!node || typeof node.measureInWindow !== 'function') return resolve(null);
     node.measureInWindow((x: number, y: number, w: number, h: number) => {
       resolve({ x, y, width: w, height: h });
