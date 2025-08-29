@@ -1,4 +1,4 @@
-import HeaderMenuButton from '@/components/HeaderMenuButton';
+import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
 

@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import HeaderMenuButton from '@/components/HeaderMenuButton';
+import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 
 export default function RootTabsLayout() {

@@ -1,4 +1,4 @@
-import AdventuresCard from '@/features/kingdoms/AdventuresCard';
+import AdventuresCard from '@/features/kingdoms/ui/AdventuresCard';
 import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 

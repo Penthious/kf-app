@@ -17,11 +17,11 @@ import { ensureChapter, type Knight } from '@/models/knight';
 
 import AlliesCard from '@/features/knights/AlliesCard';
 import ChapterInvestigations from '@/features/knights/ChapterInvestigations';
-import ChoiceMatrixCard from '@/features/knights/ChoiceMatrixCard';
+import ChoiceMatrixCard from '@/features/knights/ui/ChoiceMatrixCard';
 import NotesCard from '@/features/knights/NotesCard';
-import SheetBasicsCard from '@/features/knights/SheetBasicsCard';
-import VicesCard from '@/features/knights/VicesCard';
-import VirtuesCard from '@/features/knights/VirtuesCard';
+import SheetBasicsCard from '@/features/knights/ui/SheetBasicsCard';
+import VicesCard from '@/features/knights/ui/VicesCard';
+import VirtuesCard from '@/features/knights/ui/VirtuesCard';
 
 function Pill({
                   label,

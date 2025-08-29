@@ -4,8 +4,8 @@ import { useEffect, useMemo } from 'react';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import HeaderMenuButton from '@/components/HeaderMenuButton';
-import Title from '@/features/campaign/Title';
+import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
+import Title from '@/features/campaign/ui/Title';
 
 export default function CampaignTabsLayout() {
     const { tokens } = useThemeTokens();

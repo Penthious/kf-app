@@ -16,10 +16,10 @@ import type { Campaign } from '@/models/campaign';
 import { allKingdomsCatalog } from '@/store/kingdoms';
 import { buildKingdomView } from '@/features/kingdoms/kingdomView';
 import type { KingdomCatalog } from '@/models/kingdom';
-import LeaderContextCard from '@/features/kingdoms/LeaderContextCard';
-import KingdomSelector from '@/features/kingdoms/KingdomSelector';
-import MonstersCard from '@/features/kingdoms/MonsterCard';
-import AdventuresCard from '@/features/kingdoms/AdventuresCard';
+import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
+import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
+import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
+import AdventuresCard from '@/features/kingdoms/ui/AdventuresCard';
 import { resolveStagesForBestiary } from '@/features/kingdoms/utils';
 
 import {getMemberSets,} from '@/features/knights/selectors';

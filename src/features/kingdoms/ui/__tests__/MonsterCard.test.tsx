@@ -1,4 +1,4 @@
-import MonsterCard from '@/features/kingdoms/MonsterCard';
+import MonsterCard from '@/features/kingdoms/ui/MonsterCard';
 import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 

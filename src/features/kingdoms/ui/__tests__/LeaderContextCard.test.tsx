@@ -1,4 +1,4 @@
-import LeaderContextCard from '@/features/kingdoms/LeaderContextCard';
+import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
 import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 
