@@ -1,31 +1,37 @@
-// src/components/TextRow.tsx
-import React from 'react';
-import { View, Text, TextInput, TextInputProps } from 'react-native';
+// src/components/ui/TextRow.tsx
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Text, TextInput, TextInputProps, View } from 'react-native';
 
-type Props = {
+interface TextRowProps extends Omit<TextInputProps, 'value' | 'onChangeText' | 'placeholder' | 'multiline' | 'numberOfLines'> {
     label: string;
     value: string;
     onChangeText: (t: string) => void;
     placeholder?: string;
     multiline?: boolean;
     numberOfLines?: number;
-} & Omit<TextInputProps, 'value' | 'onChangeText' | 'placeholder' | 'multiline' | 'numberOfLines'>;
+    testID?: string;
+}
 
 export default function TextRow({
-                                    label,
-                                    value,
-                                    onChangeText,
-                                    placeholder,
-                                    multiline = false,
-                                    numberOfLines = multiline ? 4 : 1,
-                                    ...rest
-                                }: Props) {
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    multiline = false,
+    numberOfLines = multiline ? 4 : 1,
+    testID,
+    ...rest
+}: TextRowProps) {
     const { tokens } = useThemeTokens();
 
     return (
-        <View style={{ marginBottom: 12 }}>
-            <Text style={{ color: tokens.textMuted, marginBottom: 6 }}>{label}</Text>
+        <View style={{ marginBottom: 12 }} testID={testID}>
+            <Text 
+                style={{ color: tokens.textMuted, marginBottom: 6 }}
+                testID={testID ? `${testID}-label` : undefined}
+            >
+                {label}
+            </Text>
             <TextInput
                 value={value}
                 onChangeText={onChangeText}
@@ -33,6 +39,7 @@ export default function TextRow({
                 placeholderTextColor={tokens.textMuted}
                 multiline={multiline}
                 numberOfLines={numberOfLines}
+                testID={testID ? `${testID}-input` : undefined}
                 style={{
                     color: tokens.textPrimary,
                     backgroundColor: tokens.surface,

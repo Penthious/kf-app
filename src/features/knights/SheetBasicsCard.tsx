@@ -1,10 +1,9 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
 import Card from '@/components/Card';
-import Stepper from '@/components/Stepper';
-import SwitchRow from '@/components/SwitchRow';
-import { useThemeTokens } from '@/theme/ThemeProvider';
+import Stepper from '@/components/ui/Stepper';
+import SwitchRow from '@/components/ui/SwitchRow';
 import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Pressable, Text, View } from 'react-native';
 
 
 export default function SheetBasicsCard({ knightUID }: { knightUID: string }) {

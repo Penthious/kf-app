@@ -1,27 +1,27 @@
 // app/knight/[id].tsx
-import React, { useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useMemo } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Card from '@/components/Card';
-import TextRow from '@/components/TextRow';
-import Stepper from '@/components/Stepper';
-import SwitchRow from '@/components/SwitchRow';
+import Stepper from '@/components/ui/Stepper';
+import SwitchRow from '@/components/ui/SwitchRow';
+import TextRow from '@/components/ui/TextRow';
 
-import { useKnights } from '@/store/knights';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 
 import { ensureChapter, type Knight } from '@/models/knight';
 
-import ChapterInvestigations from '@/components/ChapterInvestigations';
-import VirtuesCard from '@/components/VirtuesCard';
-import VicesCard from '@/components/VicesCard';
-import SheetBasicsCard from '@/components/SheetBasicsCard';
-import ChoiceMatrixCard from '@/components/ChoiceMatrixCard';
-import AlliesCard from '@/components/AlliesCard';
-import NotesCard from '@/components/NotesCard';
+import AlliesCard from '@/features/knights/AlliesCard';
+import ChapterInvestigations from '@/features/knights/ChapterInvestigations';
+import ChoiceMatrixCard from '@/features/knights/ChoiceMatrixCard';
+import NotesCard from '@/features/knights/NotesCard';
+import SheetBasicsCard from '@/features/knights/SheetBasicsCard';
+import VicesCard from '@/features/knights/VicesCard';
+import VirtuesCard from '@/features/knights/VirtuesCard';
 
 function Pill({
                   label,

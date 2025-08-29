@@ -1,16 +1,22 @@
 // src/components/Button.tsx
-import React from 'react';
-import { Text, Pressable } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Pressable, Text } from 'react-native';
 
-type Props = {
+interface ButtonProps {
     label: string;
     onPress: () => void | Promise<void>;
     tone?: 'default' | 'accent' | 'success' | 'danger';
     disabled?: boolean;
-};
+    testID?: string;
+}
 
-export default function Button({ label, onPress, tone = 'default', disabled = false }: Props) {
+export default function Button({ 
+    label, 
+    onPress, 
+    tone = 'default', 
+    disabled = false,
+    testID 
+}: ButtonProps) {
     const { tokens } = useThemeTokens();
 
     const bg =
@@ -27,6 +33,10 @@ export default function Button({ label, onPress, tone = 'default', disabled = fa
     return (
         <Pressable
             onPress={disabled ? undefined : onPress}
+            testID={testID}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ disabled }}
             style={{
                 paddingHorizontal: 16,
                 height: 36,
@@ -39,7 +49,12 @@ export default function Button({ label, onPress, tone = 'default', disabled = fa
                 opacity: disabled ? 0.5 : 1,
             }}
         >
-            <Text style={{ color: fg, fontWeight: '800' }}>{label}</Text>
+            <Text 
+                style={{ color: fg, fontWeight: '800' }}
+                testID={testID ? `${testID}-text` : undefined}
+            >
+                {label}
+            </Text>
         </Pressable>
     );
 }

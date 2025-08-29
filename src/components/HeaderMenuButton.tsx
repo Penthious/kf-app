@@ -1,10 +1,14 @@
-import React, { useRef, useState } from 'react';
-import { Pressable, Text , Alert} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
+import { Alert, Pressable, Text } from 'react-native';
 
-export default function HeaderMenuButton() {
+interface HeaderMenuButtonProps {
+    testID?: string;
+}
+
+export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
     const { tokens } = useThemeTokens();
     const { id } = useLocalSearchParams<{ id?: string }>();
 
@@ -24,12 +28,40 @@ export default function HeaderMenuButton() {
         requestAnimationFrame(fn);
     };
 
+    const handleExitCampaign = () => {
+        go(() =>
+            Alert.alert(
+                'Leave campaign?',
+                'This will return you to home.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Exit', style: 'destructive', onPress: () => router.replace('/') },
+                ],
+                { cancelable: true }
+            )
+        );
+    };
+
+    const menuItems = [
+        { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
+        { key: 'theme', label: 'Theme', onPress: () => go(() => router.push('/theme')) },
+        ...(id ? [
+            {
+                key: 'exit',
+                label: 'Exit Campaign',
+                destructive: true,
+                onPress: handleExitCampaign,
+            },
+        ] : []),
+    ];
+
     return (
         <>
             <Pressable
                 ref={anchorRef}
                 onPress={showMenu}
                 hitSlop={12}
+                testID={testID}
                 style={{
                     paddingHorizontal: 10,
                     paddingVertical: 6,
@@ -41,36 +73,20 @@ export default function HeaderMenuButton() {
                 accessibilityRole="button"
                 accessibilityLabel="Open quick menu"
             >
-                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>☰</Text>
+                <Text 
+                    style={{ color: tokens.textPrimary, fontWeight: '800' }}
+                    testID={testID ? `${testID}-icon` : undefined}
+                >
+                    ☰
+                </Text>
             </Pressable>
 
             <ContextMenu
                 visible={open}
                 anchorFrame={frame}
                 onRequestClose={() => setOpen(false)}
-                items={[
-                    { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
-                    { key: 'theme',    label: 'Theme',    onPress: () => go(() => router.push('/theme')) },
-                    ...(id ? [
-                        {
-                            key: 'exit',
-                            label: 'Exit Campaign',
-                            destructive: true,
-                            onPress: () =>
-                                go(() =>
-                                    Alert.alert(
-                                        'Leave campaign?',
-                                        'This will return you to home.',
-                                        [
-                                            { text: 'Cancel', style: 'cancel' },
-                                            { text: 'Exit', style: 'destructive', onPress: () => router.replace('/') },
-                                        ],
-                                        { cancelable: true }
-                                    )
-                                ),
-                        },
-                    ] : []),
-                ]}
+                items={menuItems}
+                testID={testID ? `${testID}-menu` : undefined}
             />
         </>
     );

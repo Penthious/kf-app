@@ -1,25 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import Stepper from '@/components/ui/Stepper';
+import SwitchRow from '@/components/ui/SwitchRow';
+import TextRow from '@/components/ui/TextRow';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import TextRow from '@/components/TextRow';
-import SwitchRow from '@/components/SwitchRow';
-import Stepper from '@/components/Stepper';
+import { useEffect, useMemo, useState } from 'react';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 
-type KnightSheetQuick = {
+interface KnightSheetQuick {
     chapter: number;
     investigations?: Record<number, { questCompleted?: boolean; completed?: string[] }>;
     prologueDone?: boolean;
     postgameDone?: boolean;
     firstDeath?: boolean;
-};
+}
 
-type KnightQuick = {
+interface KnightQuick {
     knightUID: string;
     name: string;
     sheet: KnightSheetQuick;
-};
+}
 
-type QuickEditPatch = {
+interface QuickEditPatch {
     name?: string;
     sheet?: Partial<KnightSheetQuick>;
     // For nested chapter data:
@@ -28,19 +28,25 @@ type QuickEditPatch = {
         questCompleted?: boolean;
         completedCount?: number;
     };
-};
+}
 
-type QuickEditProps = {
+interface QuickEditProps {
     visible: boolean;
     onClose: () => void;
     knight?: KnightQuick;
     onSave: (patch: QuickEditPatch) => void;
     onOpenFullSheet?: () => void;
-};
+    testID?: string;
+}
 
 export default function KnightQuickEditModal({
-                                                 visible, onClose, knight, onSave, onOpenFullSheet
-                                             }: QuickEditProps) {
+    visible, 
+    onClose, 
+    knight, 
+    onSave, 
+    onOpenFullSheet,
+    testID
+}: QuickEditProps) {
     const { tokens } = useThemeTokens();
 
     const chapter = knight?.sheet.chapter ?? 1;
@@ -70,9 +76,27 @@ export default function KnightQuickEditModal({
 
     const canSave = !!knight && name.trim().length > 0;
 
+    const handleSave = () => {
+        if (!canSave) return;
+        onSave({
+            name: name.trim(),
+            sheet: { prologueDone, postgameDone, firstDeath },
+            investigationsPatch: { chapter, questCompleted, completedCount },
+        });
+        onClose();
+    };
+
+    const handleOpenFullSheet = () => {
+        onClose();
+        onOpenFullSheet?.();
+    };
+
     return (
         <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-            <View style={{ flex: 1, backgroundColor: '#0008', justifyContent: 'flex-end' }}>
+            <View 
+                style={{ flex: 1, backgroundColor: '#0008', justifyContent: 'flex-end' }}
+                testID={testID}
+            >
                 <View
                     style={{
                         maxHeight: '85%',
@@ -81,38 +105,83 @@ export default function KnightQuickEditModal({
                         borderTopRightRadius: 16,
                         paddingBottom: 12,
                     }}
+                    testID={testID ? `${testID}-content` : undefined}
                 >
                     <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 6 }}>
-                        <View style={{ width: 48, height: 5, borderRadius: 3, backgroundColor: tokens.surface, opacity: 0.7 }} />
+                        <View 
+                            style={{ width: 48, height: 5, borderRadius: 3, backgroundColor: tokens.surface, opacity: 0.7 }}
+                            testID={testID ? `${testID}-handle` : undefined}
+                        />
                     </View>
 
                     <ScrollView contentContainerStyle={{ padding: 16 }}>
-                        <Text style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 18, marginBottom: 12 }}>
+                        <Text 
+                            style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 18, marginBottom: 12 }}
+                            testID={testID ? `${testID}-title` : undefined}
+                        >
                             Quick Edit {knight ? `• ${knight.name}` : ''}
                         </Text>
 
-                        <TextRow label="Name" value={name} onChangeText={setName} placeholder="Knight name" />
+                        <TextRow 
+                            label="Name" 
+                            value={name} 
+                            onChangeText={setName} 
+                            placeholder="Knight name"
+                            testID={testID ? `${testID}-name-input` : undefined}
+                        />
 
                         {/* Current chapter (read-only) */}
                         <View style={{ height: 10 }} />
                         <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Current Chapter</Text>
-                        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>{chapter}</Text>
+                        <Text 
+                            style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}
+                            testID={testID ? `${testID}-chapter` : undefined}
+                        >
+                            {chapter}
+                        </Text>
 
                         {/* Current chapter: quest/investigations */}
-                        <SwitchRow label="Quest Completed (this chapter)" value={questCompleted} onValueChange={setQuestCompleted} />
+                        <SwitchRow 
+                            label="Quest Completed (this chapter)" 
+                            value={questCompleted} 
+                            onValueChange={setQuestCompleted}
+                            testID={testID ? `${testID}-quest-completed` : undefined}
+                        />
                         <Text style={{ color: tokens.textMuted, marginTop: 8, marginBottom: 6 }}>Completed Investigations (this chapter)</Text>
-                        <Stepper value={completedCount} onChange={setCompletedCount} min={0} max={5} />
+                        <Stepper 
+                            value={completedCount} 
+                            onChange={setCompletedCount} 
+                            min={0} 
+                            max={5}
+                            testID={testID ? `${testID}-completed-count` : undefined}
+                        />
 
                         {/* Global flags */}
                         <View style={{ height: 8 }} />
-                        <SwitchRow label="Prologue Completed" value={prologueDone} onValueChange={setPrologue} />
-                        <SwitchRow label="Postgame Completed" value={postgameDone} onValueChange={setPostgame} />
-                        <SwitchRow label="First Death" value={firstDeath} onValueChange={setFirstDeath} />
+                        <SwitchRow 
+                            label="Prologue Completed" 
+                            value={prologueDone} 
+                            onValueChange={setPrologue}
+                            testID={testID ? `${testID}-prologue-done` : undefined}
+                        />
+                        <SwitchRow 
+                            label="Postgame Completed" 
+                            value={postgameDone} 
+                            onValueChange={setPostgame}
+                            testID={testID ? `${testID}-postgame-done` : undefined}
+                        />
+                        <SwitchRow 
+                            label="First Death" 
+                            value={firstDeath} 
+                            onValueChange={setFirstDeath}
+                            testID={testID ? `${testID}-first-death` : undefined}
+                        />
 
                         <View style={{ height: 12 }} />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Pressable
                                 onPress={onClose}
+                                testID={testID ? `${testID}-cancel-button` : undefined}
                                 style={{
                                     paddingHorizontal: 16, height: 44, borderRadius: 12,
                                     alignItems: 'center', justifyContent: 'center',
@@ -125,7 +194,8 @@ export default function KnightQuickEditModal({
                             <View style={{ flexDirection: 'row' }}>
                                 {onOpenFullSheet ? (
                                     <Pressable
-                                        onPress={() => { onClose(); onOpenFullSheet(); }} // close FIRST, then navigate
+                                        onPress={handleOpenFullSheet}
+                                        testID={testID ? `${testID}-open-full-sheet-button` : undefined}
                                         style={{
                                             marginRight: 8,
                                             paddingHorizontal: 16, height: 44, borderRadius: 12,
@@ -139,15 +209,8 @@ export default function KnightQuickEditModal({
 
                                 <Pressable
                                     disabled={!canSave}
-                                    onPress={() => {
-                                        if (!canSave) return;
-                                        onSave({
-                                            name: name.trim(),
-                                            sheet: { prologueDone, postgameDone, firstDeath },
-                                            investigationsPatch: { chapter, questCompleted, completedCount },
-                                        });
-                                        onClose();
-                                    }}
+                                    onPress={handleSave}
+                                    testID={testID ? `${testID}-save-button` : undefined}
                                     style={{
                                         paddingHorizontal: 16, height: 44, borderRadius: 12,
                                         alignItems: 'center', justifyContent: 'center',

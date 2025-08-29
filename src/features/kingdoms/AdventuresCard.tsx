@@ -1,13 +1,16 @@
-import React, { useMemo } from 'react';
-import { View, Text } from 'react-native';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import Pill from '@/components/ui/Pill';
-import Stepper from '@/components/Stepper';
+import Stepper from '@/components/ui/Stepper';
+import { KingdomView } from "@/features/kingdoms/kingdomView";
 import { useCampaigns } from '@/store/campaigns';
-import type { KingdomCatalog } from '@/models/kingdom';
-import {KingdomView} from "@/features/kingdoms/kingdomView";
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useMemo } from 'react';
+import { Text, View } from 'react-native';
 
-export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
+interface AdventuresCardProps {
+    kingdom?: KingdomView;
+}
+
+export default function AdventuresCard({ kingdom }: AdventuresCardProps) {
     const { tokens } = useThemeTokens();
 
     const campaigns = useCampaigns(s => s.campaigns);
@@ -19,12 +22,16 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
         opts?: { singleAttempt?: boolean; delta?: number }
     ) => void;
 
-
     const c = currentCampaignId ? campaigns[currentCampaignId] : undefined;
 
-    const slug = (s: string) =>
-        s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    // Helper function to create adventure ID
+    const createAdventureId = (adventureName: string): string => {
+        const slug = (s: string) =>
+            s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        return `${kingdom?.id}:${slug(adventureName)}`;
+    };
 
+    // Get kingdom state from current campaign
     const kState = useMemo(() => {
         if (!c || !kingdom) return undefined;
         return c.kingdoms?.find(k => k.kingdomId === kingdom.id);
@@ -54,17 +61,20 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
         return 0;
     };
 
+    // Handle single attempt adventure completion
     const onCompleteOnce = (advId: string) => {
         if (!c || !kingdom) return;
         setAdventureProgress(c.campaignId, kingdom.id, advId, { singleAttempt: true });
     };
 
+    // Handle stepper count changes
     const onChangeCount = (advId: string, next: number, current: number) => {
         if (!c || !kingdom) return;
         const delta = Math.max(0, Math.floor(next)) - Math.max(0, Math.floor(current));
         if (delta !== 0) setAdventureProgress(c.campaignId, kingdom.id, advId, { delta });
     };
 
+    // Early return if no kingdom
     if (!kingdom) return null;
 
     return (
@@ -77,15 +87,26 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                 backgroundColor: tokens.surface,
                 gap: 8,
             }}
+            testID="adventures-card"
         >
-            <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Adventures</Text>
+            <Text 
+                style={{ color: tokens.textPrimary, fontWeight: '800' }}
+                testID="adventures-card-title"
+            >
+                Adventures
+            </Text>
 
             {kingdom.adventures.length === 0 ? (
-                <Text style={{ color: tokens.textMuted }}>No adventures available.</Text>
+                <Text 
+                    style={{ color: tokens.textMuted }}
+                    testID="no-adventures-message"
+                >
+                    No adventures available.
+                </Text>
             ) : (
-                <View style={{ gap: 8 }}>
+                <View style={{ gap: 8 }} testID="adventures-list">
                     {kingdom.adventures.map(adv => {
-                        const advId = `${kingdom.id}:${slug(adv.name)}`;
+                        const advId = createAdventureId(adv.name);
                         const curCount = getAdventureCount(advId);
 
                         if (adv.singleAttempt) {
@@ -93,6 +114,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                             return (
                                 <View
                                     key={advId}
+                                    testID={`adventure-item-${advId}`}
                                     style={{
                                         padding: 10,
                                         borderRadius: 8,
@@ -105,10 +127,16 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                                     }}
                                 >
                                     <View style={{ flex: 1, paddingRight: 12 }}>
-                                        <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>
+                                        <Text 
+                                            style={{ color: tokens.textPrimary, fontWeight: '700' }}
+                                            testID={`adventure-name-${advId}`}
+                                        >
                                             {adv.name}
                                         </Text>
-                                        <Text style={{ color: tokens.textMuted, marginTop: 2, fontSize: 12 }}>
+                                        <Text 
+                                            style={{ color: tokens.textMuted, marginTop: 2, fontSize: 12 }}
+                                            testID={`adventure-roll-${advId}`}
+                                        >
                                             Roll: {adv.roll.min}–{adv.roll.max}
                                         </Text>
                                     </View>
@@ -116,7 +144,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                                         label={completed ? 'Completed' : 'Mark Complete'}
                                         selected={completed}
                                         onPress={() => onCompleteOnce(advId)}
-                                        testID={`adventure-${advId}`}
+                                        testID={`adventure-pill-${advId}`}
                                     />
                                 </View>
                             );
@@ -125,6 +153,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                         return (
                             <View
                                 key={advId}
+                                testID={`adventure-item-${advId}`}
                                 style={{
                                     padding: 10,
                                     borderRadius: 8,
@@ -137,10 +166,16 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                                 }}
                             >
                                 <View style={{ flex: 1, paddingRight: 12 }}>
-                                    <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>
+                                    <Text 
+                                        style={{ color: tokens.textPrimary, fontWeight: '700' }}
+                                        testID={`adventure-name-${advId}`}
+                                    >
                                         {adv.name}
                                     </Text>
-                                    <Text style={{ color: tokens.textMuted, marginTop: 2, fontSize: 12 }}>
+                                    <Text 
+                                        style={{ color: tokens.textMuted, marginTop: 2, fontSize: 12 }}
+                                        testID={`adventure-roll-${advId}`}
+                                    >
                                         Roll: {adv.roll.min}–{adv.roll.max}
                                     </Text>
                                 </View>
@@ -150,6 +185,7 @@ export default function AdventuresCard({ kingdom }: { kingdom?: KingdomView }) {
                                     step={1}
                                     editable
                                     onChange={(next) => onChangeCount(advId, next, curCount)}
+                                    testID={`adventure-stepper-${advId}`}
                                 />
                             </View>
                         );

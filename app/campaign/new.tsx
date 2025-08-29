@@ -1,13 +1,13 @@
 // app/campaign/new.tsx
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import Card from '@/components/Card';
-import TextRow from '@/components/TextRow';
-import SwitchRow from '@/components/SwitchRow';
+import SwitchRow from '@/components/ui/SwitchRow';
+import TextRow from '@/components/ui/TextRow';
 import { useCampaigns } from '@/store/campaigns';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import uuid from 'react-native-uuid';
 
 export default function NewCampaign() {

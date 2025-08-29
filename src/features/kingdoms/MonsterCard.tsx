@@ -1,39 +1,67 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import Card from '@/components/Card';
-import { useThemeTokens } from '@/theme/ThemeProvider';
-import StageBadge from './StageBadge';
-import { KingdomCatalog, KingdomMonster } from '@/models/kingdom';
+import { KingdomView } from "@/features/kingdoms/kingdomView";
+import { KingdomMonster } from '@/models/kingdom';
 import { useMonsters } from '@/store/monsters';
-import {KingdomView} from "@/features/kingdoms/kingdomView";
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Text, View } from 'react-native';
+import StageBadge from './StageBadge';
 
-export default function MonstersCard({
-                                         kingdom, stageRow, availableOnly = true,
-                                     }: {
+interface MonsterCardProps {
     kingdom?: KingdomView;
     stageRow: Record<string, number | null>;
     availableOnly?: boolean;
-}) {
+}
+
+export default function MonsterCard({
+    kingdom,
+    stageRow,
+    availableOnly = true,
+}: MonsterCardProps) {
     const { tokens } = useThemeTokens();
     const monsters: KingdomMonster[] = kingdom?.bestiary?.monsters ?? [];
-    const list = availableOnly ? monsters.filter(m => (stageRow[m.id] ?? 0) > 0) : monsters;
+    
+    // Filter monsters based on availability
+    const list = availableOnly 
+        ? monsters.filter(m => (stageRow[m.id] ?? 0) > 0) 
+        : monsters;
 
     const byId = useMonsters(s => s.byId);
 
+    // Get display title
+    const getDisplayTitle = () => {
+        const kingdomName = kingdom?.name?.trim();
+        return kingdomName ? `${kingdomName} • Monsters` : 'Kingdom • Monsters';
+    };
+
+    // Get monster display name with fallback
+    const getMonsterName = (monsterId: string) => {
+        const base = byId[monsterId];
+        return base?.name ?? monsterId;
+    };
+
+    // Get stage for monster
+    const getMonsterStage = (monsterId: string) => {
+        return Number(stageRow[monsterId] ?? 0) || 0;
+    };
+
     return (
-        <Card>
-            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-                {kingdom?.name ?? 'Kingdom'} • Monsters
+        <Card testID="monster-card">
+            <Text 
+                style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}
+                testID="monster-card-title"
+            >
+                {getDisplayTitle()}
             </Text>
-            <View style={{ gap: 8 }}>
+            
+            <View style={{ gap: 8 }} testID="monster-list-container">
                 {list.length > 0 ? list.map(m => {
-                    const stage = Number(stageRow[m.id] ?? 0) || 0;
-                    const base = byId[m.id];
-                    const name = base?.name ?? m.id;
+                    const stage = getMonsterStage(m.id);
+                    const name = getMonsterName(m.id);
 
                     return (
                         <View
                             key={m.id}
+                            testID={`monster-item-${m.id}`}
                             style={{
                                 padding: 12,
                                 borderRadius: 10,
@@ -45,14 +73,27 @@ export default function MonstersCard({
                                 justifyContent: 'space-between',
                             }}
                         >
-                            <View>
-                                <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{name}</Text>
+                            <View testID={`monster-name-${m.id}`}>
+                                <Text 
+                                    style={{ color: tokens.textPrimary, fontWeight: '700' }}
+                                    testID={`monster-name-text-${m.id}`}
+                                >
+                                    {name}
+                                </Text>
                             </View>
-                            <StageBadge stage={stage} />
+                            <StageBadge 
+                                stage={stage} 
+                                testID={`monster-stage-${m.id}`}
+                            />
                         </View>
                     );
                 }) : (
-                    <Text style={{ color: tokens.textMuted }}>No monsters currently available.</Text>
+                    <Text 
+                        style={{ color: tokens.textMuted }}
+                        testID="no-monsters-message"
+                    >
+                        No monsters currently available.
+                    </Text>
                 )}
             </View>
         </Card>

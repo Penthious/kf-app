@@ -1,9 +1,9 @@
-import React, {useMemo, useState, useEffect} from 'react';
-import { View, Text, ScrollView, Pressable, Modal, Platform, KeyboardAvoidingView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import SearchInput from '@/components/SearchInput';
 import Card from '@/components/Card';
+import SearchInput from '@/components/ui/SearchInput';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useEffect, useMemo, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const catalog: Array<{
     id: string;

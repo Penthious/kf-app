@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import SmallButton from '@/components/ui/SmallButton';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import SmallButton from '@/components/SmallButton';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
 
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
     editable?: boolean;
     disabled?: boolean;
     tone?: 'default' | 'accent';
+    testID?: string;
     // Optional formatting/parsing hooks
     formatValue?: (v: number) => string;
     parseValue?: (s: string) => number;
@@ -31,6 +32,7 @@ export default function Stepper({
                                     disabled = false,
                                     tone = 'default',
                                     editable = false,
+                                    testID,
                                     formatValue,
                                     parseValue,
                                     inputProps,
@@ -87,12 +89,14 @@ export default function Stepper({
                 alignItems: 'center',
                 gap: 8,
             }}
+            testID={testID}
         >
             <SmallButton
                 label="−"
                 onPress={() => stepBy(-1)}
                 disabled={disabled || value <= min}
                 tone={tone}
+                testID={testID ? `${testID}-decrease` : undefined}
             />
 
             {editable ? (
@@ -117,6 +121,7 @@ export default function Stepper({
                     }}
                     accessibilityLabel={inputProps?.accessibilityLabel ?? 'Stepper value'}
                     editable={!disabled}
+                    testID={testID ? `${testID}-input` : undefined}
                     {...inputProps}
                 />
             ) : (
@@ -132,8 +137,12 @@ export default function Stepper({
                         justifyContent: 'center',
                         paddingHorizontal: 12,
                     }}
+                    testID={testID ? `${testID}-display` : undefined}
                 >
-                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>
+                    <Text
+                        style={{ color: tokens.textPrimary, fontWeight: '800' }}
+                        testID={testID ? `${testID}-value` : undefined}
+                    >
                         {display}
                     </Text>
                 </View>
@@ -144,6 +153,7 @@ export default function Stepper({
                 onPress={() => stepBy(1)}
                 disabled={disabled || value >= max}
                 tone={tone}
+                testID={testID ? `${testID}-increase` : undefined}
             />
         </View>
     );

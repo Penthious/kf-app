@@ -1,18 +1,21 @@
-import {useThemeTokens} from "@/theme/ThemeProvider";
-import {Pressable, Text} from "react-native";
-import React from "react";
+import { useThemeTokens } from "@/theme/ThemeProvider";
+import { Pressable, Text } from "react-native";
 
-export default function SmallButton({
-                         label,
-                         onPress,
-                         disabled = false,
-                         tone = 'default',
-                     }: {
+interface SmallButtonProps {
     label: string;
     onPress: () => void;
     disabled?: boolean;
     tone?: 'default' | 'accent';
-}) {
+    testID?: string;
+}
+
+export default function SmallButton({
+    label,
+    onPress,
+    disabled = false,
+    tone = 'default',
+    testID,
+}: SmallButtonProps) {
     const { tokens } = useThemeTokens();
 
     const bg =
@@ -26,6 +29,7 @@ export default function SmallButton({
     return (
         <Pressable
             onPress={disabled ? undefined : onPress}
+            testID={testID}
             style={{
                 paddingHorizontal: 14,
                 height: 36,
@@ -41,7 +45,12 @@ export default function SmallButton({
             accessibilityLabel={label}
             accessibilityState={{ disabled }}
         >
-            <Text style={{ color: textColor, fontWeight: '800' }}>{label}</Text>
+            <Text 
+                style={{ color: textColor, fontWeight: '800' }}
+                testID={testID ? `${testID}-text` : undefined}
+            >
+                {label}
+            </Text>
         </Pressable>
     );
 }

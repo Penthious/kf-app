@@ -1,16 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, View, Text, Dimensions, LayoutRectangle } from 'react-native';
+import { Dimensions, LayoutRectangle, Modal, Pressable, Text, View } from 'react-native';
 
-type Item = { key: string; label: string; onPress: () => void; destructive?: boolean };
+interface ContextMenuItem {
+    key: string;
+    label: string;
+    onPress: () => void;
+    destructive?: boolean;
+}
 
-export default function ContextMenu({
-                                        visible, anchorFrame, onRequestClose, items,
-                                    }: {
+interface ContextMenuProps {
     visible: boolean;
     anchorFrame: LayoutRectangle | null;
     onRequestClose: () => void;
-    items: Item[];
-}) {
+    items: ContextMenuItem[];
+    testID?: string;
+}
+
+export default function ContextMenu({
+    visible,
+    anchorFrame,
+    onRequestClose,
+    items,
+    testID,
+}: ContextMenuProps) {
     const [menuWidth, setMenuWidth] = useState(220); // measured later, starts with a sensible default
     const [container, setContainer] = useState({ top: 0, left: 0 });
 
@@ -34,12 +46,14 @@ export default function ContextMenu({
             {/* Backdrop behind the menu (tap to dismiss) */}
             <Pressable
                 onPress={onRequestClose}
+                testID={testID ? `${testID}-backdrop` : undefined}
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000055' }}
             />
 
             {/* Popover menu */}
             <View
                 onLayout={e => setMenuWidth(Math.max(160, Math.round(e.nativeEvent.layout.width)))}
+                testID={testID ? `${testID}-menu` : undefined}
                 style={{
                     position: 'absolute',
                     top: container.top,
@@ -53,7 +67,7 @@ export default function ContextMenu({
                     shadowOpacity: 0.4,
                     shadowRadius: 12,
                     elevation: 8,
-                    // min width so we don’t collapse
+                    // min width so we don't collapse
                     minWidth: 180,
                     maxWidth: 280,
                 }}
@@ -62,6 +76,7 @@ export default function ContextMenu({
                     <Pressable
                         key={it.key}
                         onPress={it.onPress}
+                        testID={testID ? `${testID}-item-${it.key}` : undefined}
                         android_ripple={{ color: '#ffffff22' }}
                         style={{
                             paddingVertical: 10, paddingHorizontal: 14,
@@ -69,7 +84,10 @@ export default function ContextMenu({
                             backgroundColor: '#1B1D22',
                         }}
                     >
-                        <Text style={{ color: it.destructive ? '#F97373' : '#E6E9EF', fontWeight: it.destructive ? '800' : '600' }}>
+                        <Text 
+                            style={{ color: it.destructive ? '#F97373' : '#E6E9EF', fontWeight: it.destructive ? '800' : '600' }}
+                            testID={testID ? `${testID}-item-text-${it.key}` : undefined}
+                        >
                             {it.label}
                         </Text>
                     </Pressable>

@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import Card from '@/components/Card';
-import Stepper from '@/components/Stepper';
-import { useThemeTokens } from '@/theme/ThemeProvider';
+import Stepper from '@/components/ui/Stepper';
 import { useKnights } from '@/store/knights';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Text, View } from 'react-native';
 
 export default function VirtuesCard({ knightUID }: { knightUID: string }){
     const { tokens } = useThemeTokens();

@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
 import KNIGHT_CATALOG from '@/catalogs/knights.json';
 import Card from '@/components/Card';
 import Pill from '@/components/ui/Pill';
+import TextRow from '@/components/ui/TextRow';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import TextRow from '@/components/TextRow';
+import { useMemo, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 export type QuickCreateKnightProps = {
     onCreate: (args: { name: string; catalogId: string; asActive: boolean }) => void;

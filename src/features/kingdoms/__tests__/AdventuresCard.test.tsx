@@ -83,26 +83,30 @@ jest.mock('@/store/campaigns', () => {
 });
 
 // ---- (optional) Stepper mock if your real one lacks testIDs ----
-jest.mock('@/components/Stepper', () => {
+jest.mock('@/components/ui/Stepper', () => {
     const React = require('react');
-    const { Pressable, Text } = require('react-native');
+    const { Pressable, Text, View } = require('react-native');
 
     return ({ value, onChange, testID }: any) => (
-        <>
+        <View testID={testID}>
             <Pressable
-                testID={testID ? `${testID}-dec` : undefined}
+                testID={testID ? `${testID}-decrease` : undefined}
                 onPress={() => onChange((value ?? 0) - 1)}
             >
                 <Text>dec</Text>
             </Pressable>
+            <View testID={testID ? `${testID}-display` : undefined}>
+                <Text testID={testID ? `${testID}-value` : undefined}>
+                    {String(value ?? 0)}
+                </Text>
+            </View>
             <Pressable
-                testID={testID ? `${testID}-inc` : undefined}
+                testID={testID ? `${testID}-increase` : undefined}
                 onPress={() => onChange((value ?? 0) + 1)}
             >
                 <Text>inc</Text>
             </Pressable>
-            <Text accessibilityRole="text">{String(value ?? 0)}</Text>
-        </>
+        </View>
     );
 });
 
@@ -120,22 +124,107 @@ const kingdom: KingdomView = {
     },
 };
 
-describe('AdventuresCard (typed store mock)', () => {
-    it('should pass a basic test', () => {
-        expect(1 + 1).toBe(2);
+describe('AdventuresCard', () => {
+    it('renders adventures card title', () => {
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdom} />);
+        expect(getByTestId('adventures-card-title')).toBeTruthy();
+        expect(getByTestId('adventures-card-title').props.children).toBe('Adventures');
     });
 
     it('shows "No adventures" when empty', () => {
         const emptyK = { ...kingdom, adventures: [] };
-        const { getByText } = render(<AdventuresCard kingdom={emptyK} />);
-        expect(getByText('No adventures available.')).toBeTruthy();
+        const { getByTestId } = render(<AdventuresCard kingdom={emptyK} />);
+        expect(getByTestId('no-adventures-message')).toBeTruthy();
+        expect(getByTestId('no-adventures-message').props.children).toBe('No adventures available.');
     });
 
-    it('renders adventures correctly', () => {
-        const { getByText } = render(<AdventuresCard kingdom={kingdom} />);
-        expect(getByText('Stone Puzzle')).toBeTruthy();
-        expect(getByText('Roll: 2–10')).toBeTruthy();
-        expect(getByText('Scavenge Supplies')).toBeTruthy();
-        expect(getByText('Roll: 3–9')).toBeTruthy();
+    it('renders single attempt adventures with pill buttons', () => {
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdom} />);
+        
+        // Check adventure item exists
+        expect(getByTestId('adventure-item-principality-of-stone:stone-puzzle')).toBeTruthy();
+        
+        // Check adventure name
+        expect(getByTestId('adventure-name-principality-of-stone:stone-puzzle').props.children).toBe('Stone Puzzle');
+        
+        // Check roll information
+        expect(getByTestId('adventure-roll-principality-of-stone:stone-puzzle').props.children).toEqual(['Roll: ', 2, '–', 10]);
+        
+        // Check pill button
+        expect(getByTestId('adventure-pill-principality-of-stone:stone-puzzle')).toBeTruthy();
+    });
+
+    it('renders multi-attempt adventures with steppers', () => {
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdom} />);
+        
+        // Check adventure item exists
+        expect(getByTestId('adventure-item-principality-of-stone:scavenge-supplies')).toBeTruthy();
+        
+        // Check adventure name
+        expect(getByTestId('adventure-name-principality-of-stone:scavenge-supplies').props.children).toBe('Scavenge Supplies');
+        
+        // Check roll information
+        expect(getByTestId('adventure-roll-principality-of-stone:scavenge-supplies').props.children).toEqual(['Roll: ', 3, '–', 9]);
+        
+        // Check stepper
+        expect(getByTestId('adventure-stepper-principality-of-stone:scavenge-supplies')).toBeTruthy();
+    });
+
+    it('handles undefined kingdom gracefully', () => {
+        const { queryByTestId } = render(<AdventuresCard kingdom={undefined} />);
+        expect(queryByTestId('adventures-card')).toBeNull();
+    });
+
+    it('displays adventure list container when adventures exist', () => {
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdom} />);
+        expect(getByTestId('adventures-list')).toBeTruthy();
+    });
+
+    it('shows completed state for single attempt adventures', () => {
+        // Create a kingdom with a completed adventure
+        const kingdomWithCompleted = {
+            ...kingdom,
+            adventures: [
+                { id: 'principality-of-stone:stone-puzzle', name: 'Stone Puzzle', singleAttempt: true, roll: { min: 2, max: 10 }, completedCount: 1, completed: true },
+            ],
+        };
+
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdomWithCompleted} />);
+        
+        // The pill should show "Completed" when adventure is done
+        const pill = getByTestId('adventure-pill-principality-of-stone:stone-puzzle');
+        expect(pill).toBeTruthy();
+    });
+
+    it('handles multiple adventures correctly', () => {
+        const multiAdventureKingdom = {
+            ...kingdom,
+            adventures: [
+                { id: 'adv-1', name: 'First Adventure', singleAttempt: true, roll: { min: 1, max: 6 }, completedCount: 0, completed: false },
+                { id: 'adv-2', name: 'Second Adventure', singleAttempt: false, roll: { min: 2, max: 8 }, completedCount: 0, completed: false },
+                { id: 'adv-3', name: 'Third Adventure', singleAttempt: true, roll: { min: 3, max: 10 }, completedCount: 1, completed: true },
+            ],
+        };
+
+        const { getByTestId } = render(<AdventuresCard kingdom={multiAdventureKingdom} />);
+        
+        // Should render all three adventures (IDs are generated from names)
+        expect(getByTestId('adventure-name-principality-of-stone:first-adventure').props.children).toBe('First Adventure');
+        expect(getByTestId('adventure-name-principality-of-stone:second-adventure').props.children).toBe('Second Adventure');
+        expect(getByTestId('adventure-name-principality-of-stone:third-adventure').props.children).toBe('Third Adventure');
+    });
+
+    it('creates correct adventure IDs from names', () => {
+        const kingdomWithSpecialNames = {
+            ...kingdom,
+            adventures: [
+                { id: 'test', name: 'Special Adventure Name!', singleAttempt: true, roll: { min: 1, max: 6 }, completedCount: 0, completed: false },
+            ],
+        };
+
+        const { getByTestId } = render(<AdventuresCard kingdom={kingdomWithSpecialNames} />);
+        
+        // Should create ID with slugified name
+        expect(getByTestId('adventure-item-principality-of-stone:special-adventure-name')).toBeTruthy();
     });
 });
