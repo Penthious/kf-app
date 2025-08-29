@@ -1,4 +1,4 @@
-export { default as AlliesCard } from './AlliesCard';
+export { default } from './AlliesCard';
 export { AllyChip } from './AllyChip';
 export { AllyPickerModal } from './AllyPickerModal';
 export { AllySection } from './AllySection';

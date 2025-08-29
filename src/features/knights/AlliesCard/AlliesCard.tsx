@@ -56,14 +56,14 @@ export default function AlliesCard({ knightUID }: AlliesCardProps) {
                 title="Saints"
                 allies={saints.selected}
                 onAdd={openSaintsPicker}
-                onRemove={(name) => removeAlly('saints', name)}
+                onRemove={(name: string) => removeAlly('saints', name)}
             />
 
             <AllySection
                 title="Mercenaries"
                 allies={mercenaries.selected}
                 onAdd={openMercenariesPicker}
-                onRemove={(name) => removeAlly('mercs', name)}
+                onRemove={(name: string) => removeAlly('mercs', name)}
             />
 
             <AllyPickerModal
