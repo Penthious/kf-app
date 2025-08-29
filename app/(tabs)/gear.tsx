@@ -27,7 +27,7 @@ type GearSection = {
 
 export default function GearScreen() {
   const { tokens } = useThemeTokens();
-  const { allGear, getGearByKingdom, getGearByType, getGlobalGear } = useGear();
+  const { allGear } = useGear();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');

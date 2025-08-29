@@ -5,7 +5,7 @@ export function useKnightQuickEdit(knight?: KnightQuick) {
   const chapter = knight?.sheet.chapter ?? 1;
   const chData = useMemo(
     () => knight?.sheet.investigations?.[chapter] ?? { questCompleted: false, completed: [] },
-    [knight?.knightUID, chapter]
+    [knight?.sheet.investigations, chapter]
   );
 
   const [name, setName] = useState(knight?.name ?? '');
@@ -30,7 +30,15 @@ export function useKnightQuickEdit(knight?: KnightQuick) {
     setPrologue(!!knight?.sheet.prologueDone);
     setPostgame(!!knight?.sheet.postgameDone);
     setFirstDeath(!!knight?.sheet.firstDeath);
-  }, [knight?.knightUID]);
+  }, [
+    knight?.knightUID,
+    knight?.name,
+    knight?.sheet.chapter,
+    knight?.sheet.investigations,
+    knight?.sheet.prologueDone,
+    knight?.sheet.postgameDone,
+    knight?.sheet.firstDeath,
+  ]);
 
   const canSave = !!knight && name.trim().length > 0;
 

@@ -10,6 +10,8 @@ module.exports = defineConfig([
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/array-type': 'off',
+      'import/no-named-as-default': 'off',
       // Enforce consistent import paths
       'no-restricted-imports': [
         'error',

@@ -1,7 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
 import Card from '@/components/Card';
-import Button from '@/components/Button';
+import { ScrollView, Text, View } from 'react-native';
 
 export default function ThemeScreen() {
   return (

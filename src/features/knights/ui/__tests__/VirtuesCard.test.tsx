@@ -1,6 +1,6 @@
-import type { MockCardProps, MockStepperProps } from '../../../../test-utils/types';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
+import type { MockCardProps, MockStepperProps } from '../../../../test-utils/types';
 import VirtuesCard from '../VirtuesCard';
 
 // Mock the Card component
@@ -74,7 +74,7 @@ describe('VirtuesCard', () => {
   });
 
   it('renders all virtue steppers', () => {
-    const { getByText, getByTestId } = render(<VirtuesCard knightUID='knight-1' />);
+    const { getByText } = render(<VirtuesCard knightUID='knight-1' />);
 
     expect(getByText('Virtues')).toBeTruthy();
     expect(getByText('Bravery')).toBeTruthy();

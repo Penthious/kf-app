@@ -37,7 +37,6 @@ export default function CampaignKingdoms() {
   // actions we need for the lineup controls
   const setPartyLeader = useCampaigns(s => s.setPartyLeader);
   const benchMember = useCampaigns(s => s.benchMember);
-  const removeMember = useCampaigns(s => s.removeMember);
 
   // ----- Knights dictionary -----
   const knightsById = useKnights(s => s.knightsById) as KnightsById;

@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "pretest": "yarn lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "yarn format && vitest run && jest && yarn type-check",

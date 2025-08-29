@@ -1,4 +1,4 @@
-import { db } from './index';
+// import { db } from './index';
 export function runMigrations() {
   // add tx.executeSql(...) here later
 }

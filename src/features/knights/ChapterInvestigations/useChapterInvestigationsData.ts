@@ -50,8 +50,8 @@ export function useChapterInvestigationsData(
   const locked = isNormalLocked?.(knightUID, chapter) ?? false;
 
   // Derive entries from attempts + completed
-  const attemptsArr = ch.attempts ?? [];
-  const completedSet = new Set(ch.completed ?? []);
+  const attemptsArr = useMemo(() => ch.attempts ?? [], [ch.attempts]);
+  const completedSet = useMemo(() => new Set(ch.completed ?? []), [ch.completed]);
   const entries = useMemo(() => {
     return chapterInvKeys(chapter).map(code => {
       const codeAttempts = attemptsArr.filter(a => a.code === code);

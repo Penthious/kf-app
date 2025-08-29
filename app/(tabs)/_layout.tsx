@@ -23,7 +23,8 @@ export default function RootTabsLayout() {
             knights: 'person',
             gear: 'shield',
           };
-          const name: keyof typeof Ionicons.glyphMap = (m[route.name] || 'apps') as keyof typeof Ionicons.glyphMap;
+          const name: keyof typeof Ionicons.glyphMap = (m[route.name] ||
+            'apps') as keyof typeof Ionicons.glyphMap;
           return <Ionicons name={name} size={size} color={color} />;
         },
       })}

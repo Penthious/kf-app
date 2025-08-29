@@ -2,7 +2,7 @@ import type { Gear } from '@/models/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface GearCardProps {
   gear: Gear;
@@ -25,7 +25,7 @@ export function GearCard({
 }: GearCardProps) {
   const { tokens } = useThemeTokens();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+  // const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   const formatStat = (key: string, value: number) => {
     const label = key.charAt(0).toUpperCase() + key.slice(1);

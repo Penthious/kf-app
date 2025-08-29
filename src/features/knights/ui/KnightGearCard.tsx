@@ -24,7 +24,7 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     unequipGear,
     transferGear,
     getAvailableQuantity,
-    getEquippedQuantity,
+    // getEquippedQuantity, // not used
     gearInstanceData,
   } = useGearShallow((s: GearStore) => ({
     allGear: s.allGear,
@@ -56,8 +56,8 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
     .filter((g): g is Gear => Boolean(g));
 
   // Get all unlocked gear for this campaign
-  const allAvailableGear = Object.values(allGear);
-  const campaignUnlockedGear = currentCampaignId ? allAvailableGear.filter(gear => gear) : [];
+  // const allAvailableGear = Object.values(allGear);
+  // const campaignUnlockedGear = currentCampaignId ? allAvailableGear.filter(gear => gear) : [];
 
   const handleEquipGear = (gearId: string) => {
     const currentOwner = getGearOwner(gearId);

@@ -1,10 +1,5 @@
-import {
-  MonsterStats,
-  ActivationCounter,
-  activationCounter,
-  ActivationToken,
-} from '@/models/monster';
-import { PackHunters, ArmorPlates, Frenzy } from './traits';
+import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { ArmorPlates, Frenzy, PackHunters } from './traits';
 
 export const RATWOLVES_ID = 'ratwolves';
 const ratwolves: ReadonlyArray<MonsterStats> = [

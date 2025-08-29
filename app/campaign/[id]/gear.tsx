@@ -30,7 +30,7 @@ export default function CampaignGear() {
   const campaignId = useCampaigns(s => s.currentCampaignId);
   const { campaigns } = useCampaigns();
   const c = campaignId ? campaigns[campaignId] : undefined;
-  const { allGear, getGearByKingdom, getGearByType, getGlobalGear, getEquippedGear } = useGear();
+  const { allGear } = useGear();
   const { isGearUnlockedForCampaign } = useGear();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
