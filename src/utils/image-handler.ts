@@ -21,16 +21,30 @@ export class ImageHandler {
    * Request camera permissions
    */
   static async requestCameraPermissions(): Promise<boolean> {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    return status === 'granted';
+    try {
+      console.log('Requesting camera permissions...');
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      console.log('Camera permission status:', status);
+      return status === 'granted';
+    } catch (error) {
+      console.error('Error requesting camera permissions:', error);
+      return false;
+    }
   }
 
   /**
    * Request media library permissions
    */
   static async requestMediaLibraryPermissions(): Promise<boolean> {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    return status === 'granted';
+    try {
+      console.log('Requesting media library permissions...');
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log('Media library permission status:', status);
+      return status === 'granted';
+    } catch (error) {
+      console.error('Error requesting media library permissions:', error);
+      return false;
+    }
   }
 
   /**
@@ -82,7 +96,7 @@ export class ImageHandler {
       console.log('Starting gallery picker...');
       const hasPermission = await this.requestMediaLibraryPermissions();
       console.log('Gallery permission:', hasPermission);
-      
+
       if (!hasPermission) {
         Alert.alert(
           'Gallery Permission Required',
@@ -111,7 +125,7 @@ export class ImageHandler {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         console.log('Selected asset:', asset);
-        
+
         const compressedImage = await this.compressImage(asset.uri);
         return {
           uri: compressedImage.uri,
@@ -201,7 +215,7 @@ export class ImageHandler {
 
       const fileUri = `${documentsDir}${fileName}`;
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      
+
       if (fileInfo.exists) {
         await FileSystem.deleteAsync(fileUri);
       }
