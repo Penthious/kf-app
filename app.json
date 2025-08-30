@@ -1,31 +1,31 @@
 {
   "expo": {
-    "name": "Board Buddy",
-    "slug": "board-buddy-expo",
-    "scheme": "boardbuddy",
+    "name": "kf-app",
+    "slug": "kf-app",
+    "scheme": "kf-app",
     "plugins": [
       "expo-router",
       "expo-sqlite",
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos",
-          "microphonePermission": "Allow Board Buddy to access your microphone for video recording"
+          "cameraPermission": "Allow kf-app to access your camera to take gear photos",
+          "microphonePermission": "Allow kf-app to access your microphone for video recording"
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Board Buddy to access your photos to select gear images",
-          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos"
+          "photosPermission": "Allow kf-app to access your photos to select gear images",
+          "cameraPermission": "Allow kf-app to access your camera to take gear photos"
         }
       ]
     ],
     "ios": {
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow Board Buddy to access your camera to take gear photos",
-        "NSMicrophoneUsageDescription": "Allow Board Buddy to access your microphone for video recording",
-        "NSPhotoLibraryUsageDescription": "Allow Board Buddy to access your photos to select gear images"
+        "NSCameraUsageDescription": "Allow kf-app to access your camera to take gear photos",
+        "NSMicrophoneUsageDescription": "Allow kf-app to access your microphone for video recording",
+        "NSPhotoLibraryUsageDescription": "Allow kf-app to access your photos to select gear images"
       }
     },
     "sdkVersion": "53.0.0"
