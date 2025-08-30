@@ -106,30 +106,20 @@ export class ImageHandler {
         return null;
       }
       
-      console.log('ImagePicker is available, skipping permissions for now...');
-      // Temporarily skip permission check to isolate the issue
-      // const hasPermission = await this.requestMediaLibraryPermissions();
-      // console.log('Gallery permission:', hasPermission);
-      
-      // if (!hasPermission) {
-      //   Alert.alert(
-      //     'Gallery Permission Required',
-      //     'Please grant gallery permission to select photos of your gear.'
-      //   );
-      //   return null;
-      // }
+      console.log('ImagePicker is available, using same config as working example...');
+      // No permissions request is necessary for launching the image library (as per docs)
 
       console.log('Launching image library...');
       let result;
       try {
         console.log('About to call launchImageLibraryAsync...');
         
-        // Try with options directly since we know the basic version hangs
+        // Use the same options as the working example
         result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
+          mediaTypes: ['images', 'videos'],
           allowsEditing: true,
           aspect: [4, 3],
-          quality: 0.8,
+          quality: 1,
         });
         console.log('Picker result:', result);
       } catch (pickerError) {
