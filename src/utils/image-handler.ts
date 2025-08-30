@@ -4,6 +4,10 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 import { Alert } from 'react-native';
 
+// Check if ImagePicker is properly imported
+console.log('ImagePicker import check:', typeof ImagePicker);
+console.log('ImagePicker methods:', Object.keys(ImagePicker || {}));
+
 export interface ImageResult {
   uri: string;
   width: number;
@@ -88,15 +92,24 @@ export class ImageHandler {
     }
   }
 
-  /**
+    /**
    * Pick an image from the gallery
    */
   static async pickFromGallery(): Promise<ImageResult | null> {
     try {
       console.log('Starting gallery picker...');
+      
+      // Check if ImagePicker is available
+      if (!ImagePicker) {
+        console.error('ImagePicker is not available');
+        Alert.alert('Error', 'Image picker is not available on this device.');
+        return null;
+      }
+      
+      console.log('ImagePicker is available, requesting permissions...');
       const hasPermission = await this.requestMediaLibraryPermissions();
       console.log('Gallery permission:', hasPermission);
-
+      
       if (!hasPermission) {
         Alert.alert(
           'Gallery Permission Required',
@@ -105,19 +118,27 @@ export class ImageHandler {
         return null;
       }
 
-      console.log('Launching image library...');
+      console.log('Launching image library with minimal options...');
       let result;
       try {
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.8,
-        });
+        // Try with minimal options first
+        result = await ImagePicker.launchImageLibraryAsync();
+        console.log('Basic picker result:', result);
       } catch (pickerError) {
-        console.error('ImagePicker launch error:', pickerError);
-        Alert.alert('Error', 'Failed to open image picker. Please try again.');
-        return null;
+        console.error('Basic ImagePicker launch error:', pickerError);
+        try {
+          // Try with options
+          result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
+        } catch (pickerError2) {
+          console.error('ImagePicker launch error with options:', pickerError2);
+          Alert.alert('Error', 'Failed to open image picker. Please try again.');
+          return null;
+        }
       }
 
       console.log('Image picker result:', result);
@@ -125,7 +146,7 @@ export class ImageHandler {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         console.log('Selected asset:', asset);
-
+        
         const compressedImage = await this.compressImage(asset.uri);
         return {
           uri: compressedImage.uri,
