@@ -123,12 +123,40 @@ export default function GearScreen() {
 
   const handleGearCamera = async (gear: Gear) => {
     try {
-      const imageResult = await ImageHandler.takePhoto();
-      if (imageResult) {
+      console.log('Camera button pressed for:', gear.name);
+
+      // Request camera permission first
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Camera Permission Required',
+          'Please grant camera permission to take photos of your gear.'
+        );
+        return;
+      }
+
+      console.log('Camera permission granted, launching camera...');
+
+      // Use the exact same approach as the working gallery
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      console.log('Camera result:', result);
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const asset = result.assets[0];
+        console.log('Captured asset:', asset);
+
         const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
-        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        const savedUri = await ImageHandler.saveImageToDocuments(asset.uri, fileName);
         useGear.getState().setGearImage(gear.id, savedUri);
         console.log('Image saved for', gear.name);
+      } else {
+        console.log('No photo taken or camera was canceled');
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -139,7 +167,7 @@ export default function GearScreen() {
   const handleGearGallery = async (gear: Gear) => {
     try {
       console.log('Gallery button pressed for:', gear.name);
-      
+
       // Use the exact working code from test-picker
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images', 'videos'],
@@ -153,7 +181,7 @@ export default function GearScreen() {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         console.log('Selected asset:', asset);
-        
+
         const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
         const savedUri = await ImageHandler.saveImageToDocuments(asset.uri, fileName);
         useGear.getState().setGearImage(gear.id, savedUri);

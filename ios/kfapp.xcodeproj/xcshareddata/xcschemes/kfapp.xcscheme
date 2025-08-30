@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "kfapp.app"
-               BlueprintName = "kfapp"
-               ReferencedContainer = "container:kfapp.xcodeproj">
+               BuildableName = "KFapp.app"
+               BlueprintName = "KFapp"
+               ReferencedContainer = "container:KFapp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "kfappTests.xctest"
-               BlueprintName = "kfappTests"
-               ReferencedContainer = "container:kfapp.xcodeproj">
+               BuildableName = "KFappTests.xctest"
+               BlueprintName = "KFappTests"
+               ReferencedContainer = "container:KFapp.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kfapp.app"
-            BlueprintName = "kfapp"
-            ReferencedContainer = "container:kfapp.xcodeproj">
+            BuildableName = "KFapp.app"
+            BlueprintName = "KFapp"
+            ReferencedContainer = "container:KFapp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kfapp.app"
-            BlueprintName = "kfapp"
-            ReferencedContainer = "container:kfapp.xcodeproj">
+            BuildableName = "KFapp.app"
+            BlueprintName = "KFapp"
+            ReferencedContainer = "container:KFapp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

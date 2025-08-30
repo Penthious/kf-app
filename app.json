@@ -26,7 +26,8 @@
         "NSCameraUsageDescription": "Allow KF app to access your camera to take gear photos",
         "NSMicrophoneUsageDescription": "Allow KF app to access your microphone for video recording",
         "NSPhotoLibraryUsageDescription": "Allow KF app to access your photos to select gear images"
-      }
+      },
+      "bundleIdentifier": "com.penthious.kf-app"
     },
     "sdkVersion": "53.0.0"
   }

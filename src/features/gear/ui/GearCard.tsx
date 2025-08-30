@@ -133,10 +133,7 @@ export function GearCard({
 
         {/* Right side - Image */}
         <View style={styles.rightContent}>
-          <Pressable 
-            style={styles.imageContainer} 
-            onPress={() => setIsImageModalVisible(true)}
-          >
+          <Pressable style={styles.imageContainer} onPress={() => setIsImageModalVisible(true)}>
             {gear.imageUrl ? (
               <Image
                 source={{ uri: gear.imageUrl }}

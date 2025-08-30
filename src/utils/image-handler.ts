@@ -56,6 +56,8 @@ export class ImageHandler {
    */
   static async takePhoto(): Promise<ImageResult | null> {
     try {
+      console.log('Starting camera...');
+
       const hasPermission = await this.requestCameraPermissions();
       if (!hasPermission) {
         Alert.alert(
@@ -65,15 +67,22 @@ export class ImageHandler {
         return null;
       }
 
+      console.log('Camera permission granted, launching camera...');
+
+      // Use the same working configuration as gallery
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images', 'videos'],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.8,
+        quality: 1,
       });
 
-      if (!result.canceled && result.assets[0]) {
+      console.log('Camera result:', result);
+
+      if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
+        console.log('Captured asset:', asset);
+
         const compressedImage = await this.compressImage(asset.uri);
         return {
           uri: compressedImage.uri,
@@ -82,6 +91,8 @@ export class ImageHandler {
           type: 'image/jpeg',
           fileName: `gear_${Date.now()}.jpg`,
         };
+      } else {
+        console.log('No photo taken or camera was canceled');
       }
 
       return null;
@@ -92,13 +103,13 @@ export class ImageHandler {
     }
   }
 
-    /**
+  /**
    * Pick an image from the gallery
    */
   static async pickFromGallery(): Promise<ImageResult | null> {
     try {
       console.log('Starting gallery picker...');
-      
+
       // Use the exact same code as the working example
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images', 'videos'],
@@ -112,7 +123,7 @@ export class ImageHandler {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         console.log('Selected asset:', asset);
-        
+
         const compressedImage = await this.compressImage(asset.uri);
         return {
           uri: compressedImage.uri,
