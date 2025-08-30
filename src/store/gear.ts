@@ -1,7 +1,6 @@
 import type { Gear, GearType } from '@/models/gear';
 import { ImageHandler } from '@/utils/image-handler';
 import { create } from 'zustand';
-// import { shallow } from 'zustand/shallow';
 
 export type GearState = {
   allGear: Record<string, Gear>;

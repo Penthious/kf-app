@@ -13,14 +13,19 @@ jest.mock('react-native', () => ({
   Text: 'Text',
   TextInput: 'TextInput',
   Pressable: 'Pressable',
+  ScrollView: 'ScrollView',
   Switch: 'Switch',
   Modal: 'Modal',
   FlatList: 'FlatList',
+  Image: 'Image',
   Dimensions: {
     get: jest.fn(() => ({ width: 375, height: 812 })),
   },
   Alert: {
     alert: jest.fn(),
+  },
+  Keyboard: {
+    dismiss: jest.fn(),
   },
   StyleSheet: {
     create: jest.fn(styles => styles),
@@ -123,3 +128,21 @@ jest.mock('@/utils/image-handler', () => {
     },
   };
 });
+
+// Mock react-native-safe-area-context to avoid native requires
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  return {
+    SafeAreaView: ({ children, ...props }: any) => React.createElement('View', props, children),
+    SafeAreaProvider: ({ children }: any) => React.createElement('View', null, children),
+    useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
+  };
+});
+
+// Mock expo-image-picker to avoid ESM parsing and native calls
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(async () => ({ canceled: true })),
+  launchCameraAsync: jest.fn(async () => ({ canceled: true })),
+  requestCameraPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+  requestMediaLibraryPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+}));

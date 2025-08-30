@@ -8,7 +8,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: ['<rootDir>/src/**/*.test.[jt]s?(x)'],
+  testMatch: ['<rootDir>/{src,app}/**/*.test.[jt]s?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   globals: {
     __DEV__: true,
