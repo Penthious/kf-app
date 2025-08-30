@@ -22,6 +22,7 @@ export default function RootTabsLayout() {
             index: 'albums',
             knights: 'person',
             gear: 'shield',
+            'test-picker': 'camera',
           };
           const name: keyof typeof Ionicons.glyphMap = (m[route.name] ||
             'apps') as keyof typeof Ionicons.glyphMap;
@@ -32,6 +33,7 @@ export default function RootTabsLayout() {
       <Tabs.Screen name='index' options={{ title: 'Campaigns', tabBarLabel: 'Campaigns' }} />
       <Tabs.Screen name='knights' options={{ title: 'Knights', tabBarLabel: 'Knights' }} />
       <Tabs.Screen name='gear' options={{ title: 'Gear', tabBarLabel: 'Gear' }} />
+      <Tabs.Screen name='test-picker' options={{ title: 'Test Picker', tabBarLabel: 'Test Picker' }} />
     </Tabs>
   );
 }

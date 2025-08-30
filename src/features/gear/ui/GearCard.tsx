@@ -252,9 +252,7 @@ export function GearCard({
                   testID='gear-share-button'
                 >
                   <Ionicons name='share-outline' size={20} color={tokens.textPrimary} />
-                  <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>
-                    Share
-                  </Text>
+                  <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>Share</Text>
                 </Pressable>
               )}
             </View>

@@ -140,7 +140,7 @@ export default function GearScreen() {
       console.log('Gallery button pressed for:', gear.name);
       const imageResult = await ImageHandler.pickFromGallery();
       console.log('Image result from handler:', imageResult);
-      
+
       if (imageResult) {
         const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
         const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
