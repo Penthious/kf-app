@@ -48,7 +48,7 @@ export class ImageHandler {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -79,7 +79,10 @@ export class ImageHandler {
    */
   static async pickFromGallery(): Promise<ImageResult | null> {
     try {
+      console.log('Starting gallery picker...');
       const hasPermission = await this.requestMediaLibraryPermissions();
+      console.log('Gallery permission:', hasPermission);
+      
       if (!hasPermission) {
         Alert.alert(
           'Gallery Permission Required',
@@ -88,15 +91,20 @@ export class ImageHandler {
         return null;
       }
 
+      console.log('Launching image library...');
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
       });
 
-      if (!result.canceled && result.assets[0]) {
+      console.log('Image picker result:', result);
+
+      if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
+        console.log('Selected asset:', asset);
+        
         const compressedImage = await this.compressImage(asset.uri);
         return {
           uri: compressedImage.uri,
@@ -105,6 +113,8 @@ export class ImageHandler {
           type: 'image/jpeg',
           fileName: `gear_${Date.now()}.jpg`,
         };
+      } else {
+        console.log('No image selected or picker was canceled');
       }
 
       return null;

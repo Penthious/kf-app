@@ -56,6 +56,10 @@ PODS:
     - SDWebImageAVIFCoder (~> 0.11.0)
     - SDWebImageSVGCoder (~> 1.7.0)
     - SDWebImageWebPCoder (~> 0.14.6)
+  - ExpoImageManipulator (13.1.7):
+    - EXImageLoader
+    - ExpoModulesCore
+    - SDWebImageWebPCoder
   - ExpoImagePicker (16.1.4):
     - ExpoModulesCore
   - ExpoKeepAwake (14.1.4):
@@ -87,6 +91,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - ExpoPrint (14.1.4):
+    - ExpoModulesCore
+  - ExpoSharing (13.1.5):
+    - ExpoModulesCore
   - ExpoSplashScreen (0.30.10):
     - ExpoModulesCore
   - ExpoSQLite (15.2.14):
@@ -2122,10 +2130,13 @@ DEPENDENCIES:
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
+  - ExpoImageManipulator (from `../node_modules/expo-image-manipulator/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoPrint (from `../node_modules/expo-print/ios`)
+  - ExpoSharing (from `../node_modules/expo-sharing/ios`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSQLite (from `../node_modules/expo-sqlite/ios`)
   - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
@@ -2247,6 +2258,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-router/ios"
   ExpoImage:
     :path: "../node_modules/expo-image/ios"
+  ExpoImageManipulator:
+    :path: "../node_modules/expo-image-manipulator/ios"
   ExpoImagePicker:
     :path: "../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
@@ -2255,6 +2268,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-linking/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  ExpoPrint:
+    :path: "../node_modules/expo-print/ios"
+  ExpoSharing:
+    :path: "../node_modules/expo-sharing/ios"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
   ExpoSQLite:
@@ -2429,10 +2446,13 @@ SPEC CHECKSUMS:
   ExpoHaptics: 0ff6e0d83cd891178a306e548da1450249d54500
   ExpoHead: 54d7ce2efb9ecb9920b585051f5d0fbc96464234
   ExpoImage: e4102c93d1dbe99ff54b075452d1bc9d6ec21b7c
+  ExpoImageManipulator: 1e06e7a1e56f454e75d01b7032c1e44963bfc865
   ExpoImagePicker: 0963da31800c906e01c03e25d7c849f16ebf02a2
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
   ExpoLinking: d5c183998ca6ada66ff45e407e0f965b398a8902
   ExpoModulesCore: 00a1b5c73248465bd0b93f59f8538c4573dac579
+  ExpoPrint: b278f5d9ac844f4b1f65dd06183970602e09bc8b
+  ExpoSharing: b0377be82430d07398c6a4cd60b5a15696accbd3
   ExpoSplashScreen: 0ad5acac1b5d2953c6e00d4319f16d616f70d4dd
   ExpoSQLite: 14c1c8aa6cf5b30b33759f14307b4eb84e806277
   ExpoSymbols: c5612a90fb9179cdaebcd19bea9d8c69e5d3b859

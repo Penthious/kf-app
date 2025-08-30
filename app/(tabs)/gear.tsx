@@ -4,8 +4,8 @@ import { GearCard } from '@/features/gear/ui/GearCard';
 import type { Gear } from '@/models/gear';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { Ionicons } from '@expo/vector-icons';
 import { ImageHandler } from '@/utils/image-handler';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useState } from 'react';
 import {
@@ -137,12 +137,17 @@ export default function GearScreen() {
 
   const handleGearGallery = async (gear: Gear) => {
     try {
+      console.log('Gallery button pressed for:', gear.name);
       const imageResult = await ImageHandler.pickFromGallery();
+      console.log('Image result from handler:', imageResult);
+      
       if (imageResult) {
         const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
         const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
         useGear.getState().setGearImage(gear.id, savedUri);
         console.log('Image saved for', gear.name);
+      } else {
+        console.log('No image result returned from picker');
       }
     } catch (error) {
       console.error('Error picking image:', error);
