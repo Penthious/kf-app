@@ -48,7 +48,7 @@ export class ImageHandler {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: [ImagePicker.MediaType.Images],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -92,7 +92,10 @@ export class ImageHandler {
       }
 
       console.log('Launching image library...');
-      const result = await ImagePicker.launchImageLibraryAsync();
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+      });
 
       console.log('Image picker result:', result);
 
