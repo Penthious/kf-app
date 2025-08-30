@@ -133,7 +133,10 @@ export function GearCard({
 
         {/* Right side - Image */}
         <View style={styles.rightContent}>
-          <Pressable style={styles.imageContainer} onPress={() => setIsImageModalVisible(true)}>
+          <Pressable 
+            style={styles.imageContainer} 
+            onPress={() => setIsImageModalVisible(true)}
+          >
             {gear.imageUrl ? (
               <Image
                 source={{ uri: gear.imageUrl }}
@@ -198,8 +201,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onCamera(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening camera
+                    setTimeout(() => onCamera(gear), 100);
                   }}
                   testID='gear-camera-button'
                 >
@@ -214,8 +218,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onGallery(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening gallery
+                    setTimeout(() => onGallery(gear), 100);
                   }}
                   testID='gear-gallery-button'
                 >

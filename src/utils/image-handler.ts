@@ -99,36 +99,15 @@ export class ImageHandler {
     try {
       console.log('Starting gallery picker...');
       
-      // Check if ImagePicker is available
-      if (!ImagePicker) {
-        console.error('ImagePicker is not available');
-        Alert.alert('Error', 'Image picker is not available on this device.');
-        return null;
-      }
-      
-      console.log('ImagePicker is available, using same config as working example...');
-      // No permissions request is necessary for launching the image library (as per docs)
+      // Use the exact same code as the working example
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
 
-      console.log('Launching image library...');
-      let result;
-      try {
-        console.log('About to call launchImageLibraryAsync...');
-        
-        // Use the same options as the working example
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images', 'videos'],
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        });
-        console.log('Picker result:', result);
-      } catch (pickerError) {
-        console.error('ImagePicker launch error:', pickerError);
-        Alert.alert('Error', 'Failed to open image picker. Please try again.');
-        return null;
-      }
-
-      console.log('Image picker result:', result);
+      console.log('Picker result:', result);
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];

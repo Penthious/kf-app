@@ -6,6 +6,7 @@ import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { ImageHandler } from '@/utils/image-handler';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 import { useState } from 'react';
 import {
@@ -138,16 +139,27 @@ export default function GearScreen() {
   const handleGearGallery = async (gear: Gear) => {
     try {
       console.log('Gallery button pressed for:', gear.name);
-      const imageResult = await ImageHandler.pickFromGallery();
-      console.log('Image result from handler:', imageResult);
+      
+      // Use the exact working code from test-picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
 
-      if (imageResult) {
+      console.log('Picker result:', result);
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const asset = result.assets[0];
+        console.log('Selected asset:', asset);
+        
         const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
-        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        const savedUri = await ImageHandler.saveImageToDocuments(asset.uri, fileName);
         useGear.getState().setGearImage(gear.id, savedUri);
         console.log('Image saved for', gear.name);
       } else {
-        console.log('No image result returned from picker');
+        console.log('No image selected or picker was canceled');
       }
     } catch (error) {
       console.error('Error picking image:', error);
