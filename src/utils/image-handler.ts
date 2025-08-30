@@ -124,27 +124,14 @@ export class ImageHandler {
       try {
         console.log('About to call launchImageLibraryAsync...');
         
-        // Add a timeout to prevent hanging
-        const pickerPromise = ImagePicker.launchImageLibraryAsync();
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Picker timeout after 5 seconds')), 5000);
+        // Try with options directly since we know the basic version hangs
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.8,
         });
-        
-        try {
-          result = await Promise.race([pickerPromise, timeoutPromise]);
-          console.log('Basic picker result:', result);
-        } catch (timeoutError) {
-          console.log('Basic picker timed out, trying with options...');
-          const pickerWithOptionsPromise = ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.8,
-          });
-          
-          result = await Promise.race([pickerWithOptionsPromise, timeoutPromise]);
-          console.log('Picker result with options:', result);
-        }
+        console.log('Picker result:', result);
       } catch (pickerError) {
         console.error('ImagePicker launch error:', pickerError);
         Alert.alert('Error', 'Failed to open image picker. Please try again.');
