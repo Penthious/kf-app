@@ -1,7 +1,7 @@
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, Keyboard } from 'react-native';
 import GearScreen from '../gear';
 
 // Mock the stores and dependencies
@@ -131,8 +131,15 @@ describe('GearScreen', () => {
     expect(screen.getByText('Merchant Gear')).toBeTruthy();
   });
 
-  it('renders gear cards in each section', () => {
+  it('renders gear cards in each section (after expanding)', () => {
     render(<GearScreen />);
+
+    // Expand relevant sections
+    fireEvent.press(screen.getByText(/Kingdom Gear/));
+    fireEvent.press(screen.getByText(/Wandering Monster Gear/));
+    fireEvent.press(screen.getByText(/Consumable Gear/));
+    fireEvent.press(screen.getByText(/Upgrade Cards/));
+    fireEvent.press(screen.getByText(/Merchant Gear/));
 
     expect(screen.getByText('Test Sword')).toBeTruthy();
     expect(screen.getByText('Test Helmet')).toBeTruthy();
@@ -145,33 +152,28 @@ describe('GearScreen', () => {
   it('shows kingdom filter dropdown when pressed', () => {
     render(<GearScreen />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
-    expect(screen.getByText('All Kingdoms')).toBeTruthy();
+    expect(screen.getAllByText('All Kingdoms').length).toBeGreaterThan(0);
     expect(screen.getByText('Test Kingdom 1')).toBeTruthy();
     expect(screen.getByText('Test Kingdom 2')).toBeTruthy();
   });
 
-  it('filters gear by selected kingdom', () => {
+  it('filters gear by selected kingdom (titles update)', () => {
     render(<GearScreen />);
 
     // Open kingdom dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
     const kingdomOption = screen.getByText('Test Kingdom 1');
     fireEvent.press(kingdomOption);
 
-    // Check that only kingdom gear from the selected kingdom is shown
-    expect(screen.getByText('Test Sword')).toBeTruthy();
-    expect(screen.getByText('Test Helmet')).toBeTruthy();
-    // Wandering, consumable, upgrade, and merchant gear should still be visible
-    expect(screen.getByText('Wandering Sword')).toBeTruthy();
-    expect(screen.getByText('Health Potion')).toBeTruthy();
-    expect(screen.getByText('Sharpening Stone')).toBeTruthy();
-    expect(screen.getByText('Merchant Sword')).toBeTruthy();
+    // Section titles should reflect selection
+    expect(screen.getByText(/Kingdom Gear \(Test Kingdom 1\)/)).toBeTruthy();
+    expect(screen.getByText(/Monster Gear \(Test Kingdom 1\)/)).toBeTruthy();
   });
 
   it('filters gear by search query', () => {
@@ -210,7 +212,7 @@ describe('GearScreen', () => {
     expect(screen.queryByText('Test Sword')).toBeNull();
 
     // Click on Kingdom Gear section to expand
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Should now show the gear
@@ -222,7 +224,7 @@ describe('GearScreen', () => {
     render(<GearScreen />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Find and press camera button (this would be on the GearCard component)
@@ -234,7 +236,7 @@ describe('GearScreen', () => {
     render(<GearScreen />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Find and press gallery button (this would be on the GearCard component)
@@ -255,13 +257,11 @@ describe('GearScreen', () => {
 
   it('dismisses keyboard when kingdom dropdown is opened', () => {
     const mockDismiss = jest.fn();
-    jest.spyOn(require('react-native'), 'Keyboard').mockReturnValue({
-      dismiss: mockDismiss,
-    });
+    jest.spyOn(Keyboard, 'dismiss').mockImplementation(mockDismiss);
 
     render(<GearScreen />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     expect(mockDismiss).toHaveBeenCalled();

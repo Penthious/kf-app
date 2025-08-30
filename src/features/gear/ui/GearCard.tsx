@@ -10,6 +10,7 @@ interface GearCardProps {
   onCamera?: (gear: Gear) => void;
   onGallery?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
+  onShare?: (gear: Gear) => void;
   onUnlock?: (gear: Gear) => void;
   isUnlocked?: boolean;
 }
@@ -20,6 +21,7 @@ export function GearCard({
   onCamera,
   onGallery,
   onDelete,
+  onShare,
   onUnlock,
   isUnlocked,
 }: GearCardProps) {
@@ -196,8 +198,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onCamera(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening camera
+                    setTimeout(() => onCamera(gear), 100);
                   }}
                   testID='gear-camera-button'
                 >
@@ -212,8 +215,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onGallery(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening gallery
+                    setTimeout(() => onGallery(gear), 100);
                   }}
                   testID='gear-gallery-button'
                 >
@@ -237,6 +241,20 @@ export function GearCard({
                   <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>
                     Delete
                   </Text>
+                </Pressable>
+              )}
+
+              {onShare && gear.imageUrl && (
+                <Pressable
+                  style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
+                  onPress={() => {
+                    onShare(gear);
+                    setIsImageModalVisible(false);
+                  }}
+                  testID='gear-share-button'
+                >
+                  <Ionicons name='share-outline' size={20} color={tokens.textPrimary} />
+                  <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>Share</Text>
                 </Pressable>
               )}
             </View>

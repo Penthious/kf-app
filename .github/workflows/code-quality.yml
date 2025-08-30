@@ -28,13 +28,13 @@ jobs:
         run: yarn test:coverage:ci
 
       - name: SonarCloud Scan
-        uses: sonarqube-scan-action@master
+        uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=your-project-key
-            -Dsonar.organization=your-organization
+            -Dsonar.organization=penthious
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.testExecutionReportPaths=coverage/test-report.xml
