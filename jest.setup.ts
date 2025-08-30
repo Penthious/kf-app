@@ -110,3 +110,16 @@ jest.spyOn(global.console, 'warn').mockImplementation((msg: any, ...rest: any[])
   // add other filters if needed
   originalConsoleWarn(msg, ...rest);
 });
+
+// Mock ImageHandler to avoid importing Expo modules in Jest environment
+jest.mock('@/utils/image-handler', () => {
+  return {
+    ImageHandler: {
+      takePhoto: jest.fn(),
+      pickFromGallery: jest.fn(),
+      saveImageToDocuments: jest.fn(),
+      shareImage: jest.fn(),
+      getFileSize: jest.fn(),
+    },
+  };
+});

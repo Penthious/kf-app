@@ -1,4 +1,5 @@
 import type { Gear, GearType } from '@/models/gear';
+import { ImageHandler } from '@/utils/image-handler';
 import { create } from 'zustand';
 // import { shallow } from 'zustand/shallow';
 
@@ -467,18 +468,58 @@ export const useGear = create<GearStore>((set, get) => ({
   },
 
   addGearImageFromCamera: async (gearId: string) => {
-    // TODO: Implement with ImageHandler
-    console.log('Camera functionality to be implemented');
+    try {
+      const imageResult = await ImageHandler.takePhoto();
+      if (imageResult) {
+        const fileName = `gear_${gearId}_${Date.now()}.jpg`;
+        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        set(state => {
+          const gear = state.allGear[gearId];
+          if (!gear) return state;
+
+          const newState = { ...state };
+          newState.allGear[gearId] = { ...gear, imageUrl: savedUri };
+          return newState;
+        });
+      }
+    } catch (error) {
+      console.error('Error taking photo for gear:', error);
+    }
   },
 
   addGearImageFromGallery: async (gearId: string) => {
-    // TODO: Implement with ImageHandler
-    console.log('Gallery functionality to be implemented');
+    try {
+      const imageResult = await ImageHandler.pickFromGallery();
+      if (imageResult) {
+        const fileName = `gear_${gearId}_${Date.now()}.jpg`;
+        const savedUri = await ImageHandler.saveImageToDocuments(imageResult.uri, fileName);
+        set(state => {
+          const gear = state.allGear[gearId];
+          if (!gear) return state;
+
+          const newState = { ...state };
+          newState.allGear[gearId] = { ...gear, imageUrl: savedUri };
+          return newState;
+        });
+      }
+    } catch (error) {
+      console.error('Error picking image for gear:', error);
+    }
   },
 
   shareGearImage: async (gearId: string) => {
-    // TODO: Implement with ImageHandler
-    console.log('Share functionality to be implemented');
+    try {
+      const state = get();
+      const gear = state.allGear[gearId];
+      if (!gear || !gear.imageUrl) {
+        console.log('No image to share for gear:', gearId);
+        return;
+      }
+
+      await ImageHandler.shareImage(gear.imageUrl, gear.name);
+    } catch (error) {
+      console.error('Error sharing gear image:', error);
+    }
   },
 
   // Campaign gear management

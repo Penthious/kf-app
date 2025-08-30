@@ -1,6 +1,17 @@
 import type { Gear } from '@/models/gear';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { ImageHandler } from '@/utils/image-handler';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGear } from './gear';
+
+// Mock the ImageHandler
+vi.mock('@/utils/image-handler', () => ({
+  ImageHandler: {
+    takePhoto: vi.fn(),
+    pickFromGallery: vi.fn(),
+    saveImageToDocuments: vi.fn(),
+    shareImage: vi.fn(),
+  },
+}));
 
 const mockGear: Gear[] = [
   {
@@ -348,6 +359,7 @@ describe('Gear Store', () => {
     beforeEach(() => {
       useGear.getState().resetGear();
       mockGear.forEach(gear => useGear.getState().addGear(gear));
+      vi.clearAllMocks();
     });
 
     it('should set gear image', () => {
@@ -387,6 +399,142 @@ describe('Gear Store', () => {
       useGear.getState().removeGearImage('non-existent');
       const state = useGear.getState();
 
+      expect(state.allGear['non-existent']).toBeUndefined();
+    });
+
+    it('should add gear image from camera', async () => {
+      const mockImageResult = {
+        uri: 'file://temp-image.jpg',
+        width: 800,
+        height: 600,
+        type: 'image/jpeg',
+        fileName: 'temp-image.jpg',
+      };
+      const savedUri = 'file://documents/gear_sword-123_1234567890.jpg';
+
+      vi.mocked(ImageHandler.takePhoto).mockResolvedValue(mockImageResult);
+      vi.mocked(ImageHandler.saveImageToDocuments).mockResolvedValue(savedUri);
+
+      await useGear.getState().addGearImageFromCamera('sword-123');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.takePhoto)).toHaveBeenCalled();
+      expect(vi.mocked(ImageHandler.saveImageToDocuments)).toHaveBeenCalledWith(
+        mockImageResult.uri,
+        expect.stringMatching(/^gear_sword-123_\d+\.jpg$/)
+      );
+      expect(state.allGear['sword-123'].imageUrl).toBe(savedUri);
+    });
+
+    it('should add gear image from gallery', async () => {
+      const mockImageResult = {
+        uri: 'file://temp-gallery-image.jpg',
+        width: 800,
+        height: 600,
+        type: 'image/jpeg',
+        fileName: 'temp-gallery-image.jpg',
+      };
+      const savedUri = 'file://documents/gear_sword-123_1234567890.jpg';
+
+      vi.mocked(ImageHandler.pickFromGallery).mockResolvedValue(mockImageResult);
+      vi.mocked(ImageHandler.saveImageToDocuments).mockResolvedValue(savedUri);
+
+      await useGear.getState().addGearImageFromGallery('sword-123');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.pickFromGallery)).toHaveBeenCalled();
+      expect(vi.mocked(ImageHandler.saveImageToDocuments)).toHaveBeenCalledWith(
+        mockImageResult.uri,
+        expect.stringMatching(/^gear_sword-123_\d+\.jpg$/)
+      );
+      expect(state.allGear['sword-123'].imageUrl).toBe(savedUri);
+    });
+
+    it('should share gear image', async () => {
+      const imageUrl = 'file://test-image.jpg';
+      useGear.getState().setGearImage('sword-123', imageUrl);
+
+      vi.mocked(ImageHandler.shareImage).mockResolvedValue(undefined);
+
+      await useGear.getState().shareGearImage('sword-123');
+
+      expect(vi.mocked(ImageHandler.shareImage)).toHaveBeenCalledWith(imageUrl, 'Test Sword');
+    });
+
+    it('should handle camera errors gracefully', async () => {
+      vi.mocked(ImageHandler.takePhoto).mockRejectedValue(new Error('Camera error'));
+
+      await useGear.getState().addGearImageFromCamera('sword-123');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.takePhoto)).toHaveBeenCalled();
+      expect(state.allGear['sword-123'].imageUrl).toBeUndefined();
+    });
+
+    it('should handle gallery errors gracefully', async () => {
+      vi.mocked(ImageHandler.pickFromGallery).mockRejectedValue(new Error('Gallery error'));
+
+      await useGear.getState().addGearImageFromGallery('sword-123');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.pickFromGallery)).toHaveBeenCalled();
+      expect(state.allGear['sword-123'].imageUrl).toBeUndefined();
+    });
+
+    it('should handle sharing errors gracefully', async () => {
+      const imageUrl = 'file://test-image.jpg';
+      useGear.getState().setGearImage('sword-123', imageUrl);
+
+      vi.mocked(ImageHandler.shareImage).mockRejectedValue(new Error('Sharing error'));
+
+      await useGear.getState().shareGearImage('sword-123');
+
+      expect(vi.mocked(ImageHandler.shareImage)).toHaveBeenCalled();
+    });
+
+    it('should handle sharing gear without image gracefully', async () => {
+      vi.mocked(ImageHandler.shareImage).mockResolvedValue(undefined);
+
+      await useGear.getState().shareGearImage('sword-123');
+
+      expect(vi.mocked(ImageHandler.shareImage)).not.toHaveBeenCalled();
+    });
+
+    it('should handle non-existent gear in camera function', async () => {
+      const mockImageResult = {
+        uri: 'file://temp-image.jpg',
+        width: 800,
+        height: 600,
+        type: 'image/jpeg',
+        fileName: 'temp-image.jpg',
+      };
+
+      vi.mocked(ImageHandler.takePhoto).mockResolvedValue(mockImageResult);
+      vi.mocked(ImageHandler.saveImageToDocuments).mockResolvedValue('file://saved.jpg');
+
+      await useGear.getState().addGearImageFromCamera('non-existent');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.takePhoto)).toHaveBeenCalled();
+      expect(state.allGear['non-existent']).toBeUndefined();
+    });
+
+    it('should handle non-existent gear in gallery function', async () => {
+      const mockImageResult = {
+        uri: 'file://temp-image.jpg',
+        width: 800,
+        height: 600,
+        type: 'image/jpeg',
+        fileName: 'temp-image.jpg',
+      };
+
+      vi.mocked(ImageHandler.pickFromGallery).mockResolvedValue(mockImageResult);
+      vi.mocked(ImageHandler.saveImageToDocuments).mockResolvedValue('file://saved.jpg');
+
+      await useGear.getState().addGearImageFromGallery('non-existent');
+      const state = useGear.getState();
+
+      expect(vi.mocked(ImageHandler.pickFromGallery)).toHaveBeenCalled();
       expect(state.allGear['non-existent']).toBeUndefined();
     });
   });
