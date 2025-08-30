@@ -122,13 +122,22 @@ export class ImageHandler {
       console.log('Launching image library...');
       let result;
       try {
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.8,
-        });
-        console.log('Picker result:', result);
+        console.log('About to call launchImageLibraryAsync...');
+        // Try with minimal options first
+        result = await ImagePicker.launchImageLibraryAsync();
+        console.log('Basic picker result:', result);
+        
+        // If basic picker doesn't work, try with options
+        if (!result || result.canceled) {
+          console.log('Trying with options...');
+          result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
+          console.log('Picker result with options:', result);
+        }
       } catch (pickerError) {
         console.error('ImagePicker launch error:', pickerError);
         Alert.alert('Error', 'Failed to open image picker. Please try again.');
