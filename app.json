@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "kf-app",
+    "name": "KF app",
     "slug": "kf-app",
     "scheme": "kf-app",
     "plugins": [
@@ -9,23 +9,23 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow kf-app to access your camera to take gear photos",
-          "microphonePermission": "Allow kf-app to access your microphone for video recording"
+          "cameraPermission": "Allow KF app to access your camera to take gear photos",
+          "microphonePermission": "Allow KF app to access your microphone for video recording"
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow kf-app to access your photos to select gear images",
-          "cameraPermission": "Allow kf-app to access your camera to take gear photos"
+          "photosPermission": "Allow KF app to access your photos to select gear images",
+          "cameraPermission": "Allow KF app to access your camera to take gear photos"
         }
       ]
     ],
     "ios": {
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow kf-app to access your camera to take gear photos",
-        "NSMicrophoneUsageDescription": "Allow kf-app to access your microphone for video recording",
-        "NSPhotoLibraryUsageDescription": "Allow kf-app to access your photos to select gear images"
+        "NSCameraUsageDescription": "Allow KF app to access your camera to take gear photos",
+        "NSMicrophoneUsageDescription": "Allow KF app to access your microphone for video recording",
+        "NSPhotoLibraryUsageDescription": "Allow KF app to access your photos to select gear images"
       }
     },
     "sdkVersion": "53.0.0"

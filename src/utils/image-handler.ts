@@ -229,7 +229,10 @@ export class ImageHandler {
   static async getFileSize(uri: string): Promise<number> {
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
-      return fileInfo.size ? fileInfo.size / (1024 * 1024) : 0;
+      if (fileInfo.exists && 'size' in fileInfo) {
+        return fileInfo.size / (1024 * 1024);
+      }
+      return 0;
     } catch (error) {
       console.error('Error getting file size:', error);
       return 0;
