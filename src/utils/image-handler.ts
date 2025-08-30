@@ -1,8 +1,8 @@
-import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 
 export interface ImageResult {
   uri: string;
@@ -48,7 +48,7 @@ export class ImageHandler {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: [ImagePicker.MediaType.Image],
+        mediaTypes: ['image'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -89,7 +89,7 @@ export class ImageHandler {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: [ImagePicker.MediaType.Image],
+        mediaTypes: ['image'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
