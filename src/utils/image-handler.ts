@@ -106,17 +106,18 @@ export class ImageHandler {
         return null;
       }
       
-      console.log('ImagePicker is available, requesting permissions...');
-      const hasPermission = await this.requestMediaLibraryPermissions();
-      console.log('Gallery permission:', hasPermission);
+      console.log('ImagePicker is available, skipping permissions for now...');
+      // Temporarily skip permission check to isolate the issue
+      // const hasPermission = await this.requestMediaLibraryPermissions();
+      // console.log('Gallery permission:', hasPermission);
       
-      if (!hasPermission) {
-        Alert.alert(
-          'Gallery Permission Required',
-          'Please grant gallery permission to select photos of your gear.'
-        );
-        return null;
-      }
+      // if (!hasPermission) {
+      //   Alert.alert(
+      //     'Gallery Permission Required',
+      //     'Please grant gallery permission to select photos of your gear.'
+      //   );
+      //   return null;
+      // }
 
       console.log('Launching image library...');
       let result;
