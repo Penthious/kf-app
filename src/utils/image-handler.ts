@@ -92,10 +92,7 @@ export class ImageHandler {
       }
 
       console.log('Launching image library...');
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-      });
+      const result = await ImagePicker.launchImageLibraryAsync();
 
       console.log('Image picker result:', result);
 
