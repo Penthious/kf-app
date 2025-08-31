@@ -8,25 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1405226C997443AB1ECED393 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0147AD0D936BF485CC0F9EB4 /* PrivacyInfo.xcprivacy */; };
+		15D7C9CB1B76D9BC2DDC0A47 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77E019B6287217DFD4EEF26 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		53625A63F958B291D845206A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7DA911B3251FDAB7FF8CA4A1 /* PrivacyInfo.xcprivacy */; };
-		7497284A4A621485DC29B0A8 /* libPods-KFapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B2F07B9CE1230860AA40324 /* libPods-KFapp.a */; };
-		B5A5A8CF83B98AFE703AE389 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC77A1AC68C77132DC736CB3 /* ExpoModulesProvider.swift */; };
+		5D647FBFA8E7D736B9B2A86B /* libPods-KFapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 917F2FB804807FDEBB435A24 /* libPods-KFapp.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		098F15FB4CE6A868FBD71966 /* Pods-KFapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KFapp.debug.xcconfig"; path = "Target Support Files/Pods-KFapp/Pods-KFapp.debug.xcconfig"; sourceTree = "<group>"; };
+		0147AD0D936BF485CC0F9EB4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = KFapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* KFapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KFapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = KFapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = KFapp/Info.plist; sourceTree = "<group>"; };
-		1B2F07B9CE1230860AA40324 /* libPods-KFapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KFapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7DA911B3251FDAB7FF8CA4A1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = KFapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3F2C5E9BF3D50D54633A0FDF /* Pods-KFapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KFapp.release.xcconfig"; path = "Target Support Files/Pods-KFapp/Pods-KFapp.release.xcconfig"; sourceTree = "<group>"; };
+		917F2FB804807FDEBB435A24 /* libPods-KFapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KFapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = KFapp/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CC77A1AC68C77132DC736CB3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-KFapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		DDBDA04408B9E6BFEAAE20E2 /* Pods-KFapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KFapp.release.xcconfig"; path = "Target Support Files/Pods-KFapp/Pods-KFapp.release.xcconfig"; sourceTree = "<group>"; };
+		D77E019B6287217DFD4EEF26 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-KFapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		E65F86DE81CF8888B154651C /* Pods-KFapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KFapp.debug.xcconfig"; path = "Target Support Files/Pods-KFapp/Pods-KFapp.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = KFapp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* KFapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "KFapp-Bridging-Header.h"; path = "KFapp/KFapp-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7497284A4A621485DC29B0A8 /* libPods-KFapp.a in Frameworks */,
+				5D647FBFA8E7D736B9B2A86B /* libPods-KFapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				7DA911B3251FDAB7FF8CA4A1 /* PrivacyInfo.xcprivacy */,
+				0147AD0D936BF485CC0F9EB4 /* PrivacyInfo.xcprivacy */,
 			);
 			name = KFapp;
 			sourceTree = "<group>";
@@ -62,27 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				1B2F07B9CE1230860AA40324 /* libPods-KFapp.a */,
+				917F2FB804807FDEBB435A24 /* libPods-KFapp.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		30696F825B96413CC5F9AE08 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				C4D222F2080768891A5A6061 /* KFapp */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		4FC8610402793236DEA66256 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				098F15FB4CE6A868FBD71966 /* Pods-KFapp.debug.xcconfig */,
-				DDBDA04408B9E6BFEAAE20E2 /* Pods-KFapp.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -99,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				4FC8610402793236DEA66256 /* Pods */,
-				30696F825B96413CC5F9AE08 /* ExpoModulesProviders */,
+				8910CAB11E11CC98E1D98E57 /* Pods */,
+				8619E9F4F805C8CC540E2E6A /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -115,6 +97,32 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8619E9F4F805C8CC540E2E6A /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				A2F26B17C78F2CB65B80FEB2 /* KFapp */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		8910CAB11E11CC98E1D98E57 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E65F86DE81CF8888B154651C /* Pods-KFapp.debug.xcconfig */,
+				3F2C5E9BF3D50D54633A0FDF /* Pods-KFapp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A2F26B17C78F2CB65B80FEB2 /* KFapp */ = {
+			isa = PBXGroup;
+			children = (
+				D77E019B6287217DFD4EEF26 /* ExpoModulesProvider.swift */,
+			);
+			name = KFapp;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,14 +130,6 @@
 			);
 			name = Supporting;
 			path = KFapp/Supporting;
-			sourceTree = "<group>";
-		};
-		C4D222F2080768891A5A6061 /* KFapp */ = {
-			isa = PBXGroup;
-			children = (
-				CC77A1AC68C77132DC736CB3 /* ExpoModulesProvider.swift */,
-			);
-			name = KFapp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "KFapp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				64ABB3EC95884DD1EAAB44E1 /* [Expo] Configure project */,
+				C55187AA4040ED4BEA144D1D /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				BF692E5DCE04BD2AB232735F /* [CP] Embed Pods Frameworks */,
+				400BA710DA4272F07DDE9B9A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				53625A63F958B291D845206A /* PrivacyInfo.xcprivacy in Resources */,
+				1405226C997443AB1ECED393 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,24 +240,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		64ABB3EC95884DD1EAAB44E1 /* [Expo] Configure project */ = {
+		400BA710DA4272F07DDE9B9A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-KFapp/Pods-KFapp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-KFapp/expo-configure-project.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KFapp/Pods-KFapp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -301,23 +300,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KFapp/Pods-KFapp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BF692E5DCE04BD2AB232735F /* [CP] Embed Pods Frameworks */ = {
+		C55187AA4040ED4BEA144D1D /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-KFapp/Pods-KFapp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			inputFileListPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KFapp/Pods-KFapp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-KFapp/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -327,7 +327,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				B5A5A8CF83B98AFE703AE389 /* ExpoModulesProvider.swift in Sources */,
+				15D7C9CB1B76D9BC2DDC0A47 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,7 +336,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 098F15FB4CE6A868FBD71966 /* Pods-KFapp.debug.xcconfig */;
+			baseConfigurationReference = E65F86DE81CF8888B154651C /* Pods-KFapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -372,7 +372,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DDBDA04408B9E6BFEAAE20E2 /* Pods-KFapp.release.xcconfig */;
+			baseConfigurationReference = 3F2C5E9BF3D50D54633A0FDF /* Pods-KFapp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
