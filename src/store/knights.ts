@@ -2,6 +2,7 @@ import type { InvestigationResult, Knight } from '@/models/knight';
 import { addInvestigationDomain, ensureChapter, normalLocked } from '@/models/knight';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
+import { useCampaigns } from './campaigns';
 
 export type KnightsState = {
   knightsById: Record<string, Knight>;
@@ -83,8 +84,36 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     set(s => {
       const { [knightUID]: removed, ...rest } = s.knightsById;
       const newState = { knightsById: rest };
-      // Save to AsyncStorage
+
+      // Also remove the knight from all campaigns
+      const campaignsState = useCampaigns.getState();
+      const updatedCampaigns = { ...campaignsState.campaigns };
+
+      Object.keys(updatedCampaigns).forEach(campaignId => {
+        const campaign = updatedCampaigns[campaignId];
+        const updatedMembers = campaign.members.filter(member => member.knightUID !== knightUID);
+
+        // Update party leader if the deleted knight was the leader
+        let updatedPartyLeaderUID = campaign.partyLeaderUID;
+        if (campaign.partyLeaderUID === knightUID) {
+          updatedPartyLeaderUID = undefined;
+        }
+
+        updatedCampaigns[campaignId] = {
+          ...campaign,
+          members: updatedMembers,
+          partyLeaderUID: updatedPartyLeaderUID,
+          updatedAt: Date.now(),
+        };
+      });
+
+      // Update campaigns store
+      useCampaigns.setState({ campaigns: updatedCampaigns });
+
+      // Save both stores to AsyncStorage
       storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      storage.save(STORAGE_KEYS.CAMPAIGNS, updatedCampaigns).catch(console.error);
+
       return newState;
     }),
 
