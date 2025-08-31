@@ -1,8 +1,8 @@
 import type { InvestigationResult, Knight } from '@/models/knight';
 import { addInvestigationDomain, ensureChapter, normalLocked } from '@/models/knight';
 import { create } from 'zustand';
-import { storage, STORAGE_KEYS } from './storage';
 import { useCampaigns } from './campaigns';
+import { storage, STORAGE_KEYS } from './storage';
 
 export type KnightsState = {
   knightsById: Record<string, Knight>;
