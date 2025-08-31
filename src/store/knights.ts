@@ -11,6 +11,7 @@ export type KnightsActions = {
   // Core actions
   addKnight: (k: Omit<Knight, 'version' | 'updatedAt'>) => Knight;
   renameKnight: (knightUID: string, name: string) => void;
+  removeKnight: (knightUID: string) => void;
   updateKnightSheet: (
     knightUID: string,
     patch: Partial<Knight['sheet']>
@@ -73,6 +74,15 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
           },
         },
       };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
+    }),
+
+  removeKnight: knightUID =>
+    set(s => {
+      const { [knightUID]: removed, ...rest } = s.knightsById;
+      const newState = { knightsById: rest };
       // Save to AsyncStorage
       storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
       return newState;

@@ -3,13 +3,13 @@ import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CampaignsScreen() {
   const router = useRouter();
   const { tokens } = useThemeTokens();
-  const { campaigns } = useCampaigns();
+  const { campaigns, removeCampaign } = useCampaigns();
   const list = Object.values(campaigns);
 
   return (
@@ -32,18 +32,54 @@ export default function CampaignsScreen() {
           </Card>
         ) : (
           list.map(c => (
-            <Pressable
-              key={c.campaignId}
-              onPress={() => router.push(`/campaign/${c.campaignId}`)}
-              style={{ marginBottom: 12 }}
-            >
+            <View key={c.campaignId} style={{ marginBottom: 12 }}>
               <Card>
-                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>{c.name}</Text>
-                <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
-                  {c.members.filter(m => m.isActive).length} active · {c.members.length} total
-                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <Pressable
+                    onPress={() => router.push(`/campaign/${c.campaignId}`)}
+                    style={{ flex: 1 }}
+                  >
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>{c.name}</Text>
+                    <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
+                      {c.members.filter(m => m.isActive).length} active · {c.members.length} total
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      Alert.alert(
+                        'Delete campaign?',
+                        `Are you sure you want to delete "${c.name}"? This cannot be undone.`,
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          {
+                            text: 'Delete',
+                            style: 'destructive',
+                            onPress: () => removeCampaign(c.campaignId),
+                          },
+                        ]
+                      );
+                    }}
+                    style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                      backgroundColor: '#2a1313',
+                      marginLeft: 8,
+                    }}
+                  >
+                    <Text style={{ color: '#F9DADA', fontWeight: '600', fontSize: 12 }}>
+                      Delete
+                    </Text>
+                  </Pressable>
+                </View>
               </Card>
-            </Pressable>
+            </View>
           ))
         )}
 

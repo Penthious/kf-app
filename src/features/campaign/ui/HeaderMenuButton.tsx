@@ -1,4 +1,5 @@
 import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
+import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -11,6 +12,7 @@ interface HeaderMenuButtonProps {
 export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
   const { tokens } = useThemeTokens();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const { removeCampaign, campaigns } = useCampaigns();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anchorRef = useRef<any>(null);
@@ -48,6 +50,31 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
     );
   };
 
+  const handleDeleteCampaign = () => {
+    if (!id) return;
+    const campaign = campaigns[id];
+    if (!campaign) return;
+
+    go(() =>
+      Alert.alert(
+        'Delete campaign?',
+        `Are you sure you want to delete "${campaign.name}"? This cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              removeCampaign(id);
+              router.replace('/');
+            },
+          },
+        ],
+        { cancelable: true }
+      )
+    );
+  };
+
   const menuItems = [
     { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
     { key: 'theme', label: 'Theme', onPress: () => go(() => router.push('/theme')) },
@@ -58,6 +85,12 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
             label: 'Exit Campaign',
             destructive: true,
             onPress: handleExitCampaign,
+          },
+          {
+            key: 'delete',
+            label: 'Delete Campaign',
+            destructive: true,
+            onPress: handleDeleteCampaign,
           },
         ]
       : []),
