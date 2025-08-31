@@ -1,6 +1,6 @@
 # Privacy Policy for KF App
 
-**Last updated:** December 2024
+**Last updated:** Aug 2025
 
 ## Introduction
 
@@ -89,7 +89,7 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 If you have any questions about this Privacy Policy or our data practices, please contact us at:
 
-**Email:** [Your Contact Email]
+**Email:** tleffew1994+kf@gmail.com
 **Developer:** Penthious
 
 ## App Store Compliance
