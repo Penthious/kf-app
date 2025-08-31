@@ -29,6 +29,12 @@
       },
       "bundleIdentifier": "com.penthious.kf-app"
     },
-    "sdkVersion": "53.0.0"
+    "sdkVersion": "53.0.0",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6dacb1aa-4318-40c0-8488-2bdf82b1e545"
+      }
+    }
   }
 }
