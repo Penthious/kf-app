@@ -136,11 +136,7 @@ describe('QuickCreateKnight', () => {
   it('enables create buttons when form is complete', () => {
     const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
 
-    // Fill in the form
-    const nameInput = getByText('Name').parent;
-    fireEvent.changeText(nameInput, 'Test Knight');
-
-    // Select a catalog knight
+    // Select a catalog knight (this will automatically set the name)
     const catalogPills = getAllByText('Sir Galahad');
     fireEvent.press(catalogPills[0]);
 
@@ -154,11 +150,7 @@ describe('QuickCreateKnight', () => {
   it('calls onCreate with correct data when creating as benched', () => {
     const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
 
-    // Fill in the form
-    const nameInput = getByText('Name').parent;
-    fireEvent.changeText(nameInput, 'Test Knight');
-
-    // Select a catalog knight
+    // Select a catalog knight (this will automatically set the name)
     const catalogPills = getAllByText('Sir Galahad');
     fireEvent.press(catalogPills[0]);
 
@@ -166,7 +158,7 @@ describe('QuickCreateKnight', () => {
     fireEvent.press(getByText('Create as Benched'));
 
     expect(mockOnCreate).toHaveBeenCalledWith({
-      name: 'Test Knight',
+      name: 'Sir Galahad',
       catalogId: 'knight-1',
       asActive: false,
     });
@@ -175,11 +167,7 @@ describe('QuickCreateKnight', () => {
   it('calls onCreate with correct data when creating and activating', () => {
     const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
 
-    // Fill in the form
-    const nameInput = getByText('Name').parent;
-    fireEvent.changeText(nameInput, 'Test Knight');
-
-    // Select a catalog knight
+    // Select a catalog knight (this will automatically set the name)
     const catalogPills = getAllByText('Sir Galahad');
     fireEvent.press(catalogPills[0]);
 
@@ -187,7 +175,7 @@ describe('QuickCreateKnight', () => {
     fireEvent.press(getByText('Create & Activate'));
 
     expect(mockOnCreate).toHaveBeenCalledWith({
-      name: 'Test Knight',
+      name: 'Sir Galahad',
       catalogId: 'knight-1',
       asActive: true,
     });
@@ -195,10 +183,6 @@ describe('QuickCreateKnight', () => {
 
   it('clears form after creating knight', () => {
     const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
-
-    // Fill in the form
-    const nameInput = getByText('Name').parent;
-    fireEvent.changeText(nameInput, 'Test Knight');
 
     // Select a catalog knight
     const catalogPills = getAllByText('Sir Galahad');
@@ -208,17 +192,14 @@ describe('QuickCreateKnight', () => {
     fireEvent.press(getByText('Create as Benched'));
 
     // Form should be cleared
+    const nameInput = getByText('Name').parent;
     expect(nameInput.props.children[1].props.value).toBe('');
   });
 
   it('trims whitespace from knight name', () => {
     const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
 
-    // Fill in the form with whitespace
-    const nameInput = getByText('Name').parent;
-    fireEvent.changeText(nameInput, '  Test Knight  ');
-
-    // Select a catalog knight
+    // Select a catalog knight (this will automatically set the name)
     const catalogPills = getAllByText('Sir Galahad');
     fireEvent.press(catalogPills[0]);
 
@@ -226,9 +207,24 @@ describe('QuickCreateKnight', () => {
     fireEvent.press(getByText('Create as Benched'));
 
     expect(mockOnCreate).toHaveBeenCalledWith({
-      name: 'Test Knight',
+      name: 'Sir Galahad',
       catalogId: 'knight-1',
       asActive: false,
     });
+  });
+
+  it('automatically sets name when catalog knight is selected', () => {
+    const { getByText, getAllByText } = render(<QuickCreateKnight onCreate={mockOnCreate} />);
+
+    // Initially, name should be empty
+    const nameInput = getByText('Name').parent;
+    expect(nameInput.props.children[1].props.value).toBe('');
+
+    // Select a catalog knight
+    const catalogPills = getAllByText('Sir Lancelot');
+    fireEvent.press(catalogPills[0]);
+
+    // Name should now be set to the catalog knight's name
+    expect(nameInput.props.children[1].props.value).toBe('Sir Lancelot');
   });
 });

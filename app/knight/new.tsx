@@ -18,20 +18,26 @@ export default function NewKnightScreen() {
   const { tokens } = useThemeTokens();
   const { addKnight } = useKnights();
 
-  const [name, setName] = React.useState('');
-  const [catalogId, setCatalogId] = React.useState<string>(
-    (KNIGHTS_CATALOG as KnightCatalogItem[])[0]?.id ?? ''
-  );
+  const firstKnight = (KNIGHTS_CATALOG as KnightCatalogItem[])[0];
+  const [name, setName] = React.useState(firstKnight?.name ?? '');
+  const [catalogId, setCatalogId] = React.useState<string>(firstKnight?.id ?? '');
   const defaultName = 'New Knight';
+
+  // Get the currently selected knight for placeholder
+  const selectedKnight = KNIGHTS_CATALOG.find(k => k.id === catalogId);
 
   const onCreate = () => {
     const uid = uuid.v4() as string;
+
+    // Get the selected catalog knight's name as fallback
+    const selectedKnight = KNIGHTS_CATALOG.find(k => k.id === catalogId);
+    const knightName = name.trim() || selectedKnight?.name || defaultName;
 
     const k: Omit<Knight, 'version' | 'updatedAt'> = {
       knightUID: uid,
       ownerUserId: 'me',
       catalogId,
-      name: name.trim() || defaultName,
+      name: knightName,
       sheet: defaultSheet(),
       rapport: [],
     };
@@ -51,7 +57,12 @@ export default function NewKnightScreen() {
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
         <Card>
-          <TextRow label='Name' value={name} onChangeText={setName} placeholder={defaultName} />
+          <TextRow
+            label='Name'
+            value={name}
+            onChangeText={setName}
+            placeholder={selectedKnight?.name || defaultName}
+          />
           <Text style={{ color: tokens.textMuted, marginTop: 8, marginBottom: 6 }}>
             Choose Knight (catalog)
           </Text>
@@ -62,7 +73,10 @@ export default function NewKnightScreen() {
                 <Button
                   key={kc.id}
                   label={kc.name}
-                  onPress={() => setCatalogId(kc.id)}
+                  onPress={() => {
+                    setCatalogId(kc.id);
+                    setName(kc.name);
+                  }}
                   tone={isActive ? 'accent' : 'default'}
                 />
               );
