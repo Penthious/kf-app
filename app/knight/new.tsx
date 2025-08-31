@@ -23,6 +23,9 @@ export default function NewKnightScreen() {
   const [catalogId, setCatalogId] = React.useState<string>(firstKnight?.id ?? '');
   const defaultName = 'New Knight';
 
+  // Get the currently selected knight for placeholder
+  const selectedKnight = KNIGHTS_CATALOG.find(k => k.id === catalogId);
+
   const onCreate = () => {
     const uid = uuid.v4() as string;
 
@@ -54,7 +57,12 @@ export default function NewKnightScreen() {
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
         <Card>
-          <TextRow label='Name' value={name} onChangeText={setName} placeholder={defaultName} />
+          <TextRow
+            label='Name'
+            value={name}
+            onChangeText={setName}
+            placeholder={selectedKnight?.name || defaultName}
+          />
           <Text style={{ color: tokens.textMuted, marginTop: 8, marginBottom: 6 }}>
             Choose Knight (catalog)
           </Text>
