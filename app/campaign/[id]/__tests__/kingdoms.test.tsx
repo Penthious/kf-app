@@ -7,6 +7,13 @@ import CampaignKingdoms from '../kingdoms';
 jest.mock('@/store/campaigns');
 jest.mock('@/store/knights');
 jest.mock('@/theme/ThemeProvider');
+jest.mock('@/catalogs/kingdoms', () => {
+  const actual = jest.requireActual('@/catalogs/kingdoms');
+  return {
+    ...actual,
+    allKingdomsCatalog: actual.allKingdomsCatalog,
+  };
+});
 
 const mockUseCampaigns = useCampaigns as jest.MockedFunction<typeof useCampaigns>;
 const mockUseKnights = useKnights as jest.MockedFunction<typeof useKnights>;

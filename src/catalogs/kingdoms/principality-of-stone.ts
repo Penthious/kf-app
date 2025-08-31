@@ -1,4 +1,3 @@
-import type { KingdomCatalog } from '@/models/kingdom';
 import {
   DEVIL_OF_THE_SMELTED_FEARS_ID,
   EGGKNIGHT_ID,
@@ -11,6 +10,7 @@ import {
   RATWOLVES_ID,
   WINGED_NIGHTMARE_ID,
 } from '@/catalogs/monsters';
+import type { KingdomCatalog } from '@/models/kingdom';
 
 export const POS_ID = 'principality-of-stone';
 export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
@@ -176,5 +176,36 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
       },
     ],
   },
-  adventures: [],
+  adventures: [
+    { name: 'A Song in Silica', roll: { min: 1, max: 3 }, singleAttempt: false },
+    { name: 'Scrabbling in Stone', roll: { min: 4, max: 6 }, singleAttempt: false },
+    { name: 'Precarious Plunder', roll: { min: 7, max: 9 }, singleAttempt: false },
+    { name: 'When You Gaze into the Abyss ...', roll: { min: 10, max: 12 }, singleAttempt: false },
+    { name: 'The Valley of Rust', roll: { min: 13, max: 15 }, singleAttempt: false },
+    { name: 'The Boneyard', roll: { min: 16, max: 18 }, singleAttempt: false },
+    { name: 'Pestilence', roll: { min: 19, max: 21 }, singleAttempt: true },
+    { name: 'Fractured Shell', roll: { min: 22, max: 24 }, singleAttempt: true },
+    { name: 'One for Sorrow', roll: { min: 25, max: 27 }, singleAttempt: false },
+    { name: 'Prized Possession', roll: { min: 28, max: 30 }, singleAttempt: true },
+    { name: 'Ensnared', roll: { min: 31, max: 33 }, singleAttempt: false },
+    { name: 'Bridge Under Troubled Water', roll: { min: 34, max: 36 }, singleAttempt: false },
+    { name: 'Mortsafe', roll: { min: 37, max: 40 }, singleAttempt: false },
+    { name: 'Lost in the Labyrinth of Faces', roll: { min: 41, max: 44 }, singleAttempt: false },
+    { name: 'Hunted', roll: { min: 45, max: 48 }, singleAttempt: false },
+    { name: 'Old Stairs', roll: { min: 49, max: 52 }, singleAttempt: false },
+    { name: 'Collapsing Roof', roll: { min: 53, max: 56 }, singleAttempt: false },
+    { name: 'A Ghostly Duel', roll: { min: 57, max: 60 }, singleAttempt: true },
+    { name: 'An Ominous Presence', roll: { min: 61, max: 64 }, singleAttempt: false },
+    { name: 'Shack in the Rubble', roll: { min: 65, max: 68 }, singleAttempt: false },
+    { name: 'The Stone Man', roll: { min: 69, max: 71 }, singleAttempt: true },
+    { name: 'The Pile', roll: { min: 72, max: 74 }, singleAttempt: false },
+    { name: 'Trespassing', roll: { min: 75, max: 77 }, singleAttempt: false },
+    { name: 'The Trade', roll: { min: 78, max: 80 }, singleAttempt: true },
+    { name: 'Infested Keep', roll: { min: 81, max: 83 }, singleAttempt: true },
+    { name: 'A Pebble', roll: { min: 84, max: 86 }, singleAttempt: false },
+    { name: 'Alloy Chivalry', roll: { min: 87, max: 89 }, singleAttempt: true },
+    { name: 'Heavy Water', roll: { min: 90, max: 92 }, singleAttempt: false },
+    { name: 'Eaves-drip Kindness', roll: { min: 93, max: 95 }, singleAttempt: true },
+    { name: 'The Devil You Know', roll: { min: 96, max: 100 }, singleAttempt: false },
+  ],
 };

@@ -108,17 +108,12 @@ export class ImageHandler {
    */
   static async pickFromGallery(): Promise<ImageResult | null> {
     try {
-      console.log('Starting gallery picker...');
-
-      // Use the exact same code as the working example
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images', 'videos'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-
-      console.log('Picker result:', result);
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
