@@ -17,6 +17,16 @@ export default function QuickCreateKnight({ onCreate }: QuickCreateKnightProps) 
 
   const canCreate = useMemo(() => newName.trim().length > 0 && !!newCatalog, [newName, newCatalog]);
 
+  // Function to handle catalog knight selection
+  const handleCatalogSelection = (catalogId: string) => {
+    setNewCatalog(catalogId);
+    // Find the selected knight and set the name to their catalog name
+    const selectedKnight = KNIGHT_CATALOG.find(k => k.id === catalogId);
+    if (selectedKnight) {
+      setNewName(selectedKnight.name);
+    }
+  };
+
   const handleCreate = (asActive: boolean) => {
     if (!canCreate) return;
     onCreate({ name: newName.trim(), catalogId: newCatalog as string, asActive });
@@ -44,7 +54,7 @@ export default function QuickCreateKnight({ onCreate }: QuickCreateKnightProps) 
                 key={k.id}
                 label={k.name}
                 selected={newCatalog === k.id}
-                onPress={() => setNewCatalog(k.id)}
+                onPress={() => handleCatalogSelection(k.id)}
               />
             ))}
         </View>

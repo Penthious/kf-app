@@ -24,6 +24,14 @@ export default function NewKnightScreen() {
   );
   const defaultName = 'New Knight';
 
+  // Set initial name to the first catalog knight's name
+  React.useEffect(() => {
+    const firstKnight = (KNIGHTS_CATALOG as KnightCatalogItem[])[0];
+    if (firstKnight) {
+      setName(firstKnight.name);
+    }
+  }, []);
+
   const onCreate = () => {
     const uid = uuid.v4() as string;
 
@@ -62,7 +70,10 @@ export default function NewKnightScreen() {
                 <Button
                   key={kc.id}
                   label={kc.name}
-                  onPress={() => setCatalogId(kc.id)}
+                  onPress={() => {
+                    setCatalogId(kc.id);
+                    setName(kc.name);
+                  }}
                   tone={isActive ? 'accent' : 'default'}
                 />
               );
