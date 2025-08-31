@@ -1,5 +1,6 @@
 import type { Gear, GearType } from '@/models/gear';
 import { create } from 'zustand';
+import { storage, STORAGE_KEYS } from './storage';
 
 export type GearState = {
   allGear: Record<string, Gear>;
@@ -224,541 +225,564 @@ const initialState: GearState = {
   gearInstanceData: {},
 };
 
-export const useGear = create<GearStore>((set, get) => ({
-  ...initialState,
+export const useGear = create<GearStore>((set, get) => {
+  // Helper function to save state to AsyncStorage
+  const saveToStorage = (newState: Partial<GearState>) => {
+    const currentState = get();
+    const fullState = { ...currentState, ...newState };
+    storage.save(STORAGE_KEYS.GEAR, fullState).catch(console.error);
+  };
 
-  addGear: (gear: Gear) => {
-    set(state => {
-      const newState = { ...state };
+  return {
+    ...initialState,
 
-      // Add to allGear
-      newState.allGear[gear.id] = gear;
+    addGear: (gear: Gear) => {
+      set(state => {
+        const newState = { ...state };
 
-      // Add to gearByType
-      newState.gearByType[gear.type] = [...newState.gearByType[gear.type], gear.id];
+        // Add to allGear
+        newState.allGear[gear.id] = gear;
 
-      // Add to kingdom-specific collections
-      if (gear.kingdomId) {
-        if (!newState.gearByKingdom[gear.kingdomId]) {
-          newState.gearByKingdom[gear.kingdomId] = [];
+        // Add to gearByType
+        newState.gearByType[gear.type] = [...newState.gearByType[gear.type], gear.id];
+
+        // Add to kingdom-specific collections
+        if (gear.kingdomId) {
+          if (!newState.gearByKingdom[gear.kingdomId]) {
+            newState.gearByKingdom[gear.kingdomId] = [];
+          }
+          newState.gearByKingdom[gear.kingdomId].push(gear.id);
         }
-        newState.gearByKingdom[gear.kingdomId].push(gear.id);
-      }
 
-      // Add to global gear collections
-      if (gear.type === 'wandering') {
-        newState.wanderingGear.push(gear.id);
-      } else if (gear.type === 'consumable') {
-        newState.consumableGear.push(gear.id);
-      }
+        // Add to global gear collections
+        if (gear.type === 'wandering') {
+          newState.wanderingGear.push(gear.id);
+        } else if (gear.type === 'consumable') {
+          newState.consumableGear.push(gear.id);
+        }
 
-      return newState;
-    });
-  },
-
-  removeGear: (gearId: string) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear) return state;
-
-      const newState = { ...state };
-
-      // Remove from allGear
-      delete newState.allGear[gearId];
-
-      // Remove from gearByType
-      newState.gearByType[gear.type] = newState.gearByType[gear.type].filter(id => id !== gearId);
-
-      // Remove from kingdom-specific collections
-      if (gear.kingdomId) {
-        newState.gearByKingdom[gear.kingdomId] =
-          newState.gearByKingdom[gear.kingdomId]?.filter(id => id !== gearId) || [];
-      }
-
-      // Remove from global gear collections
-      if (gear.type === 'wandering') {
-        newState.wanderingGear = newState.wanderingGear.filter(id => id !== gearId);
-      } else if (gear.type === 'consumable') {
-        newState.consumableGear = newState.consumableGear.filter(id => id !== gearId);
-      }
-
-      return newState;
-    });
-  },
-
-  updateGear: (gearId: string, updates: Partial<Gear>) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear) return state;
-
-      const newState = { ...state };
-      newState.allGear[gearId] = { ...gear, ...updates };
-
-      return newState;
-    });
-  },
-
-  resetGear: () => {
-    set({
-      allGear: sampleGear,
-      gearByKingdom: {
-        'principality-of-stone': ['sword-of-truth', 'stone-helm', 'ratwolf-claw'],
-      },
-      gearByType: {
-        kingdom: ['sword-of-truth', 'stone-helm'],
-        monster: ['ratwolf-claw'],
-        wandering: ['wandering-blade'],
-        consumable: ['healing-potion', 'magic-scroll'],
-        upgrade: ['sharpening-stone', 'reinforced-plating'],
-        merchant: ['merchant-sword', 'merchant-sword-reforged'],
-      },
-      wanderingGear: ['wandering-blade'],
-      consumableGear: ['healing-potion', 'magic-scroll'],
-      userGear: {},
-      equippedGear: {},
-      campaignUnlockedGear: {},
-      gearOwnership: {},
-      gearInstances: {},
-      gearInstanceData: {},
-    });
-  },
-
-  getGearByKingdom: (kingdomId: string) => {
-    const state = get();
-    const gearIds = state.gearByKingdom[kingdomId] || [];
-    return gearIds.map(id => state.allGear[id]).filter(Boolean);
-  },
-
-  getGearByType: (type: GearType) => {
-    const state = get();
-    const gearIds = state.gearByType[type] || [];
-    return gearIds.map(id => state.allGear[id]).filter(Boolean);
-  },
-
-  getGlobalGear: () => {
-    const state = get();
-    const globalGearIds = [...state.wanderingGear, ...state.consumableGear];
-    return globalGearIds.map(id => state.allGear[id]).filter(Boolean);
-  },
-
-  addUserGear: (gearId: string, quantity: number) => {
-    set(state => {
-      const newState = { ...state };
-      const currentQuantity = newState.userGear[gearId] || 0;
-      newState.userGear[gearId] = currentQuantity + quantity;
-      return newState;
-    });
-  },
-
-  removeUserGear: (gearId: string, quantity: number) => {
-    set(state => {
-      const newState = { ...state };
-      const currentQuantity = newState.userGear[gearId] || 0;
-      const newQuantity = Math.max(0, currentQuantity - quantity);
-
-      if (newQuantity === 0) {
-        delete newState.userGear[gearId];
-      } else {
-        newState.userGear[gearId] = newQuantity;
-      }
-
-      return newState;
-    });
-  },
-
-  equipGear: (knightId: string, gearId: string) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear) return state;
-
-      // Don't allow equipping upgrades
-      if (gear.type === 'upgrade') return state;
-
-      const newState = { ...state };
-
-      if (!newState.equippedGear[knightId]) {
-        newState.equippedGear[knightId] = [];
-      }
-
-      // Check if there's available quantity
-      const availableQuantity = state.getAvailableQuantity(gearId);
-      if (availableQuantity <= 0) return state;
-
-      // Create a unique instance ID for this gear
-      const instanceId = `${gearId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      // Create a copy of the gear for this instance
-      const gearInstance: Gear = {
-        ...gear,
-        id: instanceId,
-        upgrades: [], // Start with no upgrades
-      };
-
-      // Store the gear instance
-      newState.gearInstanceData[instanceId] = gearInstance;
-
-      // Add to gear instances tracking
-      if (!newState.gearInstances[gearId]) {
-        newState.gearInstances[gearId] = [];
-      }
-      newState.gearInstances[gearId].push(instanceId);
-
-      // Add the instance to the knight's equipped gear
-      newState.equippedGear[knightId].push(instanceId);
-
-      return newState;
-    });
-  },
-
-  unequipGear: (knightId: string, gearInstanceId: string) => {
-    set(state => {
-      const newState = { ...state };
-
-      if (newState.equippedGear[knightId]) {
-        newState.equippedGear[knightId] = newState.equippedGear[knightId].filter(
-          id => id !== gearInstanceId
-        );
-      }
-
-      // Remove the gear instance data
-      delete newState.gearInstanceData[gearInstanceId];
-
-      // Remove from gear instances tracking
-      Object.keys(newState.gearInstances).forEach(gearTypeId => {
-        newState.gearInstances[gearTypeId] = newState.gearInstances[gearTypeId].filter(
-          id => id !== gearInstanceId
-        );
+        // Save to AsyncStorage
+        saveToStorage(newState);
+        return newState;
       });
+    },
 
-      return newState;
-    });
-  },
+    removeGear: (gearId: string) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) return state;
 
-  getEquippedGear: (knightId: string) => {
-    const state = get();
-    return state.equippedGear[knightId] || [];
-  },
+        const newState = { ...state };
 
-  setGearImage: (gearId: string, imageUrl: string) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear) return state;
+        // Remove from allGear
+        delete newState.allGear[gearId];
 
-      const newState = { ...state };
-      newState.allGear[gearId] = { ...gear, imageUrl };
-      return newState;
-    });
-  },
+        // Remove from gearByType
+        newState.gearByType[gear.type] = newState.gearByType[gear.type].filter(id => id !== gearId);
 
-  removeGearImage: (gearId: string) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear) return state;
+        // Remove from kingdom-specific collections
+        if (gear.kingdomId) {
+          newState.gearByKingdom[gear.kingdomId] =
+            newState.gearByKingdom[gear.kingdomId]?.filter(id => id !== gearId) || [];
+        }
 
-      const newState = { ...state };
-      const { imageUrl, ...gearWithoutImage } = gear;
-      newState.allGear[gearId] = gearWithoutImage;
-      return newState;
-    });
-  },
+        // Remove from global gear collections
+        if (gear.type === 'wandering') {
+          newState.wanderingGear = newState.wanderingGear.filter(id => id !== gearId);
+        } else if (gear.type === 'consumable') {
+          newState.consumableGear = newState.consumableGear.filter(id => id !== gearId);
+        }
 
-  // Campaign gear management
-  unlockGearForCampaign: (campaignId: string, gearId: string) => {
-    set(state => {
-      const newState = { ...state };
-      const currentUnlocked = newState.campaignUnlockedGear[campaignId] || [];
-      if (currentUnlocked.includes(gearId)) return state;
+        return newState;
+      });
+    },
 
-      newState.campaignUnlockedGear[campaignId] = [...currentUnlocked, gearId];
-      return newState;
-    });
-  },
+    updateGear: (gearId: string, updates: Partial<Gear>) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) return state;
 
-  isGearUnlockedForCampaign: (campaignId: string, gearId: string) => {
-    const state = get();
-    return (state.campaignUnlockedGear[campaignId] || []).includes(gearId);
-  },
+        const newState = { ...state };
+        newState.allGear[gearId] = { ...gear, ...updates };
 
-  getUnlockedGearForCampaign: (campaignId: string) => {
-    const state = get();
-    return state.campaignUnlockedGear[campaignId] || [];
-  },
+        return newState;
+      });
+    },
 
-  // Shared gear management
-  getGearOwner: (gearId: string) => {
-    const state = get();
-    // Find which knight has this gear instance equipped
-    for (const [knightId, gearInstances] of Object.entries(state.equippedGear)) {
-      if (gearInstances.includes(gearId)) {
-        return knightId;
-      }
-    }
-    return null;
-  },
+    resetGear: () => {
+      set({
+        allGear: sampleGear,
+        gearByKingdom: {
+          'principality-of-stone': ['sword-of-truth', 'stone-helm', 'ratwolf-claw'],
+        },
+        gearByType: {
+          kingdom: ['sword-of-truth', 'stone-helm'],
+          monster: ['ratwolf-claw'],
+          wandering: ['wandering-blade'],
+          consumable: ['healing-potion', 'magic-scroll'],
+          upgrade: ['sharpening-stone', 'reinforced-plating'],
+          merchant: ['merchant-sword', 'merchant-sword-reforged'],
+        },
+        wanderingGear: ['wandering-blade'],
+        consumableGear: ['healing-potion', 'magic-scroll'],
+        userGear: {},
+        equippedGear: {},
+        campaignUnlockedGear: {},
+        gearOwnership: {},
+        gearInstances: {},
+        gearInstanceData: {},
+      });
+    },
 
-  transferGear: (gearInstanceId: string, fromKnightId: string, toKnightId: string) => {
-    set(state => {
-      const newState = { ...state };
+    getGearByKingdom: (kingdomId: string) => {
+      const state = get();
+      const gearIds = state.gearByKingdom[kingdomId] || [];
+      return gearIds.map(id => state.allGear[id]).filter(Boolean);
+    },
 
-      // Remove from current owner
-      if (newState.equippedGear[fromKnightId]) {
-        newState.equippedGear[fromKnightId] = newState.equippedGear[fromKnightId].filter(
-          id => id !== gearInstanceId
-        );
-      }
+    getGearByType: (type: GearType) => {
+      const state = get();
+      const gearIds = state.gearByType[type] || [];
+      return gearIds.map(id => state.allGear[id]).filter(Boolean);
+    },
 
-      // Add to new owner
-      if (!newState.equippedGear[toKnightId]) {
-        newState.equippedGear[toKnightId] = [];
-      }
-      newState.equippedGear[toKnightId].push(gearInstanceId);
+    getGlobalGear: () => {
+      const state = get();
+      const globalGearIds = [...state.wanderingGear, ...state.consumableGear];
+      return globalGearIds.map(id => state.allGear[id]).filter(Boolean);
+    },
 
-      return newState;
-    });
-  },
+    addUserGear: (gearId: string, quantity: number) => {
+      set(state => {
+        const newState = { ...state };
+        const currentQuantity = newState.userGear[gearId] || 0;
+        newState.userGear[gearId] = currentQuantity + quantity;
+        // Save to AsyncStorage
+        saveToStorage(newState);
+        return newState;
+      });
+    },
 
-  isGearEquippedByKnight: (gearId: string, knightId: string) => {
-    const state = get();
-    return state.gearOwnership[gearId] === knightId;
-  },
+    removeUserGear: (gearId: string, quantity: number) => {
+      set(state => {
+        const newState = { ...state };
+        const currentQuantity = newState.userGear[gearId] || 0;
+        const newQuantity = Math.max(0, currentQuantity - quantity);
 
-  getAvailableGearForKnight: (campaignId: string, knightId: string) => {
-    const state = get();
-    const unlockedGear = state.campaignUnlockedGear[campaignId] || [];
+        if (newQuantity === 0) {
+          delete newState.userGear[gearId];
+        } else {
+          newState.userGear[gearId] = newQuantity;
+        }
 
-    return unlockedGear.filter(gearId => {
-      const gear = state.allGear[gearId];
-      if (!gear) return false;
+        return newState;
+      });
+    },
 
-      // Exclude upgrades from available gear pool
-      if (gear.type === 'upgrade') return false;
+    equipGear: (knightId: string, gearId: string) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) return state;
 
-      const availableQuantity = state.getAvailableQuantity(gearId);
+        // Don't allow equipping upgrades
+        if (gear.type === 'upgrade') return state;
 
-      // Available if there's available quantity
-      return availableQuantity > 0;
-    });
-  },
+        const newState = { ...state };
 
-  // Upgrade management
-  attachUpgrade: (upgradeId: string, targetGearInstanceId: string) => {
-    set(state => {
-      const upgrade = state.allGear[upgradeId];
-      const targetGearInstance = state.gearInstanceData[targetGearInstanceId];
+        if (!newState.equippedGear[knightId]) {
+          newState.equippedGear[knightId] = [];
+        }
 
-      if (!upgrade || !targetGearInstance || upgrade.type !== 'upgrade') {
-        return state;
-      }
+        // Check if there's available quantity
+        const availableQuantity = state.getAvailableQuantity(gearId);
+        if (availableQuantity <= 0) return state;
 
-      // Check if upgrade type matches target gear type
-      if (
-        upgrade.upgradeType === 'weapon' &&
-        targetGearInstance.type !== 'kingdom' &&
-        targetGearInstance.type !== 'monster' &&
-        targetGearInstance.type !== 'wandering'
-      ) {
-        return state;
-      }
-      if (
-        upgrade.upgradeType === 'armor' &&
-        targetGearInstance.type !== 'kingdom' &&
-        targetGearInstance.type !== 'monster'
-      ) {
-        return state;
-      }
+        // Create a unique instance ID for this gear
+        const instanceId = `${gearId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      // Check if there are any available upgrades of this type
-      const availableQuantity = state.getAvailableQuantity(upgradeId);
-      if (availableQuantity <= 0) {
-        return state;
-      }
+        // Create a copy of the gear for this instance
+        const gearInstance: Gear = {
+          ...gear,
+          id: instanceId,
+          upgrades: [], // Start with no upgrades
+        };
 
-      // Create a unique upgrade instance
-      const upgradeInstanceId = `${upgradeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const upgradeInstance: Gear = {
-        ...upgrade,
-        id: upgradeInstanceId,
-        attachedToGearId: targetGearInstanceId,
-      };
+        // Store the gear instance
+        newState.gearInstanceData[instanceId] = gearInstance;
 
-      const newState = { ...state };
+        // Add to gear instances tracking
+        if (!newState.gearInstances[gearId]) {
+          newState.gearInstances[gearId] = [];
+        }
+        newState.gearInstances[gearId].push(instanceId);
 
-      // Add the upgrade instance to gearInstanceData
-      newState.gearInstanceData[upgradeInstanceId] = upgradeInstance;
+        // Add the instance to the knight's equipped gear
+        newState.equippedGear[knightId].push(instanceId);
 
-      // Add the upgrade instance to gearInstances
-      if (!newState.gearInstances[upgradeId]) {
-        newState.gearInstances[upgradeId] = [];
-      }
-      newState.gearInstances[upgradeId].push(upgradeInstanceId);
+        // Save to AsyncStorage
+        saveToStorage(newState);
+        return newState;
+      });
+    },
 
-      // Add the upgrade instance ID to the target gear instance
-      newState.gearInstanceData[targetGearInstanceId] = {
-        ...targetGearInstance,
-        upgrades: [...(targetGearInstance.upgrades || []), upgradeInstanceId],
-      };
+    unequipGear: (knightId: string, gearInstanceId: string) => {
+      set(state => {
+        const newState = { ...state };
 
-      return newState;
-    });
-  },
-
-  detachUpgrade: (upgradeInstanceId: string) => {
-    set(state => {
-      const upgradeInstance = state.gearInstanceData[upgradeInstanceId];
-      if (!upgradeInstance || !upgradeInstance.attachedToGearId) {
-        return state;
-      }
-
-      const targetGearInstanceId = upgradeInstance.attachedToGearId;
-      const targetGearInstance = state.gearInstanceData[targetGearInstanceId];
-
-      if (!targetGearInstance) {
-        return state;
-      }
-
-      const newState = { ...state };
-
-      // Remove upgrade instance from target gear instance
-      newState.gearInstanceData[targetGearInstanceId] = {
-        ...targetGearInstance,
-        upgrades: targetGearInstance.upgrades?.filter(id => id !== upgradeInstanceId) || [],
-      };
-
-      // Remove the upgrade instance from gearInstanceData
-      delete newState.gearInstanceData[upgradeInstanceId];
-
-      // Remove the upgrade instance from gearInstances
-      const baseUpgradeId = Object.keys(newState.allGear).find(id =>
-        upgradeInstanceId.startsWith(id + '-')
-      );
-      if (baseUpgradeId && newState.gearInstances[baseUpgradeId]) {
-        newState.gearInstances[baseUpgradeId] = newState.gearInstances[baseUpgradeId].filter(
-          id => id !== upgradeInstanceId
-        );
-      }
-
-      return newState;
-    });
-  },
-
-  getAttachedUpgrade: (gearInstanceId: string) => {
-    const state = get();
-    const gearInstance = state.gearInstanceData[gearInstanceId];
-    if (!gearInstance || !gearInstance.upgrades || gearInstance.upgrades.length === 0) {
-      return null;
-    }
-    // Return the base upgrade ID (remove the instance suffix)
-    const upgradeInstanceId = gearInstance.upgrades[0];
-    // Find the base upgrade ID by looking for the original upgrade in allGear
-    const baseUpgradeId = Object.keys(state.allGear).find(id =>
-      upgradeInstanceId.startsWith(id + '-')
-    );
-    return baseUpgradeId || null;
-  },
-
-  getUpgradeTargets: (upgradeId: string) => {
-    const state = get();
-    const upgrade = state.allGear[upgradeId];
-    if (!upgrade || upgrade.type !== 'upgrade') {
-      return [];
-    }
-
-    return Object.values(state.gearInstanceData)
-      .filter(gearInstance => {
-        if (upgrade.upgradeType === 'weapon') {
-          return (
-            gearInstance.type === 'kingdom' ||
-            gearInstance.type === 'monster' ||
-            gearInstance.type === 'wandering'
+        if (newState.equippedGear[knightId]) {
+          newState.equippedGear[knightId] = newState.equippedGear[knightId].filter(
+            id => id !== gearInstanceId
           );
         }
-        if (upgrade.upgradeType === 'armor') {
-          return gearInstance.type === 'kingdom' || gearInstance.type === 'monster';
+
+        // Remove the gear instance data
+        delete newState.gearInstanceData[gearInstanceId];
+
+        // Remove from gear instances tracking
+        Object.keys(newState.gearInstances).forEach(gearTypeId => {
+          newState.gearInstances[gearTypeId] = newState.gearInstances[gearTypeId].filter(
+            id => id !== gearInstanceId
+          );
+        });
+
+        return newState;
+      });
+    },
+
+    getEquippedGear: (knightId: string) => {
+      const state = get();
+      return state.equippedGear[knightId] || [];
+    },
+
+    setGearImage: (gearId: string, imageUrl: string) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) return state;
+
+        const newState = { ...state };
+        newState.allGear[gearId] = { ...gear, imageUrl };
+        return newState;
+      });
+    },
+
+    removeGearImage: (gearId: string) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) return state;
+
+        const newState = { ...state };
+        const { imageUrl, ...gearWithoutImage } = gear;
+        newState.allGear[gearId] = gearWithoutImage;
+        return newState;
+      });
+    },
+
+    // Campaign gear management
+    unlockGearForCampaign: (campaignId: string, gearId: string) => {
+      set(state => {
+        const newState = { ...state };
+        const currentUnlocked = newState.campaignUnlockedGear[campaignId] || [];
+        if (currentUnlocked.includes(gearId)) return state;
+
+        newState.campaignUnlockedGear[campaignId] = [...currentUnlocked, gearId];
+        return newState;
+      });
+    },
+
+    isGearUnlockedForCampaign: (campaignId: string, gearId: string) => {
+      const state = get();
+      return (state.campaignUnlockedGear[campaignId] || []).includes(gearId);
+    },
+
+    getUnlockedGearForCampaign: (campaignId: string) => {
+      const state = get();
+      return state.campaignUnlockedGear[campaignId] || [];
+    },
+
+    // Shared gear management
+    getGearOwner: (gearId: string) => {
+      const state = get();
+      // Find which knight has this gear instance equipped
+      for (const [knightId, gearInstances] of Object.entries(state.equippedGear)) {
+        if (gearInstances.includes(gearId)) {
+          return knightId;
         }
-        return false;
-      })
-      .map(gearInstance => gearInstance.id);
-  },
+      }
+      return null;
+    },
 
-  // Merchant gear reforging
-  reforgeMerchantGear: (gearId: string) => {
-    set(state => {
-      const gear = state.allGear[gearId];
-      if (!gear || gear.type !== 'merchant' || gear.side !== 'normal') {
-        return state;
+    transferGear: (gearInstanceId: string, fromKnightId: string, toKnightId: string) => {
+      set(state => {
+        const newState = { ...state };
+
+        // Remove from current owner
+        if (newState.equippedGear[fromKnightId]) {
+          newState.equippedGear[fromKnightId] = newState.equippedGear[fromKnightId].filter(
+            id => id !== gearInstanceId
+          );
+        }
+
+        // Add to new owner
+        if (!newState.equippedGear[toKnightId]) {
+          newState.equippedGear[toKnightId] = [];
+        }
+        newState.equippedGear[toKnightId].push(gearInstanceId);
+
+        return newState;
+      });
+    },
+
+    isGearEquippedByKnight: (gearId: string, knightId: string) => {
+      const state = get();
+      return state.gearOwnership[gearId] === knightId;
+    },
+
+    getAvailableGearForKnight: (campaignId: string, knightId: string) => {
+      const state = get();
+      const unlockedGear = state.campaignUnlockedGear[campaignId] || [];
+
+      return unlockedGear.filter(gearId => {
+        const gear = state.allGear[gearId];
+        if (!gear) return false;
+
+        // Exclude upgrades from available gear pool
+        if (gear.type === 'upgrade') return false;
+
+        const availableQuantity = state.getAvailableQuantity(gearId);
+
+        // Available if there's available quantity
+        return availableQuantity > 0;
+      });
+    },
+
+    // Upgrade management
+    attachUpgrade: (upgradeId: string, targetGearInstanceId: string) => {
+      set(state => {
+        const upgrade = state.allGear[upgradeId];
+        const targetGearInstance = state.gearInstanceData[targetGearInstanceId];
+
+        if (!upgrade || !targetGearInstance || upgrade.type !== 'upgrade') {
+          return state;
+        }
+
+        // Check if upgrade type matches target gear type
+        if (
+          upgrade.upgradeType === 'weapon' &&
+          targetGearInstance.type !== 'kingdom' &&
+          targetGearInstance.type !== 'monster' &&
+          targetGearInstance.type !== 'wandering'
+        ) {
+          return state;
+        }
+        if (
+          upgrade.upgradeType === 'armor' &&
+          targetGearInstance.type !== 'kingdom' &&
+          targetGearInstance.type !== 'monster'
+        ) {
+          return state;
+        }
+
+        // Check if there are any available upgrades of this type
+        const availableQuantity = state.getAvailableQuantity(upgradeId);
+        if (availableQuantity <= 0) {
+          return state;
+        }
+
+        // Create a unique upgrade instance
+        const upgradeInstanceId = `${upgradeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const upgradeInstance: Gear = {
+          ...upgrade,
+          id: upgradeInstanceId,
+          attachedToGearId: targetGearInstanceId,
+        };
+
+        const newState = { ...state };
+
+        // Add the upgrade instance to gearInstanceData
+        newState.gearInstanceData[upgradeInstanceId] = upgradeInstance;
+
+        // Add the upgrade instance to gearInstances
+        if (!newState.gearInstances[upgradeId]) {
+          newState.gearInstances[upgradeId] = [];
+        }
+        newState.gearInstances[upgradeId].push(upgradeInstanceId);
+
+        // Add the upgrade instance ID to the target gear instance
+        newState.gearInstanceData[targetGearInstanceId] = {
+          ...targetGearInstance,
+          upgrades: [...(targetGearInstance.upgrades || []), upgradeInstanceId],
+        };
+
+        return newState;
+      });
+    },
+
+    detachUpgrade: (upgradeInstanceId: string) => {
+      set(state => {
+        const upgradeInstance = state.gearInstanceData[upgradeInstanceId];
+        if (!upgradeInstance || !upgradeInstance.attachedToGearId) {
+          return state;
+        }
+
+        const targetGearInstanceId = upgradeInstance.attachedToGearId;
+        const targetGearInstance = state.gearInstanceData[targetGearInstanceId];
+
+        if (!targetGearInstance) {
+          return state;
+        }
+
+        const newState = { ...state };
+
+        // Remove upgrade instance from target gear instance
+        newState.gearInstanceData[targetGearInstanceId] = {
+          ...targetGearInstance,
+          upgrades: targetGearInstance.upgrades?.filter(id => id !== upgradeInstanceId) || [],
+        };
+
+        // Remove the upgrade instance from gearInstanceData
+        delete newState.gearInstanceData[upgradeInstanceId];
+
+        // Remove the upgrade instance from gearInstances
+        const baseUpgradeId = Object.keys(newState.allGear).find(id =>
+          upgradeInstanceId.startsWith(id + '-')
+        );
+        if (baseUpgradeId && newState.gearInstances[baseUpgradeId]) {
+          newState.gearInstances[baseUpgradeId] = newState.gearInstances[baseUpgradeId].filter(
+            id => id !== upgradeInstanceId
+          );
+        }
+
+        return newState;
+      });
+    },
+
+    getAttachedUpgrade: (gearInstanceId: string) => {
+      const state = get();
+      const gearInstance = state.gearInstanceData[gearInstanceId];
+      if (!gearInstance || !gearInstance.upgrades || gearInstance.upgrades.length === 0) {
+        return null;
+      }
+      // Return the base upgrade ID (remove the instance suffix)
+      const upgradeInstanceId = gearInstance.upgrades[0];
+      // Find the base upgrade ID by looking for the original upgrade in allGear
+      const baseUpgradeId = Object.keys(state.allGear).find(id =>
+        upgradeInstanceId.startsWith(id + '-')
+      );
+      return baseUpgradeId || null;
+    },
+
+    getUpgradeTargets: (upgradeId: string) => {
+      const state = get();
+      const upgrade = state.allGear[upgradeId];
+      if (!upgrade || upgrade.type !== 'upgrade') {
+        return [];
       }
 
-      const newState = { ...state };
-      const newGear: Gear = {
-        ...gear,
-        side: 'reforged' as const,
-        isReforged: true,
-        stats: { ...gear.stats, ...(gear.reforgedStats || {}) },
-        keywords: [...gear.keywords, 'reforged'],
-        description: `${gear.description} (Reforged)`,
-        rarity: 'legendary', // Reforged gear is legendary
-        cost: (gear.cost || 0) * 2, // Reforged gear is more expensive
-      };
+      return Object.values(state.gearInstanceData)
+        .filter(gearInstance => {
+          if (upgrade.upgradeType === 'weapon') {
+            return (
+              gearInstance.type === 'kingdom' ||
+              gearInstance.type === 'monster' ||
+              gearInstance.type === 'wandering'
+            );
+          }
+          if (upgrade.upgradeType === 'armor') {
+            return gearInstance.type === 'kingdom' || gearInstance.type === 'monster';
+          }
+          return false;
+        })
+        .map(gearInstance => gearInstance.id);
+    },
 
-      newState.allGear[gearId] = newGear;
-      return newState;
-    });
-  },
+    // Merchant gear reforging
+    reforgeMerchantGear: (gearId: string) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear || gear.type !== 'merchant' || gear.side !== 'normal') {
+          return state;
+        }
 
-  isReforged: (gearId: string) => {
-    const state = get();
-    const gear = state.allGear[gearId];
-    return gear?.isReforged || false;
-  },
+        const newState = { ...state };
+        const newGear: Gear = {
+          ...gear,
+          side: 'reforged' as const,
+          isReforged: true,
+          stats: { ...gear.stats, ...(gear.reforgedStats || {}) },
+          keywords: [...gear.keywords, 'reforged'],
+          description: `${gear.description} (Reforged)`,
+          rarity: 'legendary', // Reforged gear is legendary
+          cost: (gear.cost || 0) * 2, // Reforged gear is more expensive
+        };
 
-  // Quantity management
-  setGearQuantity: (gearId: string, quantity: number) => {
-    set(state => {
+        newState.allGear[gearId] = newGear;
+        return newState;
+      });
+    },
+
+    isReforged: (gearId: string) => {
+      const state = get();
       const gear = state.allGear[gearId];
-      if (!gear) {
-        return state;
+      return gear?.isReforged || false;
+    },
+
+    // Quantity management
+    setGearQuantity: (gearId: string, quantity: number) => {
+      set(state => {
+        const gear = state.allGear[gearId];
+        if (!gear) {
+          return state;
+        }
+
+        const newState = { ...state };
+        newState.allGear[gearId] = {
+          ...gear,
+          quantity: Math.max(0, quantity),
+        };
+
+        return newState;
+      });
+    },
+
+    getGearQuantity: (gearId: string) => {
+      const state = get();
+      const gear = state.allGear[gearId];
+      return gear?.quantity || 0;
+    },
+
+    getAvailableQuantity: (gearId: string) => {
+      const state = get();
+      const gear = state.allGear[gearId];
+      if (!gear) return 0;
+
+      const totalQuantity = gear.quantity || 0;
+
+      if (gear.type === 'upgrade') {
+        // For upgrades, count how many instances are created
+        const attachedQuantity = state.gearInstances[gearId]?.length || 0;
+        return Math.max(0, totalQuantity - attachedQuantity);
+      } else {
+        // For regular gear, count how many instances are equipped
+        const equippedQuantity = Object.values(state.equippedGear)
+          .flat()
+          .filter(instanceId => instanceId.startsWith(gearId + '-')).length;
+        return Math.max(0, totalQuantity - equippedQuantity);
       }
+    },
 
-      const newState = { ...state };
-      newState.allGear[gearId] = {
-        ...gear,
-        quantity: Math.max(0, quantity),
-      };
-
-      return newState;
-    });
-  },
-
-  getGearQuantity: (gearId: string) => {
-    const state = get();
-    const gear = state.allGear[gearId];
-    return gear?.quantity || 0;
-  },
-
-  getAvailableQuantity: (gearId: string) => {
-    const state = get();
-    const gear = state.allGear[gearId];
-    if (!gear) return 0;
-
-    const totalQuantity = gear.quantity || 0;
-
-    if (gear.type === 'upgrade') {
-      // For upgrades, count how many instances are created
-      const attachedQuantity = state.gearInstances[gearId]?.length || 0;
-      return Math.max(0, totalQuantity - attachedQuantity);
-    } else {
-      // For regular gear, count how many instances are equipped
-      const equippedQuantity = Object.values(state.equippedGear)
+    getEquippedQuantity: (gearId: string) => {
+      const state = get();
+      return Object.values(state.equippedGear)
         .flat()
         .filter(instanceId => instanceId.startsWith(gearId + '-')).length;
-      return Math.max(0, totalQuantity - equippedQuantity);
-    }
-  },
+    },
+  };
+});
 
-  getEquippedQuantity: (gearId: string) => {
-    const state = get();
-    return Object.values(state.equippedGear)
-      .flat()
-      .filter(instanceId => instanceId.startsWith(gearId + '-')).length;
-  },
-}));
+// Initialize store with data from AsyncStorage
+storage
+  .load(STORAGE_KEYS.GEAR, initialState)
+  .then(state => {
+    useGear.setState(state);
+  })
+  .catch(console.error);

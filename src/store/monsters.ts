@@ -1,6 +1,7 @@
 import { MONSTERS } from '@/catalogs/monsters';
 import type { MonsterStats } from '@/models/monster';
 import { create } from 'zustand';
+import { storage, STORAGE_KEYS } from './storage';
 
 export type MonstersState = {
   all: ReadonlyArray<MonsterStats>;
@@ -18,11 +19,24 @@ function indexById(list: ReadonlyArray<MonsterStats>): Readonly<Record<string, M
   return Object.freeze(map);
 }
 
-export const useMonsters = create<MonstersState & MonstersActions>(set => ({
+export const useMonsters = create<MonstersState & MonstersActions>((set, get) => ({
   all: MONSTERS,
   byId: indexById(MONSTERS),
-  load: list => set({ all: Object.freeze([...list]), byId: indexById(list) }),
+  load: list => {
+    const newState = { all: Object.freeze([...list]), byId: indexById(list) };
+    // Save to AsyncStorage
+    storage.save(STORAGE_KEYS.MONSTERS, newState).catch(console.error);
+    set(newState);
+  },
 }));
+
+// Initialize store with data from AsyncStorage
+storage
+  .load(STORAGE_KEYS.MONSTERS, { all: MONSTERS, byId: indexById(MONSTERS) })
+  .then(state => {
+    useMonsters.setState(state);
+  })
+  .catch(console.error);
 
 // Convenience selectors
 export const selectMonsterById = (id?: string) => (s: MonstersState) =>

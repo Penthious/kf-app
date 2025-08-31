@@ -1,6 +1,7 @@
 import type { InvestigationResult, Knight } from '@/models/knight';
 import { addInvestigationDomain, ensureChapter, normalLocked } from '@/models/knight';
 import { create } from 'zustand';
+import { storage, STORAGE_KEYS } from './storage';
 
 export type KnightsState = {
   knightsById: Record<string, Knight>;
@@ -47,9 +48,12 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
       updatedAt: now,
     };
 
-    set(s => ({
-      knightsById: { ...s.knightsById, [knight.knightUID]: knight },
-    }));
+    set(s => {
+      const newState = { knightsById: { ...s.knightsById, [knight.knightUID]: knight } };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
+    });
 
     return knight;
   },
@@ -59,7 +63,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
       const knight = s.knightsById[knightUID];
       if (!knight) return s;
 
-      return {
+      const newState = {
         knightsById: {
           ...s.knightsById,
           [knightUID]: {
@@ -69,6 +73,9 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
           },
         },
       };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
     }),
 
   updateKnightSheet: (knightUID, patch) => {
@@ -76,17 +83,22 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     const knight = state.knightsById[knightUID];
     if (!knight) return { ok: false, error: 'Knight not found' };
 
-    set(s => ({
-      knightsById: {
-        ...s.knightsById,
-        [knightUID]: {
-          ...knight,
-          sheet: { ...knight.sheet, ...patch },
-          version: knight.version + 1,
-          updatedAt: Date.now(),
+    set(s => {
+      const newState = {
+        knightsById: {
+          ...s.knightsById,
+          [knightUID]: {
+            ...knight,
+            sheet: { ...knight.sheet, ...patch },
+            version: knight.version + 1,
+            updatedAt: Date.now(),
+          },
         },
-      },
-    }));
+      };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
+    });
 
     return { ok: true };
   },
@@ -114,7 +126,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
         },
       };
 
-      return {
+      const newState = {
         knightsById: {
           ...s.knightsById,
           [knightUID]: {
@@ -127,6 +139,9 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
           },
         },
       };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
     });
 
     return { ok: true };
@@ -153,7 +168,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
         [chapterKey]: chapterProgress,
       };
 
-      return {
+      const newState = {
         knightsById: {
           ...s.knightsById,
           [knightUID]: {
@@ -166,6 +181,9 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
           },
         },
       };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
     });
 
     return { ok: true };
@@ -192,7 +210,7 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
         [chapterKey]: chapterProgress,
       };
 
-      return {
+      const newState = {
         knightsById: {
           ...s.knightsById,
           [knightUID]: {
@@ -205,6 +223,9 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
           },
         },
       };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
     });
 
     return { ok: true };
@@ -222,3 +243,11 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     return normalLocked(chapterProgress);
   },
 }));
+
+// Initialize store with data from AsyncStorage
+storage
+  .load(STORAGE_KEYS.KNIGHTS, {})
+  .then(knightsById => {
+    useKnights.setState({ knightsById });
+  })
+  .catch(console.error);
