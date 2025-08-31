@@ -18,28 +18,23 @@ export default function NewKnightScreen() {
   const { tokens } = useThemeTokens();
   const { addKnight } = useKnights();
 
-  const [name, setName] = React.useState('');
-  const [catalogId, setCatalogId] = React.useState<string>(
-    (KNIGHTS_CATALOG as KnightCatalogItem[])[0]?.id ?? ''
-  );
+  const firstKnight = (KNIGHTS_CATALOG as KnightCatalogItem[])[0];
+  const [name, setName] = React.useState(firstKnight?.name ?? '');
+  const [catalogId, setCatalogId] = React.useState<string>(firstKnight?.id ?? '');
   const defaultName = 'New Knight';
-
-  // Set initial name to the first catalog knight's name
-  React.useEffect(() => {
-    const firstKnight = (KNIGHTS_CATALOG as KnightCatalogItem[])[0];
-    if (firstKnight) {
-      setName(firstKnight.name);
-    }
-  }, []);
 
   const onCreate = () => {
     const uid = uuid.v4() as string;
+
+    // Get the selected catalog knight's name as fallback
+    const selectedKnight = KNIGHTS_CATALOG.find(k => k.id === catalogId);
+    const knightName = name.trim() || selectedKnight?.name || defaultName;
 
     const k: Omit<Knight, 'version' | 'updatedAt'> = {
       knightUID: uid,
       ownerUserId: 'me',
       catalogId,
-      name: name.trim() || defaultName,
+      name: knightName,
       sheet: defaultSheet(),
       rapport: [],
     };
