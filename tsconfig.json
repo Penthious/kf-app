@@ -15,6 +15,7 @@
       "@/theme/*": ["src/theme/*"],
       "@/catalogs/*": ["src/catalogs/*"],
       "@/features/*": ["src/features/*"],
+      "@/expo-utils/*": ["src/expo-utils/*"],
       "@/models/*": ["src/models/*"],
       "@/db/*": ["src/db/*"]
     }

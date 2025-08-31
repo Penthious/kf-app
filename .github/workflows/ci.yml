@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, test-github-actions]
   pull_request:
     branches: [main, develop]
 
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout code
@@ -34,13 +34,13 @@ jobs:
         run: yarn type-check
 
       - name: Run unit tests (Vitest)
-        run: yarn test:spec
+        run: yarn test:spec:ci
 
       - name: Run UI tests (Jest)
-        run: yarn test:ui
+        run: yarn test:ui:ci
 
-      - name: Run linting
-        run: yarn lint
+      - name: Run linting (no warnings allowed)
+        run: yarn lint:ci
 
       - name: Upload test coverage
         uses: codecov/codecov-action@v4

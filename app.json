@@ -1,33 +1,40 @@
 {
   "expo": {
-    "name": "Board Buddy",
-    "slug": "board-buddy-expo",
-    "scheme": "boardbuddy",
+    "name": "KF app",
+    "slug": "kf-app",
+    "scheme": "kf-app",
     "plugins": [
       "expo-router",
       "expo-sqlite",
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos",
-          "microphonePermission": "Allow Board Buddy to access your microphone for video recording"
+          "cameraPermission": "Allow KF app to access your camera to take gear photos",
+          "microphonePermission": "Allow KF app to access your microphone for video recording"
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Board Buddy to access your photos to select gear images",
-          "cameraPermission": "Allow Board Buddy to access your camera to take gear photos"
+          "photosPermission": "Allow KF app to access your photos to select gear images",
+          "cameraPermission": "Allow KF app to access your camera to take gear photos"
         }
       ]
     ],
     "ios": {
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow Board Buddy to access your camera to take gear photos",
-        "NSMicrophoneUsageDescription": "Allow Board Buddy to access your microphone for video recording",
-        "NSPhotoLibraryUsageDescription": "Allow Board Buddy to access your photos to select gear images"
-      }
+        "NSCameraUsageDescription": "Allow KF app to access your camera to take gear photos",
+        "NSMicrophoneUsageDescription": "Allow KF app to access your microphone for video recording",
+        "NSPhotoLibraryUsageDescription": "Allow KF app to access your photos to select gear images"
+      },
+      "bundleIdentifier": "com.penthious.kf-app"
     },
-    "sdkVersion": "53.0.0"
+    "sdkVersion": "53.0.0",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6dacb1aa-4318-40c0-8488-2bdf82b1e545"
+      }
+    }
   }
 }

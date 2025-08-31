@@ -2,7 +2,7 @@ import type { Gear } from '@/models/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface GearCardProps {
   gear: Gear;
@@ -10,6 +10,7 @@ interface GearCardProps {
   onCamera?: (gear: Gear) => void;
   onGallery?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
+  onShare?: (gear: Gear) => void;
   onUnlock?: (gear: Gear) => void;
   isUnlocked?: boolean;
 }
@@ -20,12 +21,13 @@ export function GearCard({
   onCamera,
   onGallery,
   onDelete,
+  onShare,
   onUnlock,
   isUnlocked,
 }: GearCardProps) {
   const { tokens } = useThemeTokens();
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+  // const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   const formatStat = (key: string, value: number) => {
     const label = key.charAt(0).toUpperCase() + key.slice(1);
@@ -196,8 +198,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onCamera(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening camera
+                    setTimeout(() => onCamera(gear), 100);
                   }}
                   testID='gear-camera-button'
                 >
@@ -212,8 +215,9 @@ export function GearCard({
                 <Pressable
                   style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
                   onPress={() => {
-                    onGallery(gear);
                     setIsImageModalVisible(false);
+                    // Small delay to ensure modal is closed before opening gallery
+                    setTimeout(() => onGallery(gear), 100);
                   }}
                   testID='gear-gallery-button'
                 >
@@ -237,6 +241,20 @@ export function GearCard({
                   <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>
                     Delete
                   </Text>
+                </Pressable>
+              )}
+
+              {onShare && gear.imageUrl && (
+                <Pressable
+                  style={[styles.modalActionButton, { backgroundColor: tokens.surface }]}
+                  onPress={() => {
+                    onShare(gear);
+                    setIsImageModalVisible(false);
+                  }}
+                  testID='gear-share-button'
+                >
+                  <Ionicons name='share-outline' size={20} color={tokens.textPrimary} />
+                  <Text style={[styles.modalActionText, { color: tokens.textPrimary }]}>Share</Text>
                 </Pressable>
               )}
             </View>
