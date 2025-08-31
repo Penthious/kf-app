@@ -8,7 +8,6 @@ import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-// import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import {
   Alert,
@@ -29,7 +28,7 @@ type GearSection = {
 
 export default function GearScreen() {
   const { tokens } = useThemeTokens();
-  const { allGear, getGearByKingdom, getGearByType, getGlobalGear } = useGear();
+  const { allGear } = useGear();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -200,19 +199,6 @@ export default function GearScreen() {
     // TODO: Add confirmation dialog
     useGear.getState().removeGearImage(gear.id);
     console.log('Image deleted for', gear.name);
-  };
-
-  const handleGearShare = async (gear: Gear) => {
-    try {
-      if (gear.imageUrl) {
-        await ImageHandler.shareImage(gear.imageUrl, `${gear.name} - Gear Image`);
-      } else {
-        Alert.alert('No Image', 'This gear item has no image to share.');
-      }
-    } catch (error) {
-      console.error('Error sharing image:', error);
-      Alert.alert('Error', 'Failed to share image.');
-    }
   };
 
   const handleKingdomSelect = (kingdomId: string | null) => {

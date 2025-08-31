@@ -12,9 +12,15 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
   const { tokens } = useThemeTokens();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anchorRef = useRef<any>(null);
   const [open, setOpen] = useState(false);
-  const [frame, setFrame] = useState<any>(null);
+  const [frame, setFrame] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const showMenu = async () => {
     const f = await measureInWindow(anchorRef);

@@ -49,10 +49,11 @@ export function useChapterInvestigationsData(
   const totalDone = countTotalDisplay(ch);
   const locked = isNormalLocked?.(knightUID, chapter) ?? false;
 
-  // Derive entries from attempts + completed
-  const attemptsArr = ch.attempts ?? [];
-  const completedSet = new Set(ch.completed ?? []);
   const entries = useMemo(() => {
+    // Derive entries from attempts + completed
+    const attemptsArr = ch.attempts ?? [];
+    const completedSet = new Set(ch.completed ?? []);
+
     return chapterInvKeys(chapter).map(code => {
       const codeAttempts = attemptsArr.filter(a => a.code === code);
       const last = codeAttempts.at(-1);
@@ -66,7 +67,8 @@ export function useChapterInvestigationsData(
         via: viaLead ? 'lead' : last?.lead ? 'lead' : 'normal',
       } as const;
     });
-  }, [chapter, attemptsArr, completedSet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter, k]);
 
   const addNormalInvestigation = async (code: string, result: 'pass' | 'fail') => {
     await storeAddNormalInvestigation(knightUID, chapter, code, result);

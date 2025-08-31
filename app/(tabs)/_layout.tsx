@@ -24,7 +24,9 @@ export default function RootTabsLayout() {
             gear: 'shield',
           };
           const name = m[route.name] || 'apps';
-          return <Ionicons name={name as any} size={size} color={color} />;
+          return (
+            <Ionicons name={name as keyof typeof Ionicons.glyphMap} size={size} color={color} />
+          );
         },
       })}
     >

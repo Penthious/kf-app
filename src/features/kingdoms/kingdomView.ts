@@ -1,11 +1,5 @@
 import type { Campaign } from '@/models/campaign';
-import type {
-  KingdomCatalog,
-  KingdomAdventureDef,
-  KingdomState,
-  KingdomMonster,
-  Bestiary,
-} from '@/models/kingdom';
+import type { Bestiary, KingdomAdventureDef, KingdomCatalog, KingdomState } from '@/models/kingdom';
 
 export type KingdomAdventureView = KingdomAdventureDef & {
   id: string; // advId, e.g. `${kingdomId}:${slug(name)}`

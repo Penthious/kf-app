@@ -107,7 +107,7 @@ export default function CampaignKnightsPage() {
 
       const res = addKnightToCampaign(campaignId, knightUID, { catalogId, displayName }) as
         | { conflict?: { existingUID: string } }
-        | {};
+        | Record<string, never>;
 
       // If an active of same catalog exists, replace it.
       if ('conflict' in res && res.conflict?.existingUID) {
@@ -165,7 +165,7 @@ export default function CampaignKnightsPage() {
       if (asActive) {
         const res = addKnightToCampaign(campaignId, newUID, { catalogId, displayName }) as
           | { conflict?: { existingUID: string } }
-          | {};
+          | Record<string, never>;
         if ('conflict' in res && res.conflict?.existingUID) {
           replaceCatalogKnight(campaignId, catalogId, newUID, { displayName });
         }
