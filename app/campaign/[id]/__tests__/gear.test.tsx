@@ -35,19 +35,23 @@ describe('CampaignGear', () => {
   };
 
   const mockCampaign = {
-    id: 'test-campaign-1',
+    campaignId: 'test-campaign-1',
     name: 'Test Campaign',
-    description: 'A test campaign',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    settings: {
+      fivePlayerMode: false,
+    },
+    members: [],
+    kingdoms: [],
   };
 
-  const mockCampaignsStore = {
-    currentCampaignId: 'test-campaign-1',
-    campaigns: {
-      'test-campaign-1': mockCampaign,
-    },
-  };
+  // const mockCampaignsStore = {
+  //   currentCampaignId: 'test-campaign-1',
+  //   campaigns: {
+  //     'test-campaign-1': mockCampaign,
+  //   },
+  // };
 
   const mockGearStore = {
     allGear: {
@@ -133,7 +137,35 @@ describe('CampaignGear', () => {
       setMode: jest.fn(),
       setCustomTokens: jest.fn(),
     });
-    mockUseCampaigns.mockReturnValue(mockCampaignsStore);
+    mockUseCampaigns.mockImplementation(selector => {
+      const store = {
+        currentCampaignId: 'test-campaign-1',
+        campaigns: {
+          'test-campaign-1': mockCampaign,
+        },
+        addCampaign: jest.fn(),
+        renameCampaign: jest.fn(),
+        removeCampaign: jest.fn(),
+        setCurrentCampaignId: jest.fn(),
+        setFivePlayerMode: jest.fn(),
+        setNotes: jest.fn(),
+        openCampaign: jest.fn(),
+        closeCampaign: jest.fn(),
+        addKnightToCampaign: jest.fn(),
+        addKnightAsBenched: jest.fn(),
+        replaceCatalogKnight: jest.fn(),
+        benchMember: jest.fn(),
+        removeMember: jest.fn(),
+        setPartyLeader: jest.fn(),
+        unsetPartyLeader: jest.fn(),
+        setAdventureProgress: jest.fn(),
+      };
+
+      if (typeof selector === 'function') {
+        return selector(store);
+      }
+      return store;
+    });
     mockUseGear.mockReturnValue(mockGearStore);
     jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   });
@@ -145,32 +177,49 @@ describe('CampaignGear', () => {
   it('renders the campaign gear screen with all sections', () => {
     render(<CampaignGear />);
 
-    expect(screen.getByText('Kingdom Gear')).toBeTruthy();
-    expect(screen.getByText('Monster Gear')).toBeTruthy();
-    expect(screen.getByText('Wandering Monster Gear')).toBeTruthy();
-    expect(screen.getByText('Consumable Gear')).toBeTruthy();
-    expect(screen.getByText('Upgrade Cards')).toBeTruthy();
-    expect(screen.getByText('Merchant Gear')).toBeTruthy();
+    expect(screen.getByText(/Kingdom Gear/)).toBeTruthy();
+    expect(screen.getByText(/^Monster Gear/)).toBeTruthy();
+    expect(screen.getByText(/Wandering Monster Gear/)).toBeTruthy();
+    expect(screen.getByText(/Consumable Gear/)).toBeTruthy();
+    expect(screen.getByText(/Upgrade Cards/)).toBeTruthy();
+    expect(screen.getByText(/Merchant Gear/)).toBeTruthy();
   });
 
   it('renders gear cards in each section', () => {
     render(<CampaignGear />);
 
+    // Expand sections to see gear cards
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
+    fireEvent.press(kingdomSection);
+
     expect(screen.getByText('Test Sword')).toBeTruthy();
     expect(screen.getByText('Test Helmet')).toBeTruthy();
+
+    // Expand other sections to see their gear
+    const wanderingSection = screen.getByText(/Wandering Monster Gear/);
+    fireEvent.press(wanderingSection);
     expect(screen.getByText('Wandering Sword')).toBeTruthy();
+
+    const consumableSection = screen.getByText(/Consumable Gear/);
+    fireEvent.press(consumableSection);
     expect(screen.getByText('Health Potion')).toBeTruthy();
+
+    const upgradeSection = screen.getByText(/Upgrade Cards/);
+    fireEvent.press(upgradeSection);
     expect(screen.getByText('Sharpening Stone')).toBeTruthy();
+
+    const merchantSection = screen.getByText(/Merchant Gear/);
+    fireEvent.press(merchantSection);
     expect(screen.getByText('Merchant Sword')).toBeTruthy();
   });
 
   it('shows kingdom filter dropdown when pressed', () => {
     render(<CampaignGear />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
-    expect(screen.getByText('All Kingdoms')).toBeTruthy();
+    expect(screen.getAllByText('All Kingdoms')[0]).toBeTruthy();
     expect(screen.getByText('Test Kingdom 1')).toBeTruthy();
     expect(screen.getByText('Test Kingdom 2')).toBeTruthy();
   });
@@ -178,8 +227,12 @@ describe('CampaignGear', () => {
   it('filters gear by selected kingdom', () => {
     render(<CampaignGear />);
 
+    // Expand sections to see gear cards
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
+    fireEvent.press(kingdomSection);
+
     // Open kingdom dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
@@ -189,17 +242,29 @@ describe('CampaignGear', () => {
     // Check that only kingdom gear from the selected kingdom is shown
     expect(screen.getByText('Test Sword')).toBeTruthy();
     expect(screen.getByText('Test Helmet')).toBeTruthy();
-    // Wandering, consumable, upgrade, and merchant gear should still be visible
+
+    // Expand other sections to see their gear
+    const wanderingSection = screen.getByText(/Wandering Monster Gear/);
+    fireEvent.press(wanderingSection);
     expect(screen.getByText('Wandering Sword')).toBeTruthy();
+
+    const consumableSection = screen.getByText(/Consumable Gear/);
+    fireEvent.press(consumableSection);
     expect(screen.getByText('Health Potion')).toBeTruthy();
+
+    const upgradeSection = screen.getByText(/Upgrade Cards/);
+    fireEvent.press(upgradeSection);
     expect(screen.getByText('Sharpening Stone')).toBeTruthy();
+
+    const merchantSection = screen.getByText(/Merchant Gear/);
+    fireEvent.press(merchantSection);
     expect(screen.getByText('Merchant Sword')).toBeTruthy();
   });
 
   it('filters gear by search query', () => {
     render(<CampaignGear />);
 
-    const searchInput = screen.getByPlaceholderText('Name of gear card');
+    const searchInput = screen.getByPlaceholderText('Search gear...');
     fireEvent.changeText(searchInput, 'sword');
 
     // Should show only gear with "sword" in the name
@@ -216,7 +281,7 @@ describe('CampaignGear', () => {
   it('expands sections when search query is entered', () => {
     render(<CampaignGear />);
 
-    const searchInput = screen.getByPlaceholderText('Name of gear card');
+    const searchInput = screen.getByPlaceholderText('Search gear...');
     fireEvent.changeText(searchInput, 'sword');
 
     // Sections with matching gear should be expanded
@@ -232,7 +297,7 @@ describe('CampaignGear', () => {
     expect(screen.queryByText('Test Sword')).toBeNull();
 
     // Click on Kingdom Gear section to expand
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Should now show the gear
@@ -244,7 +309,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // The unlock functionality would be tested at the GearCard level
@@ -255,7 +320,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Find and press camera button (this would be on the GearCard component)
@@ -267,7 +332,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // Find and press gallery button (this would be on the GearCard component)
@@ -279,7 +344,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // The delete functionality would be tested at the GearCard level
@@ -288,13 +353,12 @@ describe('CampaignGear', () => {
 
   it('dismisses keyboard when kingdom dropdown is opened', () => {
     const mockDismiss = jest.fn();
-    jest.spyOn(require('react-native'), 'Keyboard').mockReturnValue({
-      dismiss: mockDismiss,
-    });
+    const Keyboard = require('react-native').Keyboard;
+    Keyboard.dismiss = mockDismiss;
 
     render(<CampaignGear />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     expect(mockDismiss).toHaveBeenCalled();
@@ -304,7 +368,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Open dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
@@ -319,7 +383,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Open kingdom dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
@@ -327,8 +391,8 @@ describe('CampaignGear', () => {
     fireEvent.press(kingdomOption);
 
     // Section titles should include the kingdom name
-    expect(screen.getByText('Kingdom Gear (Test Kingdom 1)')).toBeTruthy();
-    expect(screen.getByText('Monster Gear (Test Kingdom 1)')).toBeTruthy();
+    expect(screen.getByText(/Kingdom Gear \(Test Kingdom 1\)/)).toBeTruthy();
+    expect(screen.getByText(/Monster Gear \(Test Kingdom 1\)/)).toBeTruthy();
   });
 
   it('shows campaign not found message when campaign is not found', () => {
@@ -346,7 +410,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // The unlock functionality would be tested at the GearCard level
@@ -362,7 +426,7 @@ describe('CampaignGear', () => {
     render(<CampaignGear />);
 
     // Expand a section to see gear cards
-    const kingdomSection = screen.getByText('Kingdom Gear');
+    const kingdomSection = screen.getByText(/Kingdom Gear/);
     fireEvent.press(kingdomSection);
 
     // The unlock status would be displayed on the GearCard component

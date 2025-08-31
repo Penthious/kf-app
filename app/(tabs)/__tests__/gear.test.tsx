@@ -134,6 +134,23 @@ describe('GearScreen', () => {
   it('renders gear cards in each section', () => {
     render(<GearScreen />);
 
+    // Expand sections to see gear cards
+    const kingdomSection = screen.getByText('Kingdom Gear');
+    fireEvent.press(kingdomSection);
+
+    // Expand other sections to see all gear cards
+    const wanderingSection = screen.getByText('Wandering Monster Gear');
+    fireEvent.press(wanderingSection);
+
+    const consumableSection = screen.getByText('Consumable Gear');
+    fireEvent.press(consumableSection);
+
+    const upgradeSection = screen.getByText('Upgrade Cards');
+    fireEvent.press(upgradeSection);
+
+    const merchantSection = screen.getByText('Merchant Gear');
+    fireEvent.press(merchantSection);
+
     expect(screen.getByText('Test Sword')).toBeTruthy();
     expect(screen.getByText('Test Helmet')).toBeTruthy();
     expect(screen.getByText('Wandering Sword')).toBeTruthy();
@@ -145,10 +162,10 @@ describe('GearScreen', () => {
   it('shows kingdom filter dropdown when pressed', () => {
     render(<GearScreen />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
-    expect(screen.getByText('All Kingdoms')).toBeTruthy();
+    expect(screen.getAllByText('All Kingdoms')[0]).toBeTruthy();
     expect(screen.getByText('Test Kingdom 1')).toBeTruthy();
     expect(screen.getByText('Test Kingdom 2')).toBeTruthy();
   });
@@ -156,8 +173,25 @@ describe('GearScreen', () => {
   it('filters gear by selected kingdom', () => {
     render(<GearScreen />);
 
+    // Expand sections to see gear cards
+    const kingdomSection = screen.getByText('Kingdom Gear');
+    fireEvent.press(kingdomSection);
+
+    // Expand other sections to see all gear cards
+    const wanderingSection = screen.getByText('Wandering Monster Gear');
+    fireEvent.press(wanderingSection);
+
+    const consumableSection = screen.getByText('Consumable Gear');
+    fireEvent.press(consumableSection);
+
+    const upgradeSection = screen.getByText('Upgrade Cards');
+    fireEvent.press(upgradeSection);
+
+    const merchantSection = screen.getByText('Merchant Gear');
+    fireEvent.press(merchantSection);
+
     // Open kingdom dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
@@ -255,13 +289,12 @@ describe('GearScreen', () => {
 
   it('dismisses keyboard when kingdom dropdown is opened', () => {
     const mockDismiss = jest.fn();
-    jest.spyOn(require('react-native'), 'Keyboard').mockReturnValue({
-      dismiss: mockDismiss,
-    });
+    const Keyboard = require('react-native').Keyboard;
+    Keyboard.dismiss = mockDismiss;
 
     render(<GearScreen />);
 
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     expect(mockDismiss).toHaveBeenCalled();
@@ -271,7 +304,7 @@ describe('GearScreen', () => {
     render(<GearScreen />);
 
     // Open dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
@@ -286,7 +319,7 @@ describe('GearScreen', () => {
     render(<GearScreen />);
 
     // Open kingdom dropdown
-    const kingdomButton = screen.getByText('All Kingdoms');
+    const kingdomButton = screen.getAllByText('All Kingdoms')[0];
     fireEvent.press(kingdomButton);
 
     // Select a kingdom
