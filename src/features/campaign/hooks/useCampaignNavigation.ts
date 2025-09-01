@@ -1,25 +1,37 @@
+import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useMemo } from 'react';
 
-export const useCampaignNavigation = () => {
+export const useCampaignNavigation = (campaignId?: string) => {
   const { knightsById } = useKnights();
+  const { campaigns } = useCampaigns();
 
-  const hasKnights = useMemo(() => {
-    return Object.keys(knightsById).length > 0;
-  }, [knightsById]);
+  const hasActiveKnights = useMemo(() => {
+    if (!campaignId) return false;
+
+    const campaign = campaigns[campaignId];
+    if (!campaign) return false;
+
+    // Check if the campaign has any active knights
+    return campaign.members.some(member => member.isActive);
+  }, [campaignId, campaigns]);
 
   const getDefaultTab = () => {
-    const tab = hasKnights ? 'kingdoms' : 'knights';
+    const tab = hasActiveKnights ? 'kingdoms' : 'knights';
     console.log('useCampaignNavigation:', {
-      hasKnights,
+      campaignId,
+      hasActiveKnights,
       tab,
-      knightCount: Object.keys(knightsById).length,
+      campaignMembers: campaignId ? campaigns[campaignId]?.members?.length || 0 : 0,
+      activeMembers: campaignId
+        ? campaigns[campaignId]?.members?.filter(m => m.isActive).length || 0
+        : 0,
     });
     return tab;
   };
 
   return {
-    hasKnights,
+    hasActiveKnights,
     getDefaultTab,
   };
 };

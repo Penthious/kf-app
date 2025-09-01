@@ -15,7 +15,7 @@ export default function CampaignTabsLayout() {
   const campaignId = useMemo(() => (Array.isArray(id) ? id[0] : id), [id]);
 
   const setCurrentCampaignId = useCampaigns(s => s.setCurrentCampaignId);
-  const { getDefaultTab } = useCampaignNavigation();
+  const { getDefaultTab } = useCampaignNavigation(campaignId);
 
   useEffect(() => {
     setCurrentCampaignId(campaignId);
