@@ -11,7 +11,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import KEYWORD_CATALOG from '@/catalogs/keywords';
 
@@ -66,7 +65,7 @@ export default function KeywordsScreen() {
   const jumpTo = (letter: string) => setActiveLetter(letter);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -152,7 +151,7 @@ export default function KeywordsScreen() {
           onRequestClose={() => setSelected(null)}
           presentationStyle='pageSheet'
         >
-          <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+          <View style={{ flex: 1, backgroundColor: tokens.bg }}>
             <View
               style={{
                 padding: 16,
@@ -194,9 +193,9 @@ export default function KeywordsScreen() {
                 Close
               </Text>
             </Pressable>
-          </SafeAreaView>
+          </View>
         </Modal>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
