@@ -1,13 +1,14 @@
 // app/knight/[id].tsx
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Card from '@/components/Card';
+import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import Stepper from '@/components/ui/Stepper';
 import SwitchRow from '@/components/ui/SwitchRow';
+import TabButton from '@/components/ui/TabButton';
 import TextRow from '@/components/ui/TextRow';
 
 import { useCampaigns } from '@/store/campaigns';
@@ -124,6 +125,8 @@ function HeaderBar({
   );
 }
 
+type TabType = 'quest' | 'character' | 'equipment';
+
 export default function KnightDetail() {
   const params = useLocalSearchParams() as { id?: string; campaignId?: string | string[] };
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -131,6 +134,29 @@ export default function KnightDetail() {
 
   const router = useRouter();
   const { tokens } = useThemeTokens();
+  const [activeTab, setActiveTab] = useState<TabType>('quest');
+
+  // State for collapsible cards
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({
+    identity: true,
+    chapterQuest: true,
+    chapterInvestigations: true,
+    notes: true,
+    sessionFlags: true,
+    virtues: true,
+    vices: true,
+    sheetBasics: true,
+    choiceMatrix: true,
+    equipment: true,
+    allies: true,
+  });
+
+  const toggleCard = (cardId: string) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId],
+    }));
+  };
 
   const { knightsById, renameKnight, removeKnight, completeQuest, updateKnightSheet } =
     useKnights();
@@ -180,6 +206,185 @@ export default function KnightDetail() {
     )
   ) : null;
 
+  const renderQuestTab = () => (
+    <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      {/* Identity */}
+      <CollapsibleCard
+        title='Identity'
+        isExpanded={expandedCards.identity}
+        onToggle={() => toggleCard('identity')}
+      >
+        <TextRow
+          label='Name'
+          value={k.name}
+          placeholder='Knight name'
+          onChangeText={t => renameKnight(k.knightUID, t)}
+        />
+        <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
+          Catalog:{' '}
+          <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{k.catalogId}</Text>
+        </Text>
+        {campaignId ? (
+          <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
+            Campaign:{' '}
+            <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{campaignId}</Text>{' '}
+            {currentLeaderUID === k.knightUID ? '• Party Leader' : ''}
+          </Text>
+        ) : null}
+      </CollapsibleCard>
+
+      {/* Chapter & Quest */}
+      <CollapsibleCard
+        title='Chapter & Quest'
+        isExpanded={expandedCards.chapterQuest}
+        onToggle={() => toggleCard('chapterQuest')}
+      >
+        <View
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+        >
+          <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Current Chapter</Text>
+          <Stepper
+            value={k.sheet.chapter}
+            min={1}
+            max={5}
+            onChange={v => {
+              const result = updateKnightSheet(k.knightUID, { chapter: v });
+              if (!result.ok) Alert.alert('Error', result.error || 'Failed to update chapter.');
+            }}
+          />
+        </View>
+
+        <View style={{ height: 10 }} />
+
+        <Text style={{ color: tokens.textPrimary, marginBottom: 6 }}>
+          Quest Status:{' '}
+          <Text style={{ fontWeight: '800' }}>
+            {ch.quest.completed
+              ? ch.quest.outcome
+                ? `Completed • ${ch.quest.outcome}`
+                : 'Completed'
+              : 'Not attempted'}
+          </Text>
+        </Text>
+
+        <View style={{ flexDirection: 'row' }}>
+          <Pill
+            label='Attempt Quest • Pass'
+            tone='success'
+            onPress={() => {
+              const r = completeQuest(k.knightUID, chNum, 'pass');
+              if (!r.ok) Alert.alert('Error', r.error || 'Failed to set quest.');
+            }}
+          />
+          <Pill
+            label='Attempt Quest • Fail'
+            tone='danger'
+            onPress={() => {
+              const r = completeQuest(k.knightUID, chNum, 'fail');
+              if (!r.ok) Alert.alert('Error', r.error || 'Failed to set quest.');
+            }}
+          />
+        </View>
+        <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
+          A quest is considered completed as soon as it&apos;s attempted, even if it fails.
+        </Text>
+      </CollapsibleCard>
+
+      <CollapsibleCard
+        title='Chapter Investigations'
+        isExpanded={expandedCards.chapterInvestigations}
+        onToggle={() => toggleCard('chapterInvestigations')}
+      >
+        <ChapterInvestigations knightUID={k.knightUID} chapter={chNum} />
+      </CollapsibleCard>
+
+      <CollapsibleCard
+        title='Notes'
+        isExpanded={expandedCards.notes}
+        onToggle={() => toggleCard('notes')}
+      >
+        <NotesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+
+      <CollapsibleCard
+        title='Session Flags'
+        isExpanded={expandedCards.sessionFlags}
+        onToggle={() => toggleCard('sessionFlags')}
+      >
+        <SwitchRow
+          label='Prologue done'
+          value={k.sheet.prologueDone}
+          onValueChange={on => {
+            const result = updateKnightSheet(k.knightUID, { prologueDone: on });
+            if (!result.ok)
+              Alert.alert('Error', result.error || 'Failed to update prologue status.');
+          }}
+        />
+        <SwitchRow
+          label='Postgame started'
+          value={k.sheet.postgameDone}
+          onValueChange={on => {
+            const result = updateKnightSheet(k.knightUID, { postgameDone: on });
+            if (!result.ok)
+              Alert.alert('Error', result.error || 'Failed to update postgame status.');
+          }}
+        />
+      </CollapsibleCard>
+    </ScrollView>
+  );
+
+  const renderCharacterTab = () => (
+    <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <CollapsibleCard
+        title='Virtues'
+        isExpanded={expandedCards.virtues}
+        onToggle={() => toggleCard('virtues')}
+      >
+        <VirtuesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Vices'
+        isExpanded={expandedCards.vices}
+        onToggle={() => toggleCard('vices')}
+      >
+        <VicesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Sheet Basics'
+        isExpanded={expandedCards.sheetBasics}
+        onToggle={() => toggleCard('sheetBasics')}
+      >
+        <SheetBasicsCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Choice Matrix'
+        isExpanded={expandedCards.choiceMatrix}
+        onToggle={() => toggleCard('choiceMatrix')}
+      >
+        <ChoiceMatrixCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+    </ScrollView>
+  );
+
+  const renderEquipmentTab = () => (
+    <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <CollapsibleCard
+        title='Equipment'
+        isExpanded={expandedCards.equipment}
+        onToggle={() => toggleCard('equipment')}
+      >
+        <KnightGearCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Allies'
+        isExpanded={expandedCards.allies}
+        onToggle={() => toggleCard('allies')}
+      >
+        <AlliesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+    </ScrollView>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
       <HeaderBar
@@ -201,121 +406,29 @@ export default function KnightDetail() {
         }}
       />
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-        {/* Identity */}
-        <Card>
-          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-            Identity
-          </Text>
-          <TextRow
-            label='Name'
-            value={k.name}
-            placeholder='Knight name'
-            onChangeText={t => renameKnight(k.knightUID, t)}
-          />
-          <Text style={{ color: tokens.textMuted, marginTop: 4 }}>
-            Catalog:{' '}
-            <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{k.catalogId}</Text>
-          </Text>
-          {campaignId ? (
-            <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
-              Campaign:{' '}
-              <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>{campaignId}</Text>{' '}
-              {currentLeaderUID === k.knightUID ? '• Party Leader' : ''}
-            </Text>
-          ) : null}
-        </Card>
+      {/* Tab Navigation */}
+      <View style={{ flexDirection: 'row', backgroundColor: tokens.surface }}>
+        <TabButton
+          label='Quest & Progress'
+          isActive={activeTab === 'quest'}
+          onPress={() => setActiveTab('quest')}
+        />
+        <TabButton
+          label='Character'
+          isActive={activeTab === 'character'}
+          onPress={() => setActiveTab('character')}
+        />
+        <TabButton
+          label='Equipment & Allies'
+          isActive={activeTab === 'equipment'}
+          onPress={() => setActiveTab('equipment')}
+        />
+      </View>
 
-        {/* Chapter & Quest */}
-        <Card>
-          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-            Chapter & Quest
-          </Text>
-
-          <View
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-          >
-            <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>Current Chapter</Text>
-            <Stepper
-              value={k.sheet.chapter}
-              min={1}
-              max={5}
-              onChange={v => {
-                const result = updateKnightSheet(k.knightUID, { chapter: v });
-                if (!result.ok) Alert.alert('Error', result.error || 'Failed to update chapter.');
-              }}
-            />
-          </View>
-
-          <View style={{ height: 10 }} />
-
-          <Text style={{ color: tokens.textPrimary, marginBottom: 6 }}>
-            Quest Status:{' '}
-            <Text style={{ fontWeight: '800' }}>
-              {ch.quest.completed
-                ? ch.quest.outcome
-                  ? `Completed • ${ch.quest.outcome}`
-                  : 'Completed'
-                : 'Not attempted'}
-            </Text>
-          </Text>
-
-          <View style={{ flexDirection: 'row' }}>
-            <Pill
-              label='Attempt Quest • Pass'
-              tone='success'
-              onPress={() => {
-                const r = completeQuest(k.knightUID, chNum, 'pass');
-                if (!r.ok) Alert.alert('Error', r.error || 'Failed to set quest.');
-              }}
-            />
-            <Pill
-              label='Attempt Quest • Fail'
-              tone='danger'
-              onPress={() => {
-                const r = completeQuest(k.knightUID, chNum, 'fail');
-                if (!r.ok) Alert.alert('Error', r.error || 'Failed to set quest.');
-              }}
-            />
-          </View>
-          <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
-            A quest is considered completed as soon as it’s attempted, even if it fails.
-          </Text>
-        </Card>
-
-        <ChapterInvestigations knightUID={k.knightUID} chapter={chNum} />
-        <VirtuesCard knightUID={k.knightUID} />
-        <VicesCard knightUID={k.knightUID} />
-        <SheetBasicsCard knightUID={k.knightUID} />
-        <ChoiceMatrixCard knightUID={k.knightUID} />
-        <KnightGearCard knightUID={k.knightUID} />
-        <AlliesCard knightUID={k.knightUID} />
-        <NotesCard knightUID={k.knightUID} />
-
-        <Card>
-          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-            Session Flags
-          </Text>
-          <SwitchRow
-            label='Prologue done'
-            value={k.sheet.prologueDone}
-            onValueChange={on => {
-              const result = updateKnightSheet(k.knightUID, { prologueDone: on });
-              if (!result.ok)
-                Alert.alert('Error', result.error || 'Failed to update prologue status.');
-            }}
-          />
-          <SwitchRow
-            label='Postgame started'
-            value={k.sheet.postgameDone}
-            onValueChange={on => {
-              const result = updateKnightSheet(k.knightUID, { postgameDone: on });
-              if (!result.ok)
-                Alert.alert('Error', result.error || 'Failed to update postgame status.');
-            }}
-          />
-        </Card>
-      </ScrollView>
+      {/* Tab Content */}
+      {activeTab === 'quest' && renderQuestTab()}
+      {activeTab === 'character' && renderCharacterTab()}
+      {activeTab === 'equipment' && renderEquipmentTab()}
     </SafeAreaView>
   );
 }
