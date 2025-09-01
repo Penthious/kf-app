@@ -1,4 +1,5 @@
 // app/(tabs)/index.tsx
+import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -11,9 +12,16 @@ export default function CampaignsScreen() {
   const { campaigns, removeCampaign } = useCampaigns();
   const list = Object.values(campaigns);
 
+  const goToCreate = () => router.push('/campaign/new');
+
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: 80, // Add extra padding to account for fixed button
+        }}
+      >
         {list.length === 0 ? (
           <Card style={{ marginBottom: 12 }}>
             <Text style={{ color: tokens.textPrimary, marginBottom: 6 }}>
@@ -75,21 +83,23 @@ export default function CampaignsScreen() {
             </View>
           ))
         )}
-
-        <Pressable
-          onPress={() => router.push('/campaign/new')}
-          style={{
-            marginTop: 8,
-            padding: 14,
-            borderRadius: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: tokens.accent,
-          }}
-        >
-          <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>New Campaign</Text>
-        </Pressable>
       </ScrollView>
+
+      {/* Fixed bottom button */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 16,
+          backgroundColor: tokens.bg,
+          borderTopWidth: 1,
+          borderTopColor: tokens.surface,
+        }}
+      >
+        <Button label='+ New Campaign' onPress={goToCreate} />
+      </View>
     </View>
   );
 }
