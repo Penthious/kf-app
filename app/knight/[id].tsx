@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Card from '@/components/Card';
 import Stepper from '@/components/ui/Stepper';
@@ -60,6 +61,41 @@ function Pill({
     >
       <Text style={{ color, fontWeight: '800' }}>{label}</Text>
     </Pressable>
+  );
+}
+
+function CollapsibleCard({
+  title,
+  children,
+  isExpanded,
+  onToggle,
+}: {
+  title: string;
+  children: React.ReactNode;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  const { tokens } = useThemeTokens();
+  return (
+    <Card>
+      <Pressable
+        onPress={onToggle}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingBottom: isExpanded ? 8 : 0,
+        }}
+      >
+        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>{title}</Text>
+        <MaterialCommunityIcons
+          name={isExpanded ? 'chevron-up' : 'chevron-down'}
+          size={24}
+          color={tokens.textPrimary}
+        />
+      </Pressable>
+      {isExpanded && children}
+    </Card>
   );
 }
 
@@ -170,6 +206,28 @@ export default function KnightDetail() {
   const { tokens } = useThemeTokens();
   const [activeTab, setActiveTab] = useState<TabType>('quest');
 
+  // State for collapsible cards
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({
+    identity: true,
+    chapterQuest: true,
+    chapterInvestigations: true,
+    notes: true,
+    sessionFlags: true,
+    virtues: true,
+    vices: true,
+    sheetBasics: true,
+    choiceMatrix: true,
+    equipment: true,
+    allies: true,
+  });
+
+  const toggleCard = (cardId: string) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId],
+    }));
+  };
+
   const { knightsById, renameKnight, removeKnight, completeQuest, updateKnightSheet } =
     useKnights();
 
@@ -221,10 +279,11 @@ export default function KnightDetail() {
   const renderQuestTab = () => (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
       {/* Identity */}
-      <Card>
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-          Identity
-        </Text>
+      <CollapsibleCard
+        title='Identity'
+        isExpanded={expandedCards.identity}
+        onToggle={() => toggleCard('identity')}
+      >
         <TextRow
           label='Name'
           value={k.name}
@@ -242,14 +301,14 @@ export default function KnightDetail() {
             {currentLeaderUID === k.knightUID ? '• Party Leader' : ''}
           </Text>
         ) : null}
-      </Card>
+      </CollapsibleCard>
 
       {/* Chapter & Quest */}
-      <Card>
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-          Chapter & Quest
-        </Text>
-
+      <CollapsibleCard
+        title='Chapter & Quest'
+        isExpanded={expandedCards.chapterQuest}
+        onToggle={() => toggleCard('chapterQuest')}
+      >
         <View
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
         >
@@ -299,15 +358,29 @@ export default function KnightDetail() {
         <Text style={{ color: tokens.textMuted, marginTop: 6 }}>
           A quest is considered completed as soon as it&apos;s attempted, even if it fails.
         </Text>
-      </Card>
+      </CollapsibleCard>
 
-      <ChapterInvestigations knightUID={k.knightUID} chapter={chNum} />
-      <NotesCard knightUID={k.knightUID} />
+      <CollapsibleCard
+        title='Chapter Investigations'
+        isExpanded={expandedCards.chapterInvestigations}
+        onToggle={() => toggleCard('chapterInvestigations')}
+      >
+        <ChapterInvestigations knightUID={k.knightUID} chapter={chNum} />
+      </CollapsibleCard>
 
-      <Card>
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-          Session Flags
-        </Text>
+      <CollapsibleCard
+        title='Notes'
+        isExpanded={expandedCards.notes}
+        onToggle={() => toggleCard('notes')}
+      >
+        <NotesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+
+      <CollapsibleCard
+        title='Session Flags'
+        isExpanded={expandedCards.sessionFlags}
+        onToggle={() => toggleCard('sessionFlags')}
+      >
         <SwitchRow
           label='Prologue done'
           value={k.sheet.prologueDone}
@@ -326,23 +399,59 @@ export default function KnightDetail() {
               Alert.alert('Error', result.error || 'Failed to update postgame status.');
           }}
         />
-      </Card>
+      </CollapsibleCard>
     </ScrollView>
   );
 
   const renderCharacterTab = () => (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-      <VirtuesCard knightUID={k.knightUID} />
-      <VicesCard knightUID={k.knightUID} />
-      <SheetBasicsCard knightUID={k.knightUID} />
-      <ChoiceMatrixCard knightUID={k.knightUID} />
+      <CollapsibleCard
+        title='Virtues'
+        isExpanded={expandedCards.virtues}
+        onToggle={() => toggleCard('virtues')}
+      >
+        <VirtuesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Vices'
+        isExpanded={expandedCards.vices}
+        onToggle={() => toggleCard('vices')}
+      >
+        <VicesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Sheet Basics'
+        isExpanded={expandedCards.sheetBasics}
+        onToggle={() => toggleCard('sheetBasics')}
+      >
+        <SheetBasicsCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Choice Matrix'
+        isExpanded={expandedCards.choiceMatrix}
+        onToggle={() => toggleCard('choiceMatrix')}
+      >
+        <ChoiceMatrixCard knightUID={k.knightUID} />
+      </CollapsibleCard>
     </ScrollView>
   );
 
   const renderEquipmentTab = () => (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-      <KnightGearCard knightUID={k.knightUID} />
-      <AlliesCard knightUID={k.knightUID} />
+      <CollapsibleCard
+        title='Equipment'
+        isExpanded={expandedCards.equipment}
+        onToggle={() => toggleCard('equipment')}
+      >
+        <KnightGearCard knightUID={k.knightUID} />
+      </CollapsibleCard>
+      <CollapsibleCard
+        title='Allies'
+        isExpanded={expandedCards.allies}
+        onToggle={() => toggleCard('allies')}
+      >
+        <AlliesCard knightUID={k.knightUID} />
+      </CollapsibleCard>
     </ScrollView>
   );
 
