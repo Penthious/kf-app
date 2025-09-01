@@ -17,7 +17,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 type GearSection = {
   title: string;
@@ -156,18 +155,18 @@ export default function CampaignGear() {
 
   if (!c) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+      <View style={{ flex: 1, backgroundColor: tokens.bg }}>
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <Card>
             <Text style={{ color: tokens.textMuted }}>Campaign not found</Text>
           </Card>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps='handled'>
         {/* Filters */}
         <Card style={styles.filtersCard}>
@@ -282,7 +281,7 @@ export default function CampaignGear() {
           </Card>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
