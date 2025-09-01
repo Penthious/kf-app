@@ -15,7 +15,12 @@ export default function KnightsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: 80, // Add extra padding to account for fixed button
+        }}
+      >
         {list.length === 0 ? (
           <Text style={{ color: tokens.textMuted, textAlign: 'center', marginTop: 24 }}>
             No knights yet.
@@ -34,9 +39,23 @@ export default function KnightsScreen() {
             </Pressable>
           ))
         )}
-        <View style={{ height: 12 }} />
-        <Button label='+ New Knight' onPress={goToCreate} />
       </ScrollView>
+
+      {/* Fixed bottom button */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 16,
+          backgroundColor: tokens.bg,
+          borderTopWidth: 1,
+          borderTopColor: tokens.surface,
+        }}
+      >
+        <Button label='+ New Knight' onPress={goToCreate} />
+      </View>
     </View>
   );
 }
