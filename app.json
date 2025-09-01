@@ -32,6 +32,20 @@
       "bundleIdentifier": "com.penthious.kf-app",
       "projectName": "kfapp"
     },
+    "android": {
+      "package": "com.penthious.kfapp",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/kf-app-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
     "sdkVersion": "53.0.0",
     "extra": {
       "router": {},
