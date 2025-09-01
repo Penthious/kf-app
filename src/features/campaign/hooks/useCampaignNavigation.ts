@@ -1,9 +1,7 @@
 import { useCampaigns } from '@/store/campaigns';
-import { useKnights } from '@/store/knights';
 import { useMemo } from 'react';
 
 export const useCampaignNavigation = (campaignId?: string) => {
-  const { knightsById } = useKnights();
   const { campaigns } = useCampaigns();
 
   const hasActiveKnights = useMemo(() => {
