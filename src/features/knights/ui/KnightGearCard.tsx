@@ -141,7 +141,6 @@ export function KnightGearCard({ knightUID }: KnightGearCardProps) {
   return (
     <Card>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: tokens.textPrimary }]}>Gear</Text>
         <Pressable
           style={[styles.unlockButton, { backgroundColor: tokens.accent }]}
           onPress={() => setShowUnlockModal(!showUnlockModal)}
