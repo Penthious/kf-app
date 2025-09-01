@@ -1,22 +1,40 @@
+import { useCampaignNavigation } from '@/features/campaign/hooks/useCampaignNavigation';
 import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import Title from '@/features/campaign/ui/Title';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs, useLocalSearchParams } from 'expo-router';
+import { Tabs, useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 
 export default function CampaignTabsLayout() {
   const { tokens } = useThemeTokens();
+  const router = useRouter();
+  const pathname = usePathname();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const campaignId = useMemo(() => (Array.isArray(id) ? id[0] : id), [id]);
 
   const setCurrentCampaignId = useCampaigns(s => s.setCurrentCampaignId);
+  const { getDefaultTab } = useCampaignNavigation(campaignId);
 
   useEffect(() => {
     setCurrentCampaignId(campaignId);
     return () => setCurrentCampaignId(undefined);
   }, [campaignId, setCurrentCampaignId]);
+
+  useEffect(() => {
+    // Navigate to the appropriate tab when the campaign is opened
+    const defaultTab = getDefaultTab();
+
+    // Only redirect if we're at the root campaign path (not already on a specific tab)
+    const expectedRootPath = `/campaign/${campaignId}`;
+
+    // Check if we're at the root campaign path
+    if (pathname === expectedRootPath) {
+      // Navigate to the appropriate default tab
+      router.replace(`/campaign/${campaignId}/${defaultTab}`);
+    }
+  }, [campaignId, getDefaultTab, router, pathname]);
 
   return (
     <Tabs
