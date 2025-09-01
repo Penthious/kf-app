@@ -9,7 +9,13 @@ export const useCampaignNavigation = () => {
   }, [knightsById]);
 
   const getDefaultTab = () => {
-    return hasKnights ? 'kingdoms' : 'knights';
+    const tab = hasKnights ? 'kingdoms' : 'knights';
+    console.log('useCampaignNavigation:', {
+      hasKnights,
+      tab,
+      knightCount: Object.keys(knightsById).length,
+    });
+    return tab;
   };
 
   return {
