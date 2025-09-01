@@ -3,13 +3,13 @@ import Card from '@/components/Card';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import { useSessionJoining } from '../hooks/useSessionJoining';
 import { useMultiplayer } from '../multiplayerStore';
