@@ -4,7 +4,6 @@ import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useRouter } from 'expo-router';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CampaignsScreen() {
   const router = useRouter();
@@ -13,14 +12,8 @@ export default function CampaignsScreen() {
   const list = Object.values(campaigns);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text
-          style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 18, marginBottom: 12 }}
-        >
-          Campaigns
-        </Text>
-
         {list.length === 0 ? (
           <Card style={{ marginBottom: 12 }}>
             <Text style={{ color: tokens.textPrimary, marginBottom: 6 }}>
@@ -97,6 +90,6 @@ export default function CampaignsScreen() {
           <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>New Campaign</Text>
         </Pressable>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

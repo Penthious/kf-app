@@ -5,7 +5,6 @@ import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function KnightsScreen() {
   const { tokens } = useThemeTokens();
@@ -15,7 +14,7 @@ export default function KnightsScreen() {
   const goToCreate = () => router.push('/knight/new');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {list.length === 0 ? (
           <Text style={{ color: tokens.textMuted, textAlign: 'center', marginTop: 24 }}>
@@ -38,6 +37,6 @@ export default function KnightsScreen() {
         <View style={{ height: 12 }} />
         <Button label='+ New Knight' onPress={goToCreate} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
