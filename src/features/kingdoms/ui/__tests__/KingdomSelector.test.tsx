@@ -75,11 +75,8 @@ describe('KingdomSelector', () => {
     );
 
     expect(getByText('Principality of Stone')).toBeTruthy();
-    expect(getByText('kingdom-1')).toBeTruthy();
     expect(getByText('Ten Thousand Succulent Fears')).toBeTruthy();
-    expect(getByText('kingdom-2')).toBeTruthy();
     expect(getByText('The Verdant Expanse')).toBeTruthy();
-    expect(getByText('kingdom-3')).toBeTruthy();
   });
 
   it('selects first kingdom by default when no activeKingdomId provided', () => {
@@ -89,10 +86,8 @@ describe('KingdomSelector', () => {
 
     // First kingdom should be active (accent color)
     const firstKingdomName = getByText('Principality of Stone');
-    const firstKingdomId = getByText('kingdom-1');
 
     expect(firstKingdomName.props.style.color).toBe('#0B0B0B');
-    expect(firstKingdomId.props.style.color).toBe('#0B0B0B');
   });
 
   it('selects specified active kingdom', () => {
@@ -106,17 +101,13 @@ describe('KingdomSelector', () => {
 
     // Second kingdom should be active
     const secondKingdomName = getByText('Ten Thousand Succulent Fears');
-    const secondKingdomId = getByText('kingdom-2');
 
     expect(secondKingdomName.props.style.color).toBe('#0B0B0B');
-    expect(secondKingdomId.props.style.color).toBe('#0B0B0B');
 
     // First kingdom should be inactive
     const firstKingdomName = getByText('Principality of Stone');
-    const firstKingdomId = getByText('kingdom-1');
 
     expect(firstKingdomName.props.style.color).toBe('#fff');
-    expect(firstKingdomId.props.style.color).toBe('#aaa');
   });
 
   it('calls onSelect when kingdom is pressed', () => {
@@ -129,12 +120,12 @@ describe('KingdomSelector', () => {
     expect(mockOnSelect).toHaveBeenCalledWith('kingdom-2');
   });
 
-  it('calls onSelect when kingdom ID is pressed', () => {
+  it('calls onSelect when kingdom name is pressed', () => {
     const { getByText } = render(
       <KingdomSelector kingdoms={mockKingdoms} onSelect={mockOnSelect} />
     );
 
-    fireEvent.press(getByText('kingdom-3'));
+    fireEvent.press(getByText('The Verdant Expanse'));
 
     expect(mockOnSelect).toHaveBeenCalledWith('kingdom-3');
   });
@@ -173,17 +164,10 @@ describe('KingdomSelector', () => {
     );
 
     const kingdomName = getByText('Ten Thousand Succulent Fears');
-    const kingdomId = getByText('kingdom-2');
 
     expect(kingdomName.props.style).toMatchObject({
       color: '#0B0B0B',
       fontWeight: '800',
-    });
-
-    expect(kingdomId.props.style).toMatchObject({
-      color: '#0B0B0B',
-      marginTop: 2,
-      fontSize: 12,
     });
   });
 
@@ -197,17 +181,10 @@ describe('KingdomSelector', () => {
     );
 
     const kingdomName = getByText('Principality of Stone');
-    const kingdomId = getByText('kingdom-1');
 
     expect(kingdomName.props.style).toMatchObject({
       color: '#fff',
       fontWeight: '800',
-    });
-
-    expect(kingdomId.props.style).toMatchObject({
-      color: '#aaa',
-      marginTop: 2,
-      fontSize: 12,
     });
   });
 
@@ -226,7 +203,6 @@ describe('KingdomSelector', () => {
     );
 
     expect(getByText('Single Kingdom')).toBeTruthy();
-    expect(getByText('kingdom-1')).toBeTruthy();
 
     // Should be active by default
     const kingdomName = getByText('Single Kingdom');

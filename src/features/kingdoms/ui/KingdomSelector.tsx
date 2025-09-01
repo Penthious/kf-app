@@ -45,15 +45,6 @@ export default function KingdomSelector({
                 >
                   {k.name}
                 </Text>
-                <Text
-                  style={{
-                    color: isActive ? '#0B0B0B' : tokens.textMuted,
-                    marginTop: 2,
-                    fontSize: 12,
-                  }}
-                >
-                  {k.id}
-                </Text>
               </Pressable>
             );
           })}
