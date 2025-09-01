@@ -369,7 +369,7 @@ export default function KnightDetail() {
   const renderEquipmentTab = () => (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
       <CollapsibleCard
-        title='Equipment'
+        title='Gear'
         isExpanded={expandedCards.equipment}
         onToggle={() => toggleCard('equipment')}
       >
@@ -419,7 +419,7 @@ export default function KnightDetail() {
           onPress={() => setActiveTab('character')}
         />
         <TabButton
-          label='Equipment & Allies'
+          label='Gear & Allies'
           isActive={activeTab === 'equipment'}
           onPress={() => setActiveTab('equipment')}
         />

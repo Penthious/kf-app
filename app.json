@@ -3,6 +3,7 @@
     "name": "KF app",
     "slug": "kf-app",
     "scheme": "kf-app",
+    "icon": "./assets/images/kf-app-icon.png",
     "plugins": [
       "expo-router",
       "expo-sqlite",
