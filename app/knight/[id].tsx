@@ -4,11 +4,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import Card from '@/components/Card';
+import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import Stepper from '@/components/ui/Stepper';
 import SwitchRow from '@/components/ui/SwitchRow';
+import TabButton from '@/components/ui/TabButton';
 import TextRow from '@/components/ui/TextRow';
 
 import { useCampaigns } from '@/store/campaigns';
@@ -60,76 +60,6 @@ function Pill({
       }}
     >
       <Text style={{ color, fontWeight: '800' }}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function CollapsibleCard({
-  title,
-  children,
-  isExpanded,
-  onToggle,
-}: {
-  title: string;
-  children: React.ReactNode;
-  isExpanded: boolean;
-  onToggle: () => void;
-}) {
-  const { tokens } = useThemeTokens();
-  return (
-    <Card>
-      <Pressable
-        onPress={onToggle}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingBottom: isExpanded ? 8 : 0,
-        }}
-      >
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>{title}</Text>
-        <MaterialCommunityIcons
-          name={isExpanded ? 'chevron-up' : 'chevron-down'}
-          size={24}
-          color={tokens.textPrimary}
-        />
-      </Pressable>
-      {isExpanded && children}
-    </Card>
-  );
-}
-
-function TabButton({
-  label,
-  isActive,
-  onPress,
-}: {
-  label: string;
-  isActive: boolean;
-  onPress: () => void;
-}) {
-  const { tokens } = useThemeTokens();
-  return (
-    <Pressable
-      onPress={onPress}
-      style={{
-        flex: 1,
-        paddingVertical: 12,
-        alignItems: 'center',
-        backgroundColor: isActive ? tokens.accent : tokens.surface,
-        borderBottomWidth: 2,
-        borderBottomColor: isActive ? tokens.accent : 'transparent',
-      }}
-    >
-      <Text
-        style={{
-          color: isActive ? '#0B0B0B' : tokens.textPrimary,
-          fontWeight: '800',
-          fontSize: 14,
-        }}
-      >
-        {label}
-      </Text>
     </Pressable>
   );
 }
