@@ -31,8 +31,8 @@ export default function NewCampaign() {
     setFivePlayerMode(campaignId, fivePlayerMode);
     if (notes.trim()) setNotes(campaignId, notes.trim());
 
-    // 3) go to the campaign workspace
-    router.replace(`/campaign/${campaignId}`);
+    // 3) go to the campaign workspace - always start with knights tab for new campaigns
+    router.replace(`/campaign/${campaignId}/knights`);
   };
 
   const onCancel = () => {
