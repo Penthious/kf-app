@@ -17,17 +17,7 @@ export const useCampaignNavigation = (campaignId?: string) => {
   }, [campaignId, campaigns]);
 
   const getDefaultTab = () => {
-    const tab = hasActiveKnights ? 'kingdoms' : 'knights';
-    console.log('useCampaignNavigation:', {
-      campaignId,
-      hasActiveKnights,
-      tab,
-      campaignMembers: campaignId ? campaigns[campaignId]?.members?.length || 0 : 0,
-      activeMembers: campaignId
-        ? campaigns[campaignId]?.members?.filter(m => m.isActive).length || 0
-        : 0,
-    });
-    return tab;
+    return hasActiveKnights ? 'kingdoms' : 'knights';
   };
 
   return {

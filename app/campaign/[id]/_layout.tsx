@@ -29,17 +29,8 @@ export default function CampaignTabsLayout() {
     // Only redirect if we're at the root campaign path (not already on a specific tab)
     const expectedRootPath = `/campaign/${campaignId}`;
 
-    console.log('Campaign navigation debug:', {
-      pathname,
-      expectedRootPath,
-      defaultTab,
-      campaignId,
-      shouldRedirect: pathname === expectedRootPath,
-    });
-
     // Check if we're at the root campaign path
     if (pathname === expectedRootPath) {
-      console.log('Redirecting to:', `/campaign/${campaignId}/${defaultTab}`);
       // Navigate to the appropriate default tab
       router.replace(`/campaign/${campaignId}/${defaultTab}`);
     }
