@@ -1,12 +1,6 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "strict": true,
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@/components/*": ["src/components/*"],
@@ -19,7 +13,5 @@
       "@/models/*": ["src/models/*"],
       "@/db/*": ["src/db/*"]
     }
-  },
-
-  "extends": "expo/tsconfig.base"
+  }
 }

@@ -111,6 +111,7 @@ describe('Storage Utility', () => {
         CAMPAIGNS: 'kf-campaigns',
         MONSTERS: 'kf-monsters',
         GEAR: 'kf-gear',
+        MULTIPLAYER: 'kf-multiplayer',
       });
     });
   });

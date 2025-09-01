@@ -20,6 +20,12 @@
           "photosPermission": "Allow KF app to access your photos to select gear images",
           "cameraPermission": "Allow KF app to access your camera to take gear photos"
         }
+      ],
+      [
+        "expo-network",
+        {
+          "networkPermission": "Allow KF app to access your network for multiplayer functionality"
+        }
       ]
     ],
     "ios": {
@@ -27,10 +33,20 @@
         "NSCameraUsageDescription": "Allow KF app to access your camera to take gear photos",
         "NSMicrophoneUsageDescription": "Allow KF app to access your microphone for video recording",
         "NSPhotoLibraryUsageDescription": "Allow KF app to access your photos to select gear images",
+        "NSLocalNetworkUsageDescription": "Allow KF app to discover other devices on your local network for multiplayer functionality",
+        "NSBonjourServices": ["_kf-multiplayer._tcp"],
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.penthious.kf-app",
       "projectName": "kfapp"
+    },
+    "android": {
+      "package": "com.penthious.kfapp",
+      "permissions": [
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE"
+      ]
     },
     "sdkVersion": "53.0.0",
     "extra": {

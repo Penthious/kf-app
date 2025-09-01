@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   CAMPAIGNS: 'kf-campaigns',
   MONSTERS: 'kf-monsters',
   GEAR: 'kf-gear',
+  MULTIPLAYER: 'kf-multiplayer',
 } as const;
 
 // Generic storage functions
