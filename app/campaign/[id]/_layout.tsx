@@ -1,10 +1,10 @@
+import { useCampaignNavigation } from '@/features/campaign/hooks/useCampaignNavigation';
 import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import Title from '@/features/campaign/ui/Title';
-import { useCampaignNavigation } from '@/features/campaign/hooks/useCampaignNavigation';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs, useLocalSearchParams, useRouter, usePathname } from 'expo-router';
+import { Tabs, useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 
 export default function CampaignTabsLayout() {
@@ -26,9 +26,12 @@ export default function CampaignTabsLayout() {
     // Navigate to the appropriate tab when the campaign is opened
     const defaultTab = getDefaultTab();
 
-    // Check if we're at the root campaign path (not already on a specific tab)
+    // Only redirect if we're at the root campaign path (not already on a specific tab)
     const expectedRootPath = `/campaign/${campaignId}`;
+
+    // Check if we're at the root campaign path
     if (pathname === expectedRootPath) {
+      // Navigate to the appropriate default tab
       router.replace(`/campaign/${campaignId}/${defaultTab}`);
     }
   }, [campaignId, getDefaultTab, router, pathname]);
