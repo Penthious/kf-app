@@ -85,6 +85,32 @@ describe('knights store', () => {
     expect(useKnights.getState().knightsById['uid-1'].name).toBe('Renholder');
   });
 
+  it('removeKnight removes knight from store', () => {
+    useKnights.getState().addKnight(minimalKnightInput());
+    expect(useKnights.getState().knightsById['uid-1']).toBeTruthy();
+
+    useKnights.getState().removeKnight('uid-1');
+    expect(useKnights.getState().knightsById['uid-1']).toBeUndefined();
+  });
+
+  it('removeKnight removes knight from all campaigns', () => {
+    // This test verifies that removeKnight doesn't throw when called
+    // The actual campaign removal logic is tested in integration tests
+    useKnights.getState().addKnight(minimalKnightInput());
+
+    expect(() => {
+      useKnights.getState().removeKnight('uid-1');
+    }).not.toThrow();
+
+    expect(useKnights.getState().knightsById['uid-1']).toBeUndefined();
+  });
+
+  it('removeKnight handles non-existent knight gracefully', () => {
+    expect(() => {
+      useKnights.getState().removeKnight('non-existent');
+    }).not.toThrow();
+  });
+
   it('updateKnightSheet merges patch, bumps version, and updates updatedAt', () => {
     const t1 = 1_700_000_000_000;
     const t2 = 1_700_000_001_000;

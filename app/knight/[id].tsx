@@ -132,7 +132,8 @@ export default function KnightDetail() {
   const router = useRouter();
   const { tokens } = useThemeTokens();
 
-  const { knightsById, renameKnight, completeQuest, updateKnightSheet } = useKnights();
+  const { knightsById, renameKnight, removeKnight, completeQuest, updateKnightSheet } =
+    useKnights();
 
   const { setPartyLeader } = useCampaigns();
 
@@ -188,7 +189,14 @@ export default function KnightDetail() {
         onDelete={() => {
           Alert.alert('Delete knight?', 'This cannot be undone.', [
             { text: 'Cancel', style: 'cancel' },
-            // wire your removeKnight here if desired
+            {
+              text: 'Delete',
+              style: 'destructive',
+              onPress: () => {
+                removeKnight(k.knightUID);
+                router.back();
+              },
+            },
           ]);
         }}
       />
