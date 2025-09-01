@@ -1,4 +1,5 @@
 // app/(tabs)/index.tsx
+import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -10,6 +11,8 @@ export default function CampaignsScreen() {
   const { tokens } = useThemeTokens();
   const { campaigns, removeCampaign } = useCampaigns();
   const list = Object.values(campaigns);
+
+  const goToCreate = () => router.push('/campaign/new');
 
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
@@ -95,18 +98,7 @@ export default function CampaignsScreen() {
           borderTopColor: tokens.surface,
         }}
       >
-        <Pressable
-          onPress={() => router.push('/campaign/new')}
-          style={{
-            padding: 14,
-            borderRadius: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: tokens.accent,
-          }}
-        >
-          <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>New Campaign</Text>
-        </Pressable>
+        <Button label='+ New Campaign' onPress={goToCreate} />
       </View>
     </View>
   );
