@@ -1,22 +1,14 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Card from '@/components/Card';
 import { GearCard } from '@/features/gear/ui/GearCard';
+import { useGearImageHandling } from '@/features/gear/hooks/useGearImageHandling';
 import type { Gear } from '@/models/gear';
 import { useCampaigns } from '@/store/campaigns';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type GearSection = {
   title: string;
@@ -31,6 +23,7 @@ export default function CampaignGear() {
   const c = campaignId ? campaigns[campaignId] : undefined;
   const { allGear } = useGear();
   const { isGearUnlockedForCampaign } = useGear();
+  const { handleGearCamera, handleGearGallery, handleGearDelete } = useGearImageHandling();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -110,30 +103,6 @@ export default function CampaignGear() {
       isExpanded: searchQuery ? merchantGear.length > 0 : expandedSections['Merchant Gear'],
     },
   ];
-
-  const handleGearCamera = async (gear: Gear) => {
-    // Temporarily disabled to prevent crashes
-    console.log('Camera button pressed for:', gear.name);
-    Alert.alert(
-      'Camera Disabled',
-      'Camera functionality is temporarily disabled to prevent crashes. Please use the gallery option instead.'
-    );
-  };
-
-  const handleGearGallery = async (gear: Gear) => {
-    // Temporarily disabled to prevent crashes
-    console.log('Gallery button pressed for:', gear.name);
-    Alert.alert(
-      'Gallery Disabled',
-      'Gallery functionality is temporarily disabled to prevent crashes.'
-    );
-  };
-
-  const handleGearDelete = (gear: Gear) => {
-    // TODO: Add confirmation dialog
-    useGear.getState().removeGearImage(gear.id);
-    console.log('Image deleted for', gear.name);
-  };
 
   const handleGearUnlock = (gear: Gear) => {
     if (!campaignId) return;

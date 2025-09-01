@@ -1,24 +1,14 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Card from '@/components/Card';
-import { ImageHandler } from '@/expo-utils/image-handler';
 import { GearCard } from '@/features/gear/ui/GearCard';
+import { useGearImageHandling } from '@/features/gear/hooks/useGearImageHandling';
 import type { Gear } from '@/models/gear';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 
 import { useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type GearSection = {
   title: string;
@@ -29,6 +19,7 @@ type GearSection = {
 export default function GearScreen() {
   const { tokens } = useThemeTokens();
   const { allGear } = useGear();
+  const { handleGearCamera, handleGearGallery, handleGearDelete } = useGearImageHandling();
 
   const [selectedKingdom, setSelectedKingdom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -119,86 +110,6 @@ export default function GearScreen() {
   const handleGearUpload = (gear: Gear) => {
     // TODO: Implement individual gear upload
     console.log('Upload gear:', gear.name);
-  };
-
-  const handleGearCamera = async (gear: Gear) => {
-    try {
-      console.log('Camera button pressed for:', gear.name);
-
-      // Request camera permission first
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(
-          'Camera Permission Required',
-          'Please grant camera permission to take photos of your gear.'
-        );
-        return;
-      }
-
-      console.log('Camera permission granted, launching camera...');
-
-      // Use the exact same approach as the working gallery
-      let result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['images', 'videos'],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      console.log('Camera result:', result);
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        const asset = result.assets[0];
-        console.log('Captured asset:', asset);
-
-        const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
-        const savedUri = await ImageHandler.saveImageToDocuments(asset.uri, fileName);
-        useGear.getState().setGearImage(gear.id, savedUri);
-        console.log('Image saved for', gear.name);
-      } else {
-        console.log('No photo taken or camera was canceled');
-      }
-    } catch (error) {
-      console.error('Error taking photo:', error);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
-    }
-  };
-
-  const handleGearGallery = async (gear: Gear) => {
-    try {
-      console.log('Gallery button pressed for:', gear.name);
-
-      // Use the exact working code from test-picker
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images', 'videos'],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      console.log('Picker result:', result);
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        const asset = result.assets[0];
-        console.log('Selected asset:', asset);
-
-        const fileName = `gear_${gear.id}_${Date.now()}.jpg`;
-        const savedUri = await ImageHandler.saveImageToDocuments(asset.uri, fileName);
-        useGear.getState().setGearImage(gear.id, savedUri);
-        console.log('Image saved for', gear.name);
-      } else {
-        console.log('No image selected or picker was canceled');
-      }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
-    }
-  };
-
-  const handleGearDelete = (gear: Gear) => {
-    // TODO: Add confirmation dialog
-    useGear.getState().removeGearImage(gear.id);
-    console.log('Image deleted for', gear.name);
   };
 
   const handleKingdomSelect = (kingdomId: string | null) => {
