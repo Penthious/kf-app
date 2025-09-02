@@ -2,9 +2,26 @@ import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { Text, View } from 'react-native';
 
 export default function RootTabsLayout() {
-  const { tokens } = useThemeTokens();
+  const { tokens, isInitialized } = useThemeTokens();
+
+  // Show loading state while theme initializes
+  if (!isInitialized || !tokens) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#0E1116',
+        }}
+      >
+        <Text style={{ color: '#E8EEF8' }}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <Tabs

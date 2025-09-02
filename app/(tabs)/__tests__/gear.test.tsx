@@ -111,6 +111,7 @@ describe('GearScreen', () => {
       mode: 'dark' as const,
       setMode: jest.fn(),
       setCustomTokens: jest.fn(),
+      isInitialized: true,
     });
     mockUseGear.mockReturnValue(mockGearStore);
     jest.spyOn(Alert, 'alert').mockImplementation(() => {});
