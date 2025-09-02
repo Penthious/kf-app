@@ -69,9 +69,46 @@ export default function FAQScreen() {
       </View>
 
       <FAQSection title="Exploration" testID="exploration-section">
-        <Text style={[styles.placeholderText, { color: tokens.textMuted }]}>
-          Exploration FAQs will be added here...
-        </Text>
+        <FAQItem
+          number={1}
+          question="If I complete an Exhibition Clash as part of a story mission, does that replace the Clash at the 8th hour, or do I have to resolve two Clashes?"
+          answer="It replaces the Clash at 8th hour."
+        />
+        <FAQItem
+          number={2}
+          question="After you resolve the Exploration draw, does Little Ser stay on the Exploration deck, or is he returned to Ser Sonch's Knight board?"
+          answer="He stays on the Exploration deck until you move Little Ser somewhere else, for example to the Monster Sheet during a Clash."
+        />
+        <FAQItem
+          number={3}
+          question="If I skip the 'Encounter Monsters spawn and movement' step when backtracking, what about raising Threat above 6 or to the last space on the Threat track? Considering these are one-time events, are they still resolved? Skipped now then resolved as soon as I explore a new Kingdom tile? Lost forever for this Expedition?"
+          answer="If you reach a Hunt mark during backtrack, you ignore it (because you skip the Kingdom Tile step). Reading the special '6666' paragraph happens during the Story Step."
+        />
+        <FAQItem
+          number={4}
+          question="Page 32 of the rulebook says that Exploration Ciphers trigger at the the end of the Kingdom tile step, but on page 42, we can read: 'When you explore a new Kingdom tile with a Cipher on it, you may read all relevant paragraphs during the Story step of your current Delve Round.' Which one is the right timing, Kingdom Tile step or Story step?"
+          answer="You connect the two parts of full Cipher during the Kingdom Tile step, and then read it during the Story step. It's constructed that way to remind you that you should only read it once you're on a newly explored Kingdom tile."
+        />
+        <FAQItem
+          number={5}
+          question="Sunken Kingdom Exploration card - Will-o'-wisp, says 'Place a generic token on a random path from your current tile. (...) Repeat this process at the start of the next 2 Delve Rounds, then discard the card and token.' Does this token, if not moved through, get picked up and placed on a random path the next turn, or do you leave it and drop a second token? It seems the Wisp is flying around the tile you are on, so the token moves and appears with the party? Is this correct? Or do you leave tokens not travelled through where they are until the card is discarded 2 rounds later?"
+          answer="If the Party doesn't move in that direction, take the token and place it on a random path the next turn."
+        />
+        <FAQItem
+          number={6}
+          question="Sunken Kingdom Exploration card - Surge. 'Place 2 Surge tokens on the Kingdom sheet.' The rule for Surge says that if there is a Surge token on the Kingdom Sheet, flip it to Flood. Does this circumvent that mechanic, or do we actually just Surge twice?"
+          answer="If there are no Surge tokens on the Kingdom sheet, you place one Surge token and then flip it. If there already is a Surge token on the Kingdom Sheet, flip it and place another Surge token."
+        />
+        <FAQItem
+          number={7}
+          question="When a Knight uses a Technique card with instant depletion during the Delve Phase, when does the card come back to the player's hand?"
+          answer="When you use a Technique with an Instant depletion, it returns to your hand at the end of the current Round (Knight, Monster, or Delve Round)."
+        />
+        <FAQItem
+          number={8}
+          question="If I have 2 successful investigations and 1 failed Investigation, and I want to 'take a cold lead' during free roam, should I undertake the failed investigation, or can I choose another one?"
+          answer="You can undertake the failed one OR start one you have not attempted yet."
+        />
       </FAQSection>
 
       <FAQSection title="Clash" testID="clash-section">
@@ -223,12 +260,6 @@ const styles = StyleSheet.create({
   sectionContent: {
     padding: 16,
     paddingTop: 0,
-  },
-  placeholderText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 20,
   },
   faqItem: {
     marginBottom: 24,
