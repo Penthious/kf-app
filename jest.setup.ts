@@ -26,6 +26,10 @@ jest.mock('react-native', () => ({
     create: jest.fn(styles => styles),
     flatten: jest.fn(style => style),
   },
+  Appearance: {
+    getColorScheme: jest.fn(() => 'dark'),
+    addChangeListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
 }));
 
 // Mock Expo modules
