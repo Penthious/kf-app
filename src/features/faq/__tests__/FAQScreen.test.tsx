@@ -1,6 +1,6 @@
-import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@/theme/ThemeProvider';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import React from 'react';
 import FAQScreen from '../ui/FAQScreen';
 
 // Mock the theme provider for testing
@@ -94,9 +94,6 @@ describe('FAQScreen', () => {
     fireEvent.press(clashHeader);
 
     // Check that we have the expected number of FAQ items
-    // Use getAllByText to get all instances and check the count
-    const allNumberedItems = screen.getAllByText(/^\d+\./);
-
     // Count items by looking at the parent sections
     const explorationSection = screen.getByTestId('exploration-section');
     const clashSection = screen.getByTestId('clash-section');
