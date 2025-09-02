@@ -136,6 +136,7 @@ describe('CampaignGear', () => {
       mode: 'dark' as const,
       setMode: jest.fn(),
       setCustomTokens: jest.fn(),
+      isInitialized: true,
     });
     mockUseCampaigns.mockImplementation(selector => {
       const store = {

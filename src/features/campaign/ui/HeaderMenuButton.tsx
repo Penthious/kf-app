@@ -51,6 +51,7 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
   const menuItems = [
     { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
     { key: 'theme', label: 'Theme', onPress: () => go(() => router.push('/theme')) },
+    { key: 'faq', label: 'FAQ', onPress: () => go(() => router.push('/faq')) },
     ...(id
       ? [
           {

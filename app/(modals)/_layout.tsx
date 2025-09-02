@@ -1,6 +1,6 @@
+import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, Text } from 'react-native';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 
 export default function ModalsLayout() {
   const router = useRouter();
@@ -38,6 +38,7 @@ export default function ModalsLayout() {
     >
       <Stack.Screen name='keywords' options={{ title: 'Keywords' }} />
       <Stack.Screen name='theme' options={{ title: 'Theme' }} />
+      <Stack.Screen name='faq' options={{ title: 'FAQ' }} />
     </Stack>
   );
 }

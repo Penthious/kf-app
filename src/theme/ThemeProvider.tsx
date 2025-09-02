@@ -1,8 +1,8 @@
 // src/theme/ThemeProvider.tsx
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Appearance } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { darkTokens, lightTokens, Tokens, THEME_VERSION } from './tokens';
+import { darkTokens, lightTokens, THEME_VERSION, Tokens } from './tokens';
 
 type Mode = 'system' | 'light' | 'dark';
 
@@ -11,6 +11,7 @@ type ThemeContextValue = {
   mode: Mode;
   setMode: (m: Mode) => void;
   setCustomTokens: (partial: Partial<Tokens> | null) => void; // null = clear custom
+  isInitialized: boolean;
 };
 
 const ThemeCtx = createContext<ThemeContextValue>({
@@ -18,6 +19,7 @@ const ThemeCtx = createContext<ThemeContextValue>({
   mode: 'dark',
   setMode: () => {},
   setCustomTokens: () => {},
+  isInitialized: false,
 });
 
 const STORAGE_KEYS = {
@@ -38,7 +40,12 @@ function resolveBase(mode: Mode, systemPref: 'light' | 'dark'): Tokens {
   return pick === 'light' ? lightTokens : darkTokens;
 }
 
-export const useThemeTokens = () => useContext(ThemeCtx);
+export const useThemeTokens = () => {
+  const context = useContext(ThemeCtx);
+  // Always return the context, even if not initialized
+  // This prevents crashes while the theme is loading
+  return context;
+};
 
 export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [mode, setMode] = useState<Mode>('dark');
@@ -46,17 +53,25 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   const [systemPref, setSystemPref] = useState<'light' | 'dark'>(
     Appearance.getColorScheme() === 'light' ? 'light' : 'dark'
   );
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // load persisted
   useEffect(() => {
     (async () => {
-      const [m, c] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.MODE),
-        AsyncStorage.getItem(STORAGE_KEYS.CUSTOM),
-      ]);
-      if (m === 'system' || m === 'light' || m === 'dark') setMode(m);
-      if (c) setCustom(migrateTokens(JSON.parse(c)));
+      try {
+        const [m, c] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.MODE),
+          AsyncStorage.getItem(STORAGE_KEYS.CUSTOM),
+        ]);
+        if (m === 'system' || m === 'light' || m === 'dark') setMode(m);
+        if (c) setCustom(migrateTokens(JSON.parse(c)));
+      } catch (error) {
+        console.error('Error loading theme preferences:', error);
+      } finally {
+        setIsInitialized(true);
+      }
     })();
+
     const sub = Appearance.addChangeListener(({ colorScheme }) => {
       setSystemPref(colorScheme === 'light' ? 'light' : 'dark');
     });
@@ -65,12 +80,17 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
   // persist on change
   useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEYS.MODE, mode);
-  }, [mode]);
+    if (isInitialized) {
+      AsyncStorage.setItem(STORAGE_KEYS.MODE, mode);
+    }
+  }, [mode, isInitialized]);
+
   useEffect(() => {
-    if (custom) AsyncStorage.setItem(STORAGE_KEYS.CUSTOM, JSON.stringify(custom));
-    else AsyncStorage.removeItem(STORAGE_KEYS.CUSTOM);
-  }, [custom]);
+    if (isInitialized) {
+      if (custom) AsyncStorage.setItem(STORAGE_KEYS.CUSTOM, JSON.stringify(custom));
+      else AsyncStorage.removeItem(STORAGE_KEYS.CUSTOM);
+    }
+  }, [custom, isInitialized]);
 
   const base = resolveBase(mode, systemPref);
   const tokens = useMemo<Tokens>(() => {
@@ -81,7 +101,16 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
   const setCustomTokens = (partial: Partial<Tokens> | null) => setCustom(partial);
 
-  const value = useMemo(() => ({ tokens, mode, setMode, setCustomTokens }), [tokens, mode]);
+  const value = useMemo(
+    () => ({
+      tokens,
+      mode,
+      setMode,
+      setCustomTokens,
+      isInitialized,
+    }),
+    [tokens, mode, isInitialized]
+  );
 
   return (
     <ThemeCtx.Provider value={value}>

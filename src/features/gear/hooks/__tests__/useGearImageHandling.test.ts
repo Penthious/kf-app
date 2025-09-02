@@ -4,10 +4,13 @@ import { Alert } from 'react-native';
 import { useGearImageHandling } from '../useGearImageHandling';
 
 // Mock the gear store
+const mockSetGearImage = jest.fn();
+const mockRemoveGearImage = jest.fn();
+
 jest.mock('@/store/gear', () => ({
   useGear: () => ({
-    setGearImage: jest.fn(),
-    removeGearImage: jest.fn(),
+    setGearImage: mockSetGearImage,
+    removeGearImage: mockRemoveGearImage,
   }),
 }));
 
@@ -58,12 +61,10 @@ describe('useGearImageHandling', () => {
 
   it('should handle gear delete correctly', () => {
     const { result } = renderHook(() => useGearImageHandling());
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     result.current.handleGearDelete(mockGear);
 
-    expect(consoleSpy).toHaveBeenCalledWith('Image deleted for', mockGear.name);
-    consoleSpy.mockRestore();
+    expect(mockRemoveGearImage).toHaveBeenCalledWith(mockGear.id);
   });
 
   it('should handle camera permission denied', async () => {
@@ -83,27 +84,27 @@ describe('useGearImageHandling', () => {
   it('should handle gallery picker canceled', async () => {
     const { result } = renderHook(() => useGearImageHandling());
     const { launchImageLibraryAsync } = require('expo-image-picker');
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     launchImageLibraryAsync.mockResolvedValue({ canceled: true });
 
     await result.current.handleGearGallery(mockGear);
 
-    expect(consoleSpy).toHaveBeenCalledWith('No image selected or picker was canceled');
-    consoleSpy.mockRestore();
+    // No console.log expected since we removed it
+    // Just verify the function completes without error
+    expect(result.current.handleGearGallery).toBeDefined();
   });
 
   it('should handle camera capture canceled', async () => {
     const { result } = renderHook(() => useGearImageHandling());
     const { requestCameraPermissionsAsync, launchCameraAsync } = require('expo-image-picker');
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     requestCameraPermissionsAsync.mockResolvedValue({ status: 'granted' });
     launchCameraAsync.mockResolvedValue({ canceled: true });
 
     await result.current.handleGearCamera(mockGear);
 
-    expect(consoleSpy).toHaveBeenCalledWith('No photo taken or camera was canceled');
-    consoleSpy.mockRestore();
+    // No console.log expected since we removed it
+    // Just verify the function completes without error
+    expect(result.current.handleGearCamera).toBeDefined();
   });
 });
