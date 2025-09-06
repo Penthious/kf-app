@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 interface SpoilsPhaseProps {
   campaignId: string;
@@ -11,8 +10,14 @@ interface SpoilsPhaseProps {
 
 export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, addLootCard, exchangeLootForGold, exchangeLootForGear, completeQuest } =
-    useCampaigns();
+  const {
+    campaigns,
+    addLootCard,
+    exchangeLootForGold,
+    exchangeLootForGear,
+    completeQuest,
+    endExpedition,
+  } = useCampaigns();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -250,6 +255,23 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     ]);
   };
 
+  const handleEndExpedition = () => {
+    Alert.alert(
+      'End Expedition',
+      'Are you sure you want to end this expedition? All expedition data will be reset and you can start a new one.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'End Expedition',
+          style: 'destructive',
+          onPress: () => {
+            endExpedition(campaignId);
+          },
+        },
+      ]
+    );
+  };
+
   const lootTypes = [
     {
       type: 'kingdom-gear' as const,
@@ -347,12 +369,10 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                   <Button
                     label='Exchange for Gold'
                     onPress={() => handleExchangeLootForGold(loot.id)}
-                    style={styles.actionButton}
                   />
                   <Button
                     label='Exchange for Gear'
                     onPress={() => handleExchangeLootForGear(loot.id)}
-                    style={styles.actionButton}
                   />
                 </View>
               )}
@@ -393,7 +413,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                 <Button
                   label='Complete Quest'
                   onPress={() => handleCompleteQuest(choice.knightUID, choice)}
-                  style={{ marginTop: 8 }}
                 />
               )}
             </View>
@@ -408,10 +427,13 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
               key={lootType.type}
               label={`Add ${lootType.title.split(' ')[0]}`}
               onPress={() => handleAddLootCard(lootType.type)}
-              style={styles.buttonHalf}
             />
           ))}
         </View>
+      </Card>
+
+      <Card>
+        <Button label='End Expedition' onPress={handleEndExpedition} tone='danger' />
       </Card>
     </View>
   );

@@ -121,6 +121,7 @@ export type CampaignsActions = {
     details: string,
     rewards?: string[]
   ) => void;
+  endExpedition: (campaignId: string) => void;
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => {
@@ -1522,6 +1523,25 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                     : choice
                 ),
               },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    endExpedition: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: undefined, // Remove all expedition data
               updatedAt: Date.now(),
             },
           },

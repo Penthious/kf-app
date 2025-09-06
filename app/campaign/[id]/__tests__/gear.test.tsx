@@ -191,6 +191,7 @@ describe('CampaignGear', () => {
         exchangeLootForGold: jest.fn(),
         exchangeLootForGear: jest.fn(),
         completeQuest: jest.fn(),
+        endExpedition: jest.fn(),
       };
 
       if (typeof selector === 'function') {

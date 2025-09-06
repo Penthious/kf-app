@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 interface SecondClashPhaseProps {
   campaignId: string;
@@ -236,41 +236,21 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
 
           <View style={styles.inputRow}>
             <Text style={styles.inputLabel}>Wounds Dealt:</Text>
-            <Button
-              label='-'
-              onPress={() => setWoundsDealt(Math.max(0, woundsDealt - 1))}
-              style={styles.inputButton}
-            />
+            <Button label='-' onPress={() => setWoundsDealt(Math.max(0, woundsDealt - 1))} />
             <Text style={styles.counterDisplay}>{woundsDealt}</Text>
-            <Button
-              label='+'
-              onPress={() => setWoundsDealt(woundsDealt + 1)}
-              style={styles.inputButton}
-            />
+            <Button label='+' onPress={() => setWoundsDealt(woundsDealt + 1)} />
           </View>
 
           <View style={styles.inputRow}>
             <Text style={styles.inputLabel}>Wounds Received:</Text>
-            <Button
-              label='-'
-              onPress={() => setWoundsReceived(Math.max(0, woundsReceived - 1))}
-              style={styles.inputButton}
-            />
+            <Button label='-' onPress={() => setWoundsReceived(Math.max(0, woundsReceived - 1))} />
             <Text style={styles.counterDisplay}>{woundsReceived}</Text>
-            <Button
-              label='+'
-              onPress={() => setWoundsReceived(woundsReceived + 1)}
-              style={styles.inputButton}
-            />
+            <Button label='+' onPress={() => setWoundsReceived(woundsReceived + 1)} />
           </View>
 
           <View>
             <Text style={styles.sectionTitle}>Special Effects</Text>
-            <Button
-              label='Add Special Effect'
-              onPress={addSpecialEffect}
-              style={{ marginBottom: 8 }}
-            />
+            <Button label='Add Special Effect' onPress={addSpecialEffect} />
 
             {specialEffects.length > 0 && (
               <View style={styles.specialEffectsList}>
@@ -280,7 +260,6 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
                     <Button
                       label='Remove'
                       onPress={() => removeSpecialEffect(index)}
-                      style={styles.removeButton}
                       tone='danger'
                     />
                   </View>
@@ -294,13 +273,11 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
               label='Mark Victory'
               onPress={() => handleCompleteClash('victory')}
               tone='success'
-              style={styles.buttonHalf}
             />
             <Button
               label='Mark Defeat'
               onPress={() => handleCompleteClash('defeat')}
               tone='danger'
-              style={styles.buttonHalf}
             />
           </View>
         </View>

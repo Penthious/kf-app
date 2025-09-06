@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 interface RestPhaseProps {
   campaignId: string;
@@ -13,7 +13,6 @@ export default function RestPhase({ campaignId }: RestPhaseProps) {
   const { tokens } = useThemeTokens();
   const {
     campaigns,
-    useRestAbility,
     discardResourceTokens,
     performMonsterRotation,
     resolveCampfireTale,
@@ -271,44 +270,29 @@ export default function RestPhase({ campaignId }: RestPhaseProps) {
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Rest Actions</Text>
 
-          <Button
-            label='Use Rest Ability'
-            onPress={handleUseRestAbility}
-            style={{ marginBottom: 8 }}
-          />
+          <Button label='Use Rest Ability' onPress={handleUseRestAbility} />
 
           <View style={styles.inputRow}>
             <Text style={styles.inputLabel}>Resource Tokens:</Text>
             <Button
               label='-'
               onPress={() => setResourceTokensToDiscard(Math.max(0, resourceTokensToDiscard - 1))}
-              style={styles.inputButton}
             />
             <Text style={styles.counterDisplay}>{resourceTokensToDiscard}</Text>
             <Button
               label='+'
               onPress={() => setResourceTokensToDiscard(resourceTokensToDiscard + 1)}
-              style={styles.inputButton}
             />
             <Button
               label='Discard'
               onPress={handleDiscardResourceTokens}
               disabled={resourceTokensToDiscard === 0}
-              style={styles.inputButton}
             />
           </View>
 
-          <Button
-            label='Perform Monster Rotation'
-            onPress={handlePerformMonsterRotation}
-            style={{ marginBottom: 8 }}
-          />
+          <Button label='Perform Monster Rotation' onPress={handlePerformMonsterRotation} />
 
-          <Button
-            label='Resolve Campfire Tale'
-            onPress={handleResolveCampfireTale}
-            style={{ marginBottom: 16 }}
-          />
+          <Button label='Resolve Campfire Tale' onPress={handleResolveCampfireTale} />
         </View>
       </Card>
 

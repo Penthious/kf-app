@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
+import { useEffect } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import KingdomTrack from './KingdomTrack';
-import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 
 interface SecondDelvePhaseProps {
   campaignId: string;
@@ -309,33 +309,17 @@ export default function SecondDelvePhase({ campaignId }: SecondDelvePhaseProps) 
         <View style={styles.actionSection}>
           <Text style={styles.sectionTitle}>Delve Actions</Text>
 
-          <Button
-            label='Explore Location'
-            onPress={handleExploreLocation}
-            style={styles.actionButton}
-          />
+          <Button label='Explore Location' onPress={handleExploreLocation} />
 
-          <Button label='Collect Clue' onPress={handleCollectClue} style={styles.actionButton} />
+          <Button label='Collect Clue' onPress={handleCollectClue} />
 
-          <Button
-            label='Add Sample Objective'
-            onPress={handleAddObjective}
-            style={styles.actionButton}
-          />
+          <Button label='Add Sample Objective' onPress={handleAddObjective} />
 
-          <Button
-            label='Add Sample Contract'
-            onPress={handleAddContract}
-            style={styles.actionButton}
-          />
+          <Button label='Add Sample Contract' onPress={handleAddContract} />
 
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Button
-              label='Advance Threat Track'
-              onPress={handleAdvanceThreat}
-              style={{ flex: 1 }}
-            />
-            <Button label='Advance Time Track' onPress={handleAdvanceTime} style={{ flex: 1 }} />
+            <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
+            <Button label='Advance Time Track' onPress={handleAdvanceTime} />
           </View>
         </View>
       </Card>
