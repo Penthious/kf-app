@@ -11,13 +11,7 @@ interface VisionPhaseProps {
 
 export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   const { tokens } = useThemeTokens();
-  const {
-    campaigns,
-    setPartyLeader,
-    startExpedition,
-    setKnightExpeditionChoice,
-    clearKnightExpeditionChoice,
-  } = useCampaigns();
+  const { campaigns, setPartyLeader, startExpedition, setKnightExpeditionChoice } = useCampaigns();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -93,10 +87,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     }
 
     setKnightExpeditionChoice(campaignId, knightUID, choice);
-  };
-
-  const clearKnightChoice = (knightUID: string) => {
-    clearKnightExpeditionChoice(campaignId, knightUID);
   };
 
   const getKnightChoice = (knightUID: string) => {
@@ -188,13 +178,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                   onPress={() => handleKnightChoice(member.knightUID, 'free-roam')}
                   tone={choice?.choice === 'free-roam' ? 'accent' : 'default'}
                 />
-                {choice && (
-                  <Button
-                    label='Clear'
-                    onPress={() => clearKnightChoice(member.knightUID)}
-                    tone='default'
-                  />
-                )}
               </View>
 
               {choice && (
