@@ -1,6 +1,6 @@
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
-import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
