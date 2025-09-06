@@ -18,6 +18,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     startExpedition,
     setKnightExpeditionChoice,
     setSelectedKingdom,
+    setExpeditionPhase,
   } = useCampaigns();
 
   const campaign = campaigns[campaignId];
@@ -240,8 +241,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               );
               return;
             }
-            // TODO: Implement outpost phase transition
-            console.log('Starting Outpost Phase...');
+            setExpeditionPhase(campaignId, 'outpost');
           }}
           tone='accent'
         />

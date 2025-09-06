@@ -1,27 +1,66 @@
 import VisionPhase from '@/features/expedition/VisionPhase';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import Card from '@/components/Card';
 
 export default function CampaignExpedition() {
   const { tokens } = useThemeTokens();
   const campaignId = useCampaigns(s => s.currentCampaignId);
+  const { campaigns } = useCampaigns();
 
-  if (!campaignId) {
+  const campaign = campaignId ? campaigns[campaignId] : undefined;
+  const expedition = campaign?.expedition;
+
+  if (!campaignId || !campaign) {
     return (
       <View style={{ flex: 1, backgroundColor: tokens.bg }}>
         <ScrollView contentContainerStyle={{ padding: 16 }}>
-          {/* Error state handled by VisionPhase component */}
+          <Card>
+            <Text style={{ color: tokens.textMuted }}>Campaign not found</Text>
+          </Card>
         </ScrollView>
       </View>
     );
   }
 
+  const renderPhaseComponent = () => {
+    if (!expedition) {
+      return <VisionPhase campaignId={campaignId} />;
+    }
+
+    switch (expedition.currentPhase) {
+      case 'vision':
+        return <VisionPhase campaignId={campaignId} />;
+      case 'outpost':
+        return (
+          <Card>
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 16 }}>
+              Outpost Phase
+            </Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+              Make all necessary preparations, including buying items, hiring help, and scouting the
+              region.
+            </Text>
+            <Text style={{ color: tokens.textMuted }}>
+              Outpost Phase functionality coming soon...
+            </Text>
+          </Card>
+        );
+      default:
+        return (
+          <Card>
+            <Text style={{ color: tokens.textMuted }}>
+              Phase &quot;{expedition.currentPhase}&quot; not yet implemented
+            </Text>
+          </Card>
+        );
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <VisionPhase campaignId={campaignId} />
-      </ScrollView>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>{renderPhaseComponent()}</ScrollView>
     </View>
   );
 }
