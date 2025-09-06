@@ -1,4 +1,5 @@
 import ContextMenu, { measureInWindow } from '@/components/ui/ContextMenu';
+import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -11,6 +12,7 @@ interface HeaderMenuButtonProps {
 export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
   const { tokens } = useThemeTokens();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const { campaigns, endExpedition } = useCampaigns();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anchorRef = useRef<any>(null);
@@ -48,10 +50,46 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
     );
   };
 
+  const handleResetExpedition = () => {
+    go(() =>
+      Alert.alert(
+        'Reset Expedition?',
+        'This will end the current expedition and return you to the Vision Phase. All expedition progress will be lost.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset',
+            style: 'destructive',
+            onPress: () => {
+              if (id) {
+                endExpedition(id);
+              }
+            },
+          },
+        ],
+        { cancelable: true }
+      )
+    );
+  };
+
+  // Check if user is past the vision phase
+  const campaign = id ? campaigns[id] : null;
+  const isPastVisionPhase = campaign?.expedition && campaign.expedition.currentPhase !== 'vision';
+
   const menuItems = [
     { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
     { key: 'theme', label: 'Theme', onPress: () => go(() => router.push('/theme')) },
     { key: 'faq', label: 'FAQ', onPress: () => go(() => router.push('/faq')) },
+    ...(id && isPastVisionPhase
+      ? [
+          {
+            key: 'reset-expedition',
+            label: 'Reset Expedition',
+            destructive: true,
+            onPress: handleResetExpedition,
+          },
+        ]
+      : []),
     ...(id
       ? [
           {
