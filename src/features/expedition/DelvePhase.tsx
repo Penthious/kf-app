@@ -9,9 +9,10 @@ import KingdomTrack from './KingdomTrack';
 
 interface DelvePhaseProps {
   campaignId: string;
+  phase?: 'first' | 'second';
 }
 
-export default function DelvePhase({ campaignId }: DelvePhaseProps) {
+export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
   const {
     campaigns,
@@ -178,7 +179,7 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
     <ScrollView>
       <Card style={{ marginBottom: 16 }}>
         <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 12 }}>
-          Delve Phase
+          {phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}
         </Text>
         <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
           Explore the Kingdom map, collecting Clues and fulfilling objectives and Contracts.
@@ -291,8 +292,10 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
       </Card>
 
       <Button
-        label='Begin Clash Phase'
-        onPress={() => setExpeditionPhase(campaignId, 'clash')}
+        label={phase === 'second' ? 'Begin Second Clash Phase' : 'Begin Clash Phase'}
+        onPress={() =>
+          setExpeditionPhase(campaignId, phase === 'second' ? 'second-clash' : 'clash')
+        }
         tone='accent'
       />
     </ScrollView>

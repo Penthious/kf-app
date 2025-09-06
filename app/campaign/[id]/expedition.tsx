@@ -4,7 +4,6 @@ import DelvePhase from '@/features/expedition/DelvePhase';
 import OutpostPhase from '@/features/expedition/OutpostPhase';
 import RestPhase from '@/features/expedition/RestPhase';
 import SecondClashPhase from '@/features/expedition/SecondClashPhase';
-import SecondDelvePhase from '@/features/expedition/SecondDelvePhase';
 import SpoilsPhase from '@/features/expedition/SpoilsPhase';
 import VisionPhase from '@/features/expedition/VisionPhase';
 import { useCampaigns } from '@/store/campaigns';
@@ -47,7 +46,7 @@ export default function CampaignExpedition() {
       case 'rest':
         return <RestPhase campaignId={campaignId} />;
       case 'second-delve':
-        return <SecondDelvePhase campaignId={campaignId} />;
+        return <DelvePhase campaignId={campaignId} phase='second' />;
       case 'second-clash':
         return <SecondClashPhase campaignId={campaignId} />;
       case 'spoils':
