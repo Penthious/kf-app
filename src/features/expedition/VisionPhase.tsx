@@ -190,14 +190,14 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       )}
 
       {expedition && expedition.currentPhase === 'vision' && (
-        <View>
-          <Text style={{ color: tokens.textMuted, marginBottom: 8 }}>
-            Vision Phase Complete! Ready to begin expedition.
-          </Text>
-          <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
-            Phase started: {new Date(expedition.phaseStartedAt).toLocaleString()}
-          </Text>
-        </View>
+        <Button
+          label='Begin Outpost Phase'
+          onPress={() => {
+            // TODO: Implement outpost phase transition
+            console.log('Starting Outpost Phase...');
+          }}
+          tone='accent'
+        />
       )}
     </Card>
   );
