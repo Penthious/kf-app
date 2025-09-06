@@ -9,6 +9,30 @@ export type CampaignMember = {
   isLeader?: boolean;
 };
 
+export type ExpeditionPhase =
+  | 'vision'
+  | 'outpost'
+  | 'delve'
+  | 'clash'
+  | 'rest'
+  | 'second-delve'
+  | 'second-clash'
+  | 'spoils';
+
+export type KnightExpeditionChoice = {
+  knightUID: string;
+  choice: 'quest' | 'investigation' | 'free-roam';
+  questId?: string; // if choice is 'quest'
+  investigationId?: string; // if choice is 'investigation'
+  status: 'in-progress' | 'completed';
+};
+
+export type ExpeditionState = {
+  currentPhase: ExpeditionPhase;
+  knightChoices: KnightExpeditionChoice[];
+  phaseStartedAt: number;
+};
+
 export type CampaignSettings = {
   fivePlayerMode: boolean;
   notes?: string;
@@ -27,6 +51,8 @@ export type Campaign = {
   selectedKingdomId?: string;
 
   kingdoms: KingdomState[];
+
+  expedition?: ExpeditionState;
 };
 
 export type CampaignsState = {

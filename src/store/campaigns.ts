@@ -1,4 +1,9 @@
-import type { Campaign, CampaignsState } from '@/models/campaign';
+import type {
+  Campaign,
+  CampaignsState,
+  ExpeditionPhase,
+  KnightExpeditionChoice,
+} from '@/models/campaign';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
 
@@ -42,6 +47,20 @@ export type CampaignsActions = {
     adventureId: string,
     opts?: { singleAttempt?: boolean; delta?: number }
   ) => void;
+
+  // Expedition actions
+  startExpedition: (campaignId: string) => void;
+  setExpeditionPhase: (campaignId: string, phase: ExpeditionPhase) => void;
+  setKnightExpeditionChoice: (
+    campaignId: string,
+    knightUID: string,
+    choice: KnightExpeditionChoice['choice'],
+    questId?: string,
+    investigationId?: string
+  ) => void;
+  clearKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
+  completeKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
+  setSelectedKingdom: (campaignId: string, kingdomId: string) => void;
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => {
@@ -524,6 +543,172 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             },
           },
         };
+      }),
+
+    // Expedition actions
+    startExpedition: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                currentPhase: 'vision' as ExpeditionPhase,
+                knightChoices: [],
+                phaseStartedAt: Date.now(),
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setExpeditionPhase: (campaignId, phase) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                currentPhase: phase,
+                phaseStartedAt: Date.now(),
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setKnightExpeditionChoice: (campaignId, knightUID, choice, questId, investigationId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        // If expedition doesn't exist yet, create it with vision phase
+        const expedition = c.expedition || {
+          currentPhase: 'vision' as ExpeditionPhase,
+          knightChoices: [],
+          phaseStartedAt: Date.now(),
+        };
+
+        const existingChoiceIndex = expedition.knightChoices.findIndex(
+          choice => choice.knightUID === knightUID
+        );
+
+        const newChoice: KnightExpeditionChoice = {
+          knightUID,
+          choice,
+          questId,
+          investigationId,
+          status: 'in-progress',
+        };
+
+        const updatedChoices =
+          existingChoiceIndex >= 0
+            ? expedition.knightChoices.map((choice, index) =>
+                index === existingChoiceIndex ? newChoice : choice
+              )
+            : [...expedition.knightChoices, newChoice];
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...expedition,
+                knightChoices: updatedChoices,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    clearKnightExpeditionChoice: (campaignId, knightUID) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const updatedChoices = c.expedition.knightChoices.filter(
+          choice => choice.knightUID !== knightUID
+        );
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                knightChoices: updatedChoices,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    completeKnightExpeditionChoice: (campaignId, knightUID) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const updatedChoices = c.expedition.knightChoices.map(choice =>
+          choice.knightUID === knightUID ? { ...choice, status: 'completed' as const } : choice
+        );
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                knightChoices: updatedChoices,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setSelectedKingdom: (campaignId, kingdomId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedKingdomId: kingdomId,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
       }),
   };
 });

@@ -160,6 +160,12 @@ describe('CampaignGear', () => {
         setPartyLeader: jest.fn(),
         unsetPartyLeader: jest.fn(),
         setAdventureProgress: jest.fn(),
+        startExpedition: jest.fn(),
+        setExpeditionPhase: jest.fn(),
+        setKnightExpeditionChoice: jest.fn(),
+        clearKnightExpeditionChoice: jest.fn(),
+        completeKnightExpeditionChoice: jest.fn(),
+        setSelectedKingdom: jest.fn(),
       };
 
       if (typeof selector === 'function') {
