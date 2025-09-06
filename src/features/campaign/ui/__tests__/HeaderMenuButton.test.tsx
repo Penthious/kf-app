@@ -1,6 +1,6 @@
-import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 
 // ---- theme mock ----
 jest.mock('@/theme/ThemeProvider', () => ({
@@ -15,6 +15,23 @@ jest.mock('@/theme/ThemeProvider', () => ({
     },
   }),
 }));
+
+// ---- useCampaigns mock ----
+const mockEndExpedition = jest.fn();
+const mockUseCampaigns = jest.fn(() => ({
+  campaigns: {},
+  endExpedition: mockEndExpedition,
+}));
+
+jest.mock('@/store/campaigns', () => ({
+  useCampaigns: mockUseCampaigns,
+}));
+
+// Import the component after mocking
+import HeaderMenuButton from '@/features/campaign/ui/HeaderMenuButton';
+
+// ---- Alert mock ----
+jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
 // ---- ContextMenu mock ----
 import type { MockContextMenuProps } from '../../../../test-utils/types';
@@ -45,6 +62,7 @@ jest.mock('@/components/ui/ContextMenu', () => {
 describe('HeaderMenuButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockEndExpedition.mockClear();
   });
 
   it('renders the menu button', () => {
@@ -154,6 +172,244 @@ describe('HeaderMenuButton', () => {
       borderRadius: 10,
       borderWidth: 1,
       borderColor: '#0006',
+    });
+  });
+
+  describe('Reset Expedition functionality', () => {
+    it('does not show Reset Expedition option when no campaign id', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+      useLocalSearchParams.mockReturnValue({});
+
+      const { getByTestId, queryByText } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      expect(queryByText('Reset Expedition')).toBeNull();
+    });
+
+    it('does not show Reset Expedition option when expedition is in vision phase', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign': {
+            expedition: {
+              currentPhase: 'vision',
+            },
+          },
+        },
+        endExpedition: mockEndExpedition,
+      });
+
+      const { getByTestId, queryByText } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      expect(queryByText('Reset Expedition')).toBeNull();
+    });
+
+    it('shows Reset Expedition option when expedition is past vision phase', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign': {
+            expedition: {
+              currentPhase: 'outpost',
+            },
+          },
+        },
+        endExpedition: mockEndExpedition,
+      });
+
+      const { getByTestId, getByText } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      expect(getByText('Reset Expedition')).toBeTruthy();
+      expect(getByTestId('header-menu-menu-item-reset-expedition')).toBeTruthy();
+    });
+
+    it('shows Reset Expedition option for all phases except vision', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      const phases = [
+        'outpost',
+        'delve',
+        'clash',
+        'rest',
+        'second-delve',
+        'second-clash',
+        'spoils',
+      ];
+
+      for (const phase of phases) {
+        useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+        mockUseCampaigns.mockReturnValue({
+          campaigns: {
+            'test-campaign': {
+              expedition: {
+                currentPhase: phase,
+              },
+            },
+          },
+          endExpedition: mockEndExpedition,
+        });
+
+        const { getByTestId, getByText, rerender } = render(
+          <HeaderMenuButton testID='header-menu' />
+        );
+
+        await act(async () => {
+          fireEvent.press(getByTestId('header-menu'));
+        });
+
+        expect(getByText('Reset Expedition')).toBeTruthy();
+
+        // Clean up for next iteration
+        rerender(<div />);
+      }
+    });
+
+    it('calls endExpedition when Reset Expedition is confirmed', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign': {
+            expedition: {
+              currentPhase: 'outpost',
+            },
+          },
+        },
+        endExpedition: mockEndExpedition,
+      });
+
+      // Mock Alert.alert to simulate user confirming the reset
+      const mockAlert = jest.spyOn(Alert, 'alert');
+      mockAlert.mockImplementation((title, message, buttons) => {
+        // Simulate clicking the "Reset" button (index 1)
+        if (buttons && buttons[1] && buttons[1].onPress) {
+          buttons[1].onPress();
+        }
+      });
+
+      const { getByTestId } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu-menu-item-reset-expedition'));
+      });
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        'Reset Expedition?',
+        'This will end the current expedition and return you to the Vision Phase. All expedition progress will be lost.',
+        expect.any(Array)
+      );
+      expect(mockEndExpedition).toHaveBeenCalledWith('test-campaign');
+
+      mockAlert.mockRestore();
+    });
+
+    it('does not call endExpedition when Reset Expedition is cancelled', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign': {
+            expedition: {
+              currentPhase: 'outpost',
+            },
+          },
+        },
+        endExpedition: mockEndExpedition,
+      });
+
+      // Mock Alert.alert to simulate user cancelling the reset
+      const mockAlert = jest.spyOn(Alert, 'alert');
+      mockAlert.mockImplementation((title, message, buttons) => {
+        // Simulate clicking the "Cancel" button (index 0)
+        if (buttons && buttons[0] && buttons[0].onPress) {
+          buttons[0].onPress();
+        }
+      });
+
+      const { getByTestId } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu-menu-item-reset-expedition'));
+      });
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        'Reset Expedition?',
+        'This will end the current expedition and return you to the Vision Phase. All expedition progress will be lost.',
+        expect.any(Array)
+      );
+      expect(mockEndExpedition).not.toHaveBeenCalled();
+
+      mockAlert.mockRestore();
+    });
+
+    it('shows correct alert dialog structure for Reset Expedition', async () => {
+      const { useLocalSearchParams } = require('expo-router');
+
+      useLocalSearchParams.mockReturnValue({ id: 'test-campaign' });
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign': {
+            expedition: {
+              currentPhase: 'outpost',
+            },
+          },
+        },
+        endExpedition: mockEndExpedition,
+      });
+
+      const mockAlert = jest.spyOn(Alert, 'alert');
+      mockAlert.mockImplementation(() => {});
+
+      const { getByTestId } = render(<HeaderMenuButton testID='header-menu' />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu'));
+      });
+
+      await act(async () => {
+        fireEvent.press(getByTestId('header-menu-menu-item-reset-expedition'));
+      });
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        'Reset Expedition?',
+        'This will end the current expedition and return you to the Vision Phase. All expedition progress will be lost.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset',
+            style: 'destructive',
+            onPress: expect.any(Function),
+          },
+        ],
+        { cancelable: true }
+      );
+
+      mockAlert.mockRestore();
     });
   });
 });
