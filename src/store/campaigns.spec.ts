@@ -456,5 +456,18 @@ describe('campaigns store', () => {
       expect(choices.find(c => c.knightUID === 'knight-2')?.choice).toBe('investigation');
       expect(choices.find(c => c.knightUID === 'knight-3')?.choice).toBe('free-roam');
     });
+
+    it('sets selected kingdom', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-9', 'Expedition Campaign');
+
+      useCampaigns.getState().setSelectedKingdom('exp-9', 'sunken-kingdom');
+
+      const campaign = useCampaigns.getState().campaigns['exp-9'];
+      expect(campaign.selectedKingdomId).toBe('sunken-kingdom');
+      expect(campaign.updatedAt).toBe(now);
+    });
   });
 });

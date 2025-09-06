@@ -165,6 +165,7 @@ describe('CampaignGear', () => {
         setKnightExpeditionChoice: jest.fn(),
         clearKnightExpeditionChoice: jest.fn(),
         completeKnightExpeditionChoice: jest.fn(),
+        setSelectedKingdom: jest.fn(),
       };
 
       if (typeof selector === 'function') {

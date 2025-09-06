@@ -60,6 +60,7 @@ export type CampaignsActions = {
   ) => void;
   clearKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
   completeKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
+  setSelectedKingdom: (campaignId: string, kingdomId: string) => void;
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => {
@@ -683,6 +684,25 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 ...c.expedition,
                 knightChoices: updatedChoices,
               },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setSelectedKingdom: (campaignId, kingdomId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedKingdomId: kingdomId,
               updatedAt: Date.now(),
             },
           },

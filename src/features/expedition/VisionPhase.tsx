@@ -1,5 +1,6 @@
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
@@ -11,7 +12,13 @@ interface VisionPhaseProps {
 
 export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, setPartyLeader, startExpedition, setKnightExpeditionChoice } = useCampaigns();
+  const {
+    campaigns,
+    setPartyLeader,
+    startExpedition,
+    setKnightExpeditionChoice,
+    setSelectedKingdom,
+  } = useCampaigns();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -63,6 +70,14 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       Alert.alert(
         'Party Leader Required',
         'Please select a party leader before starting the expedition.'
+      );
+      return;
+    }
+
+    if (!campaign.selectedKingdomId) {
+      Alert.alert(
+        'Kingdom Required',
+        'Please select a destination kingdom before starting the expedition.'
       );
       return;
     }
@@ -184,6 +199,46 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
         })}
       </View>
 
+      {/* Kingdom Selection */}
+      {selectedPartyLeader && (
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ color: tokens.textPrimary, fontWeight: '700', marginBottom: 12 }}>
+            Select Destination Kingdom
+          </Text>
+          <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
+            The Party Leader determines which Kingdom you are delving into.
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {allKingdomsCatalog.map(kingdom => {
+              const isSelected = campaign.selectedKingdomId === kingdom.id;
+              return (
+                <Button
+                  key={kingdom.id}
+                  label={kingdom.name}
+                  onPress={() => setSelectedKingdom(campaignId, kingdom.id)}
+                  tone={isSelected ? 'accent' : 'default'}
+                />
+              );
+            })}
+          </View>
+          {campaign.selectedKingdomId && (
+            <View
+              style={{
+                marginTop: 12,
+                padding: 12,
+                backgroundColor: tokens.surface,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                Selected Kingdom:{' '}
+                {allKingdomsCatalog.find(k => k.id === campaign.selectedKingdomId)?.name}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+
       {/* Start Expedition Button */}
       {!expedition && (
         <Button label='Start Expedition' onPress={handleStartExpedition} tone='accent' />
@@ -193,6 +248,13 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
         <Button
           label='Begin Outpost Phase'
           onPress={() => {
+            if (!campaign.selectedKingdomId) {
+              Alert.alert(
+                'Kingdom Required',
+                'Please select a destination kingdom before proceeding to the Outpost Phase.'
+              );
+              return;
+            }
             // TODO: Implement outpost phase transition
             console.log('Starting Outpost Phase...');
           }}
