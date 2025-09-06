@@ -234,6 +234,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
         <Button
           label='Begin Outpost Phase'
           onPress={() => {
+<<<<<<< HEAD
             if (!campaign.selectedKingdomId) {
               Alert.alert(
                 'Kingdom Required',
@@ -241,6 +242,8 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               );
               return;
             }
+=======
+>>>>>>> 92b8c2d (feat: implement outpost phase with phase transitions)
             setExpeditionPhase(campaignId, 'outpost');
           }}
           tone='accent'

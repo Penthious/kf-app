@@ -1,4 +1,5 @@
 import VisionPhase from '@/features/expedition/VisionPhase';
+import OutpostPhase from '@/features/expedition/OutpostPhase';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { ScrollView, Text, View } from 'react-native';
@@ -8,7 +9,7 @@ export default function CampaignExpedition() {
   const { tokens } = useThemeTokens();
   const campaignId = useCampaigns(s => s.currentCampaignId);
   const { campaigns } = useCampaigns();
-
+  
   const campaign = campaignId ? campaigns[campaignId] : undefined;
   const expedition = campaign?.expedition;
 
@@ -33,20 +34,7 @@ export default function CampaignExpedition() {
       case 'vision':
         return <VisionPhase campaignId={campaignId} />;
       case 'outpost':
-        return (
-          <Card>
-            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 16 }}>
-              Outpost Phase
-            </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
-              Make all necessary preparations, including buying items, hiring help, and scouting the
-              region.
-            </Text>
-            <Text style={{ color: tokens.textMuted }}>
-              Outpost Phase functionality coming soon...
-            </Text>
-          </Card>
-        );
+        return <OutpostPhase campaignId={campaignId} />;
       default:
         return (
           <Card>
@@ -60,7 +48,9 @@ export default function CampaignExpedition() {
 
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>{renderPhaseComponent()}</ScrollView>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {renderPhaseComponent()}
+      </ScrollView>
     </View>
   );
 }
