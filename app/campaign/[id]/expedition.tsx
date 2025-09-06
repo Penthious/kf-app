@@ -1,5 +1,6 @@
 import VisionPhase from '@/features/expedition/VisionPhase';
 import OutpostPhase from '@/features/expedition/OutpostPhase';
+import DelvePhase from '@/features/expedition/DelvePhase';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { ScrollView, Text, View } from 'react-native';
@@ -35,6 +36,8 @@ export default function CampaignExpedition() {
         return <VisionPhase campaignId={campaignId} />;
       case 'outpost':
         return <OutpostPhase campaignId={campaignId} />;
+      case 'delve':
+        return <DelvePhase campaignId={campaignId} />;
       default:
         return (
           <Card>
