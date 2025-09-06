@@ -165,7 +165,7 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
   const handleCompleteClash = (outcome: 'victory' | 'defeat') => {
     Alert.alert(
       'Complete Full Clash',
-      `Mark the final clash as ${outcome}? This will end the expedition.`,
+      `Mark the final clash as ${outcome}? This will advance to the Spoils Phase.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {

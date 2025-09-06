@@ -1190,14 +1190,25 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         const c = s.campaigns[campaignId];
         if (!c?.expedition) return s;
 
+        const isFirstClash = c.expedition.currentPhase === 'clash';
         const clashResult: ClashResult = {
-          type: c.expedition.currentPhase === 'clash' ? 'exhibition' : 'full',
+          type: isFirstClash ? 'exhibition' : 'full',
           outcome,
           completedAt: Date.now(),
           woundsDealt,
           woundsReceived,
           specialEffects,
         };
+
+        // Determine next phase based on clash type
+        let nextPhase: ExpeditionPhase;
+        if (isFirstClash) {
+          // First clash (exhibition): victory → rest, defeat → spoils
+          nextPhase = outcome === 'victory' ? 'rest' : 'spoils';
+        } else {
+          // Second clash (full): always go to spoils regardless of outcome
+          nextPhase = 'spoils';
+        }
 
         const newState = {
           campaigns: {
@@ -1207,7 +1218,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               expedition: {
                 ...c.expedition,
                 clashResults: [...(c.expedition.clashResults || []), clashResult],
-                currentPhase: outcome === 'victory' ? 'rest' : ('spoils' as ExpeditionPhase),
+                currentPhase: nextPhase,
                 phaseStartedAt: Date.now(),
               },
               updatedAt: Date.now(),
