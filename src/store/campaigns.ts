@@ -58,6 +58,7 @@ export type CampaignsActions = {
     questId?: string,
     investigationId?: string
   ) => void;
+  clearKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
   completeKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
 };
 
@@ -628,6 +629,32 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               ...c,
               expedition: {
                 ...expedition,
+                knightChoices: updatedChoices,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    clearKnightExpeditionChoice: (campaignId, knightUID) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const updatedChoices = c.expedition.knightChoices.filter(
+          choice => choice.knightUID !== knightUID
+        );
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
                 knightChoices: updatedChoices,
               },
               updatedAt: Date.now(),

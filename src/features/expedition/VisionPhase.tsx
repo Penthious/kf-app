@@ -11,7 +11,13 @@ interface VisionPhaseProps {
 
 export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, setPartyLeader, startExpedition, setKnightExpeditionChoice } = useCampaigns();
+  const {
+    campaigns,
+    setPartyLeader,
+    startExpedition,
+    setKnightExpeditionChoice,
+    clearKnightExpeditionChoice,
+  } = useCampaigns();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -43,6 +49,21 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     );
   }
 
+  const handlePartyLeaderChange = (newLeaderUID: string) => {
+    setSelectedPartyLeader(newLeaderUID);
+
+    // Clear quest choices from all knights except the new leader
+    activeKnights.forEach(member => {
+      if (member.knightUID !== newLeaderUID) {
+        const choice = getKnightChoice(member.knightUID);
+        if (choice?.choice === 'quest') {
+          // Clear the quest choice from non-leaders
+          setKnightExpeditionChoice(campaignId, member.knightUID, 'free-roam');
+        }
+      }
+    });
+  };
+
   const handleStartExpedition = () => {
     if (!selectedPartyLeader) {
       Alert.alert(
@@ -65,7 +86,17 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     knightUID: string,
     choice: 'quest' | 'investigation' | 'free-roam'
   ) => {
+    // Only allow quest selection for the party leader
+    if (choice === 'quest' && !isPartyLeader(knightUID)) {
+      Alert.alert('Quest Restriction', 'Only the party leader can select a quest.');
+      return;
+    }
+
     setKnightExpeditionChoice(campaignId, knightUID, choice);
+  };
+
+  const clearKnightChoice = (knightUID: string) => {
+    clearKnightExpeditionChoice(campaignId, knightUID);
   };
 
   const getKnightChoice = (knightUID: string) => {
@@ -100,7 +131,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               <Button
                 key={member.knightUID}
                 label={member.displayName}
-                onPress={() => setSelectedPartyLeader(member.knightUID)}
+                onPress={() => handlePartyLeaderChange(member.knightUID)}
                 tone={isSelected ? 'accent' : 'default'}
               />
             );
@@ -139,35 +170,37 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                 )}
               </View>
 
-              {choice ? (
-                <View>
-                  <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-                    Selected: {choice.choice.replace('-', ' ').toUpperCase()}
-                  </Text>
-                  <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
-                    Status: {choice.status}
-                  </Text>
-                </View>
-              ) : (
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {isLeader && (
-                    <Button
-                      label='Quest'
-                      onPress={() => handleKnightChoice(member.knightUID, 'quest')}
-                      tone='default'
-                    />
-                  )}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {isLeader && (
                   <Button
-                    label='Investigation'
-                    onPress={() => handleKnightChoice(member.knightUID, 'investigation')}
+                    label='Quest'
+                    onPress={() => handleKnightChoice(member.knightUID, 'quest')}
+                    tone={choice?.choice === 'quest' ? 'accent' : 'default'}
+                  />
+                )}
+                <Button
+                  label='Investigation'
+                  onPress={() => handleKnightChoice(member.knightUID, 'investigation')}
+                  tone={choice?.choice === 'investigation' ? 'accent' : 'default'}
+                />
+                <Button
+                  label='Free Roam'
+                  onPress={() => handleKnightChoice(member.knightUID, 'free-roam')}
+                  tone={choice?.choice === 'free-roam' ? 'accent' : 'default'}
+                />
+                {choice && (
+                  <Button
+                    label='Clear'
+                    onPress={() => clearKnightChoice(member.knightUID)}
                     tone='default'
                   />
-                  <Button
-                    label='Free Roam'
-                    onPress={() => handleKnightChoice(member.knightUID, 'free-roam')}
-                    tone='default'
-                  />
-                </View>
+                )}
+              </View>
+
+              {choice && (
+                <Text style={{ color: tokens.textMuted, fontSize: 12, marginTop: 4 }}>
+                  Status: {choice.status}
+                </Text>
               )}
             </View>
           );

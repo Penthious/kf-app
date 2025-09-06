@@ -163,6 +163,7 @@ describe('CampaignGear', () => {
         startExpedition: jest.fn(),
         setExpeditionPhase: jest.fn(),
         setKnightExpeditionChoice: jest.fn(),
+        clearKnightExpeditionChoice: jest.fn(),
         completeKnightExpeditionChoice: jest.fn(),
       };
 
