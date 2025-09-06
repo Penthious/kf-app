@@ -9,7 +9,7 @@ export default function CampaignExpedition() {
   const { tokens } = useThemeTokens();
   const campaignId = useCampaigns(s => s.currentCampaignId);
   const { campaigns } = useCampaigns();
-  
+
   const campaign = campaignId ? campaigns[campaignId] : undefined;
   const expedition = campaign?.expedition;
 
@@ -47,10 +47,8 @@ export default function CampaignExpedition() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {renderPhaseComponent()}
-      </ScrollView>
+    <View style={{ flex: 1, backgroundColor: tokens.bg }} testID='expedition-container'>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>{renderPhaseComponent()}</ScrollView>
     </View>
   );
 }
