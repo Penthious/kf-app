@@ -179,12 +179,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                   tone={choice?.choice === 'free-roam' ? 'accent' : 'default'}
                 />
               </View>
-
-              {choice && (
-                <Text style={{ color: tokens.textMuted, fontSize: 12, marginTop: 4 }}>
-                  Status: {choice.status}
-                </Text>
-              )}
             </View>
           );
         })}
