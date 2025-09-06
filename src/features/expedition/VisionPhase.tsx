@@ -241,6 +241,24 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               );
               return;
             }
+
+            // Check that all active knights have made their choices
+            const knightsWithoutChoices = activeKnights.filter(member => {
+              const choice = getKnightChoice(member.knightUID);
+              return !choice || !choice.choice;
+            });
+
+            if (knightsWithoutChoices.length > 0) {
+              const knightNames = knightsWithoutChoices
+                .map(member => member.displayName)
+                .join(', ');
+              Alert.alert(
+                'Incomplete Choices',
+                `All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: ${knightNames}`
+              );
+              return;
+            }
+
             setExpeditionPhase(campaignId, 'outpost');
           }}
           tone='accent'
