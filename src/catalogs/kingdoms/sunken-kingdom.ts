@@ -12,6 +12,7 @@ import {
   WINGED_NIGHTMARE_ID,
 } from '@/catalogs/monsters';
 import type { KingdomCatalog } from '@/models/kingdom';
+export const SUNKEN_ID = 'sunken-kingdom';
 
 const ORDER = [
   RATWOLVES_ID,

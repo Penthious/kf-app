@@ -25,6 +25,8 @@ import {
   TOADRAGON_ID,
 } from '@/catalogs/monsters';
 
+export const TEN_THOUSAND_SUCCULENT_FEARS_ID = 'ten-thousand-succulent-fears';
+
 export const TEN_THOUSAND_SUCCULENT_FEARS: KingdomCatalog = {
   id: 'ten-thousand-succulent-fears',
   name: 'Ten Thousand Succulent Fears',

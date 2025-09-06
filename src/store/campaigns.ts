@@ -593,9 +593,16 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
     setKnightExpeditionChoice: (campaignId, knightUID, choice, questId, investigationId) =>
       set(s => {
         const c = s.campaigns[campaignId];
-        if (!c?.expedition) return s;
+        if (!c) return s;
 
-        const existingChoiceIndex = c.expedition.knightChoices.findIndex(
+        // If expedition doesn't exist yet, create it with vision phase
+        const expedition = c.expedition || {
+          currentPhase: 'vision' as ExpeditionPhase,
+          knightChoices: [],
+          phaseStartedAt: Date.now(),
+        };
+
+        const existingChoiceIndex = expedition.knightChoices.findIndex(
           choice => choice.knightUID === knightUID
         );
 
@@ -609,10 +616,10 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
 
         const updatedChoices =
           existingChoiceIndex >= 0
-            ? c.expedition.knightChoices.map((choice, index) =>
+            ? expedition.knightChoices.map((choice, index) =>
                 index === existingChoiceIndex ? newChoice : choice
               )
-            : [...c.expedition.knightChoices, newChoice];
+            : [...expedition.knightChoices, newChoice];
 
         const newState = {
           campaigns: {
@@ -620,7 +627,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             [campaignId]: {
               ...c,
               expedition: {
-                ...c.expedition,
+                ...expedition,
                 knightChoices: updatedChoices,
               },
               updatedAt: Date.now(),

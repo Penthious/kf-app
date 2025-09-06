@@ -52,8 +52,13 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       return;
     }
 
-    startExpedition(campaignId);
+    // Set the party leader first
     setPartyLeader(campaignId, selectedPartyLeader);
+
+    // If expedition doesn't exist yet, start it
+    if (!expedition) {
+      startExpedition(campaignId);
+    }
   };
 
   const handleKnightChoice = (
@@ -174,10 +179,10 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
         <Button label='Start Expedition' onPress={handleStartExpedition} tone='accent' />
       )}
 
-      {expedition && (
+      {expedition && expedition.currentPhase === 'vision' && (
         <View>
           <Text style={{ color: tokens.textMuted, marginBottom: 8 }}>
-            Expedition started! Current phase: {expedition.currentPhase}
+            Vision Phase Complete! Ready to begin expedition.
           </Text>
           <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
             Phase started: {new Date(expedition.phaseStartedAt).toLocaleString()}
