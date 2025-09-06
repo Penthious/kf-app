@@ -1,6 +1,11 @@
 import VisionPhase from '@/features/expedition/VisionPhase';
 import OutpostPhase from '@/features/expedition/OutpostPhase';
 import DelvePhase from '@/features/expedition/DelvePhase';
+import ClashPhase from '@/features/expedition/ClashPhase';
+import RestPhase from '@/features/expedition/RestPhase';
+import SecondDelvePhase from '@/features/expedition/SecondDelvePhase';
+import SecondClashPhase from '@/features/expedition/SecondClashPhase';
+import SpoilsPhase from '@/features/expedition/SpoilsPhase';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { ScrollView, Text, View } from 'react-native';
@@ -38,6 +43,16 @@ export default function CampaignExpedition() {
         return <OutpostPhase campaignId={campaignId} />;
       case 'delve':
         return <DelvePhase campaignId={campaignId} />;
+      case 'clash':
+        return <ClashPhase campaignId={campaignId} />;
+      case 'rest':
+        return <RestPhase campaignId={campaignId} />;
+      case 'second-delve':
+        return <SecondDelvePhase campaignId={campaignId} />;
+      case 'second-clash':
+        return <SecondClashPhase campaignId={campaignId} />;
+      case 'spoils':
+        return <SpoilsPhase campaignId={campaignId} />;
       default:
         return (
           <Card>
