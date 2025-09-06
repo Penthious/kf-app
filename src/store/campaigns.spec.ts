@@ -326,4 +326,135 @@ describe('campaigns store', () => {
     expect(aA?.completedCount).toBe(4);
     expect(aB?.completedCount).toBe(1);
   });
+
+  describe('expedition actions', () => {
+    it('starts expedition and sets initial state', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-1', 'Expedition Campaign');
+
+      useCampaigns.getState().startExpedition('exp-1');
+
+      const campaign = useCampaigns.getState().campaigns['exp-1'];
+      expect(campaign.expedition).toBeTruthy();
+      expect(campaign.expedition!.currentPhase).toBe('vision');
+      expect(campaign.expedition!.knightChoices).toEqual([]);
+      expect(campaign.expedition!.phaseStartedAt).toBe(now);
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('sets expedition phase', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-2', 'Expedition Campaign');
+      useCampaigns.getState().startExpedition('exp-2');
+
+      useCampaigns.getState().setExpeditionPhase('exp-2', 'outpost');
+
+      const campaign = useCampaigns.getState().campaigns['exp-2'];
+      expect(campaign.expedition!.currentPhase).toBe('outpost');
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('sets knight expedition choice', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-3', 'Expedition Campaign');
+
+      // Should create expedition if it doesn't exist
+      useCampaigns.getState().setKnightExpeditionChoice('exp-3', 'knight-1', 'quest');
+
+      const campaign = useCampaigns.getState().campaigns['exp-3'];
+      expect(campaign.expedition).toBeTruthy();
+      expect(campaign.expedition!.knightChoices).toHaveLength(1);
+      expect(campaign.expedition!.knightChoices[0]).toEqual({
+        knightUID: 'knight-1',
+        choice: 'quest',
+        status: 'in-progress',
+      });
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('updates existing knight expedition choice', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-4', 'Expedition Campaign');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-4', 'knight-1', 'quest');
+
+      // Update the choice
+      useCampaigns.getState().setKnightExpeditionChoice('exp-4', 'knight-1', 'investigation');
+
+      const campaign = useCampaigns.getState().campaigns['exp-4'];
+      expect(campaign.expedition!.knightChoices).toHaveLength(1);
+      expect(campaign.expedition!.knightChoices[0]).toEqual({
+        knightUID: 'knight-1',
+        choice: 'investigation',
+        status: 'in-progress',
+      });
+    });
+
+    it('clears knight expedition choice', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-5', 'Expedition Campaign');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-5', 'knight-1', 'quest');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-5', 'knight-2', 'investigation');
+
+      useCampaigns.getState().clearKnightExpeditionChoice('exp-5', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['exp-5'];
+      expect(campaign.expedition!.knightChoices).toHaveLength(1);
+      expect(campaign.expedition!.knightChoices[0].knightUID).toBe('knight-2');
+    });
+
+    it('completes knight expedition choice', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-6', 'Expedition Campaign');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-6', 'knight-1', 'quest');
+
+      useCampaigns.getState().completeKnightExpeditionChoice('exp-6', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['exp-6'];
+      expect(campaign.expedition!.knightChoices[0].status).toBe('completed');
+    });
+
+    it('sets party leader', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-7', 'Expedition Campaign');
+
+      useCampaigns.getState().setPartyLeader('exp-7', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['exp-7'];
+      expect(campaign.partyLeaderUID).toBe('knight-1');
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('handles multiple knight choices correctly', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('exp-8', 'Expedition Campaign');
+
+      useCampaigns.getState().setKnightExpeditionChoice('exp-8', 'knight-1', 'quest');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-8', 'knight-2', 'investigation');
+      useCampaigns.getState().setKnightExpeditionChoice('exp-8', 'knight-3', 'free-roam');
+
+      const campaign = useCampaigns.getState().campaigns['exp-8'];
+      expect(campaign.expedition!.knightChoices).toHaveLength(3);
+
+      const choices = campaign.expedition!.knightChoices;
+      expect(choices.find(c => c.knightUID === 'knight-1')?.choice).toBe('quest');
+      expect(choices.find(c => c.knightUID === 'knight-2')?.choice).toBe('investigation');
+      expect(choices.find(c => c.knightUID === 'knight-3')?.choice).toBe('free-roam');
+    });
+  });
 });
