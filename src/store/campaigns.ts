@@ -1,11 +1,11 @@
 import type {
   Campaign,
   CampaignsState,
+  Clue,
+  Contract,
   ExpeditionPhase,
   KnightExpeditionChoice,
-  Clue,
   Objective,
-  Contract,
 } from '@/models/campaign';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
@@ -75,6 +75,10 @@ export type CampaignsActions = {
   completeContract: (campaignId: string, contractId: string, completedBy: string) => void;
   exploreLocation: (campaignId: string, locationId: string) => void;
   setCurrentLocation: (campaignId: string, locationId: string) => void;
+  advanceThreatTrack: (campaignId: string, amount?: number) => void;
+  advanceTimeTrack: (campaignId: string, amount?: number) => void;
+  setThreatTrackPosition: (campaignId: string, position: number) => void;
+  setTimeTrackPosition: (campaignId: string, position: number) => void;
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => {
@@ -743,6 +747,14 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                   objectives: [],
                   contracts: [],
                   exploredLocations: [],
+                  threatTrack: {
+                    currentPosition: 0,
+                    maxPosition: 9,
+                  },
+                  timeTrack: {
+                    currentPosition: 1,
+                    maxPosition: 16,
+                  },
                 },
               },
               updatedAt: Date.now(),
@@ -970,6 +982,132 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 delveProgress: {
                   ...c.expedition.delveProgress,
                   currentLocation: locationId,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    advanceThreatTrack: (campaignId, amount = 1) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const currentPos = c.expedition.delveProgress.threatTrack.currentPosition;
+        const maxPos = c.expedition.delveProgress.threatTrack.maxPosition;
+        const newPosition = Math.min(currentPos + amount, maxPos);
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  threatTrack: {
+                    ...c.expedition.delveProgress.threatTrack,
+                    currentPosition: newPosition,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    advanceTimeTrack: (campaignId, amount = 1) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const currentPos = c.expedition.delveProgress.timeTrack.currentPosition;
+        const maxPos = c.expedition.delveProgress.timeTrack.maxPosition;
+        const newPosition = Math.min(currentPos + amount, maxPos);
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  timeTrack: {
+                    ...c.expedition.delveProgress.timeTrack,
+                    currentPosition: newPosition,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setThreatTrackPosition: (campaignId, position) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const maxPos = c.expedition.delveProgress.threatTrack.maxPosition;
+        const newPosition = Math.max(0, Math.min(position, maxPos));
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  threatTrack: {
+                    ...c.expedition.delveProgress.threatTrack,
+                    currentPosition: newPosition,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setTimeTrackPosition: (campaignId, position) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const maxPos = c.expedition.delveProgress.timeTrack.maxPosition;
+        const newPosition = Math.max(1, Math.min(position, maxPos));
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  timeTrack: {
+                    ...c.expedition.delveProgress.timeTrack,
+                    currentPosition: newPosition,
+                  },
                 },
               },
               updatedAt: Date.now(),

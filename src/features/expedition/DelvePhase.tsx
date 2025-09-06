@@ -1,9 +1,11 @@
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { allKingdomsCatalog } from '@/catalogs/kingdoms';
-import { Text, View, ScrollView, Alert } from 'react-native';
+import { useEffect } from 'react';
+import { Alert, ScrollView, Text, View } from 'react-native';
+import KingdomTrack from './KingdomTrack';
 
 interface DelvePhaseProps {
   campaignId: string;
@@ -20,9 +22,23 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
     addContract,
     exploreLocation,
     setCurrentLocation,
+    advanceThreatTrack,
+    advanceTimeTrack,
+    setThreatTrackPosition,
+    setTimeTrackPosition,
   } = useCampaigns();
 
   const campaign = campaigns[campaignId];
+  const activeKnights = campaign?.members.filter(member => member.isActive) || [];
+  const selectedKingdom = campaign?.selectedKingdomId;
+  const delveProgress = campaign?.expedition?.delveProgress;
+
+  // Initialize delve progress if it doesn't exist
+  useEffect(() => {
+    if (campaign && !delveProgress) {
+      initializeDelveProgress(campaignId);
+    }
+  }, [campaign, campaignId, delveProgress, initializeDelveProgress]);
 
   if (!campaign) {
     return (
@@ -30,15 +46,6 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
         <Text style={{ color: tokens.textMuted }}>Campaign not found</Text>
       </Card>
     );
-  }
-
-  const activeKnights = campaign.members.filter(member => member.isActive);
-  const selectedKingdom = campaign.selectedKingdomId;
-  const delveProgress = campaign.expedition?.delveProgress;
-
-  // Initialize delve progress if it doesn't exist
-  if (!delveProgress) {
-    initializeDelveProgress(campaignId);
   }
 
   if (activeKnights.length === 0) {
@@ -125,6 +132,48 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
     Alert.alert('Contract Available', 'A new contract is now available for your party.');
   };
 
+  const handleAdvanceThreat = () => {
+    const currentThreat = delveProgress?.threatTrack.currentPosition || 0;
+    const newThreat = currentThreat + 1;
+    const isFirstTimeAboveSeven = currentThreat < 7 && newThreat >= 7;
+
+    advanceThreatTrack(campaignId, 1);
+
+    if (isFirstTimeAboveSeven) {
+      Alert.alert(
+        'Monster Spawn!',
+        'Additionally, when you raise your threat to 7 or above for the first time during the current Expedition, spawn an Encounter Monster token onto an adjacent Kingdom tile (after moving all other Encounter Monsters). The Encounter Monster token should correspond to the Encounter Monster of your district, as per the District Wheel.',
+        [{ text: 'Got it!', style: 'default' }]
+      );
+    } else {
+      Alert.alert('Threat Increased', 'The threat level has increased!');
+    }
+  };
+
+  const handleAdvanceTime = () => {
+    advanceTimeTrack(campaignId, 1);
+    Alert.alert('Time Passed', 'Time has advanced on the kingdom track.');
+  };
+
+  const handleThreatTrackPress = (segmentNumber: number) => {
+    const currentThreat = delveProgress?.threatTrack.currentPosition || 0;
+    const isFirstTimeAboveSeven = currentThreat < 7 && segmentNumber >= 7;
+
+    setThreatTrackPosition(campaignId, segmentNumber);
+
+    if (isFirstTimeAboveSeven) {
+      Alert.alert(
+        'Monster Spawn!',
+        'Additionally, when you raise your threat to 7 or above for the first time during the current Expedition, spawn an Encounter Monster token onto an adjacent Kingdom tile (after moving all other Encounter Monsters). The Encounter Monster token should correspond to the Encounter Monster of your district, as per the District Wheel.',
+        [{ text: 'Got it!', style: 'default' }]
+      );
+    }
+  };
+
+  const handleTimeTrackPress = (segmentNumber: number) => {
+    setTimeTrackPosition(campaignId, segmentNumber);
+  };
+
   return (
     <ScrollView>
       <Card style={{ marginBottom: 16 }}>
@@ -168,12 +217,76 @@ export default function DelvePhase({ campaignId }: DelvePhaseProps) {
             </Text>
           </View>
         )}
+      </Card>
 
+      {/* Kingdom Tracks */}
+      {delveProgress && (
+        <View style={{ marginBottom: 16 }}>
+          {/* Threat Track */}
+          <KingdomTrack
+            title='Threat Track'
+            icon='skull'
+            style='threat'
+            currentPosition={delveProgress.threatTrack.currentPosition}
+            onSegmentPress={handleThreatTrackPress}
+            segments={[
+              { id: 'threat-0', number: 0 },
+              { id: 'threat-1', number: 1 },
+              { id: 'threat-2', number: 2 },
+              { id: 'threat-3', number: 3, isHuntSpace: true, huntSpaceType: 'single' },
+              { id: 'threat-4', number: 4 },
+              { id: 'threat-5', number: 5, isHuntSpace: true, huntSpaceType: 'double' },
+              { id: 'threat-6', number: 6 },
+              { id: 'threat-7', number: 7, isHuntSpace: true, huntSpaceType: 'single' },
+              { id: 'threat-8', number: 8, isHuntSpace: true, huntSpaceType: 'single' },
+              {
+                id: 'threat-9',
+                number: 9,
+                isSpecial: true,
+                isHuntSpace: true,
+                huntSpaceType: 'double',
+                label: '6666',
+              },
+            ]}
+          />
+
+          {/* Time Track */}
+          <KingdomTrack
+            title='Time Track'
+            icon='crown'
+            style='time'
+            currentPosition={delveProgress.timeTrack.currentPosition}
+            onSegmentPress={handleTimeTrackPress}
+            segments={[
+              { id: 'time-1', number: 1 },
+              { id: 'time-2', number: 2 },
+              { id: 'time-3', number: 3 },
+              { id: 'time-4', number: 4 },
+              { id: 'time-5', number: 5 },
+              { id: 'time-6', number: 6 },
+              { id: 'time-7', number: 7 },
+              { id: 'time-8', number: 8, isSpecial: true, label: 'EXHIBITION CLASH' },
+              { id: 'time-9', number: 9 },
+              { id: 'time-10', number: 10 },
+              { id: 'time-11', number: 11 },
+              { id: 'time-12', number: 12 },
+              { id: 'time-13', number: 13 },
+              { id: 'time-14', number: 14 },
+              { id: 'time-15', number: 15 },
+              { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
+            ]}
+          />
+        </View>
+      )}
+
+      <Card style={{ marginBottom: 16 }}>
         <View style={{ marginTop: 16, gap: 8 }}>
           <Button label='Explore Location' onPress={handleExploreLocation} />
           <Button label='Collect Clue' onPress={handleCollectClue} />
           <Button label='Add Sample Objective' onPress={handleAddObjective} />
           <Button label='Add Sample Contract' onPress={handleAddContract} />
+          <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
+          <Button label='Advance Time Track' onPress={handleAdvanceTime} />
         </View>
       </Card>
 

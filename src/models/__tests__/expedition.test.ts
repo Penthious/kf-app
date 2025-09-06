@@ -1,13 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import type {
-  ExpeditionPhase,
-  KnightExpeditionChoice,
-  ExpeditionState,
   Campaign,
   Clue,
-  Objective,
   Contract,
   DelveProgress,
+  ExpeditionPhase,
+  ExpeditionState,
+  KnightExpeditionChoice,
+  Objective,
 } from '../campaign';
 
 describe('Expedition Types', () => {
@@ -335,6 +335,14 @@ describe('Expedition Types', () => {
           ],
           exploredLocations: ['location-1', 'location-2'],
           currentLocation: 'location-2',
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
         };
 
         expect(delveProgress.clues).toHaveLength(1);
@@ -350,6 +358,14 @@ describe('Expedition Types', () => {
           objectives: [],
           contracts: [],
           exploredLocations: [],
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
         };
 
         expect(delveProgress.clues).toEqual([]);
@@ -357,6 +373,10 @@ describe('Expedition Types', () => {
         expect(delveProgress.contracts).toEqual([]);
         expect(delveProgress.exploredLocations).toEqual([]);
         expect(delveProgress.currentLocation).toBeUndefined();
+        expect(delveProgress.threatTrack.currentPosition).toBe(0);
+        expect(delveProgress.threatTrack.maxPosition).toBe(9);
+        expect(delveProgress.timeTrack.currentPosition).toBe(1);
+        expect(delveProgress.timeTrack.maxPosition).toBe(16);
       });
     });
   });
@@ -372,6 +392,14 @@ describe('Expedition Types', () => {
           objectives: [],
           contracts: [],
           exploredLocations: [],
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
         },
       };
 

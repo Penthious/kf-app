@@ -486,6 +486,14 @@ describe('campaigns store', () => {
         objectives: [],
         contracts: [],
         exploredLocations: [],
+        threatTrack: {
+          currentPosition: 0,
+          maxPosition: 9,
+        },
+        timeTrack: {
+          currentPosition: 1,
+          maxPosition: 16,
+        },
       });
       expect(campaign.updatedAt).toBe(now);
     });
@@ -674,6 +682,90 @@ describe('campaigns store', () => {
       const campaign = useCampaigns.getState().campaigns['delve-10'];
       const currentLocation = campaign.expedition?.delveProgress?.currentLocation;
       expect(currentLocation).toBe('location-1');
+    });
+
+    it('advanceThreatTrack advances threat position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-11', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-11');
+      useCampaigns.getState().initializeDelveProgress('delve-11');
+      useCampaigns.getState().advanceThreatTrack('delve-11', 2);
+
+      const campaign = useCampaigns.getState().campaigns['delve-11'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(2);
+    });
+
+    it('advanceThreatTrack respects max position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-12', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-12');
+      useCampaigns.getState().initializeDelveProgress('delve-12');
+      useCampaigns.getState().advanceThreatTrack('delve-12', 15); // More than max
+
+      const campaign = useCampaigns.getState().campaigns['delve-12'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(9); // Max position
+    });
+
+    it('advanceTimeTrack advances time position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-13', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-13');
+      useCampaigns.getState().initializeDelveProgress('delve-13');
+      useCampaigns.getState().advanceTimeTrack('delve-13', 3);
+
+      const campaign = useCampaigns.getState().campaigns['delve-13'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(4); // Started at 1, advanced by 3
+    });
+
+    it('advanceTimeTrack respects max position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-14', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-14');
+      useCampaigns.getState().initializeDelveProgress('delve-14');
+      useCampaigns.getState().advanceTimeTrack('delve-14', 20); // More than max
+
+      const campaign = useCampaigns.getState().campaigns['delve-14'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(16); // Max position
+    });
+
+    it('setThreatTrackPosition sets specific position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-15', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-15');
+      useCampaigns.getState().initializeDelveProgress('delve-15');
+      useCampaigns.getState().setThreatTrackPosition('delve-15', 5);
+
+      const campaign = useCampaigns.getState().campaigns['delve-15'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(5);
+    });
+
+    it('setTimeTrackPosition sets specific position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-16', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-16');
+      useCampaigns.getState().initializeDelveProgress('delve-16');
+      useCampaigns.getState().setTimeTrackPosition('delve-16', 8);
+
+      const campaign = useCampaigns.getState().campaigns['delve-16'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(8);
     });
   });
 });

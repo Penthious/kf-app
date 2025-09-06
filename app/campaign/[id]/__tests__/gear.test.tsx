@@ -175,6 +175,10 @@ describe('CampaignGear', () => {
         completeContract: jest.fn(),
         exploreLocation: jest.fn(),
         setCurrentLocation: jest.fn(),
+        advanceThreatTrack: jest.fn(),
+        advanceTimeTrack: jest.fn(),
+        setThreatTrackPosition: jest.fn(),
+        setTimeTrackPosition: jest.fn(),
       };
 
       if (typeof selector === 'function') {

@@ -61,6 +61,14 @@ export type DelveProgress = {
   contracts: Contract[];
   exploredLocations: string[]; // location IDs
   currentLocation?: string; // current location ID
+  threatTrack: {
+    currentPosition: number;
+    maxPosition: number;
+  };
+  timeTrack: {
+    currentPosition: number;
+    maxPosition: number;
+  };
 };
 
 export type ExpeditionState = {
