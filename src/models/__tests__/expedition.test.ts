@@ -1,9 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import type {
-  ExpeditionPhase,
-  KnightExpeditionChoice,
-  ExpeditionState,
   Campaign,
+  Clue,
+  Contract,
+  DelveProgress,
+  ExpeditionPhase,
+  ExpeditionState,
+  KnightExpeditionChoice,
+  Objective,
 } from '../campaign';
 
 describe('Expedition Types', () => {
@@ -188,6 +192,230 @@ describe('Expedition Types', () => {
       };
 
       expect('isLeader' in member).toBe(false);
+    });
+  });
+
+  describe('Delve Progress Types', () => {
+    describe('Clue', () => {
+      it('should create valid clue', () => {
+        const clue: Clue = {
+          id: 'clue-1',
+          name: 'Mysterious Clue',
+          description: 'A piece of information that might be useful for your quest.',
+          discoveredAt: 1700000000000,
+          discoveredBy: 'knight-1',
+        };
+
+        expect(clue.id).toBe('clue-1');
+        expect(clue.name).toBe('Mysterious Clue');
+        expect(clue.description).toBe(
+          'A piece of information that might be useful for your quest.'
+        );
+        expect(clue.discoveredAt).toBe(1700000000000);
+        expect(clue.discoveredBy).toBe('knight-1');
+      });
+    });
+
+    describe('Objective', () => {
+      it('should create valid active objective', () => {
+        const objective: Objective = {
+          id: 'obj-1',
+          name: 'Sample Objective',
+          description: 'Complete this objective to progress in your expedition.',
+          status: 'active',
+        };
+
+        expect(objective.id).toBe('obj-1');
+        expect(objective.name).toBe('Sample Objective');
+        expect(objective.description).toBe(
+          'Complete this objective to progress in your expedition.'
+        );
+        expect(objective.status).toBe('active');
+        expect(objective.completedAt).toBeUndefined();
+        expect(objective.completedBy).toBeUndefined();
+      });
+
+      it('should create valid completed objective', () => {
+        const objective: Objective = {
+          id: 'obj-2',
+          name: 'Completed Objective',
+          description: 'This objective has been completed.',
+          status: 'completed',
+          completedAt: 1700000000000,
+          completedBy: 'knight-1',
+        };
+
+        expect(objective.status).toBe('completed');
+        expect(objective.completedAt).toBe(1700000000000);
+        expect(objective.completedBy).toBe('knight-1');
+      });
+    });
+
+    describe('Contract', () => {
+      it('should create valid available contract', () => {
+        const contract: Contract = {
+          id: 'contract-1',
+          name: 'Sample Contract',
+          description: 'Accept this contract to earn rewards.',
+          status: 'available',
+        };
+
+        expect(contract.id).toBe('contract-1');
+        expect(contract.name).toBe('Sample Contract');
+        expect(contract.description).toBe('Accept this contract to earn rewards.');
+        expect(contract.status).toBe('available');
+        expect(contract.acceptedAt).toBeUndefined();
+        expect(contract.acceptedBy).toBeUndefined();
+        expect(contract.completedAt).toBeUndefined();
+        expect(contract.completedBy).toBeUndefined();
+      });
+
+      it('should create valid accepted contract', () => {
+        const contract: Contract = {
+          id: 'contract-2',
+          name: 'Accepted Contract',
+          description: 'This contract has been accepted.',
+          status: 'accepted',
+          acceptedAt: 1700000000000,
+          acceptedBy: 'knight-1',
+        };
+
+        expect(contract.status).toBe('accepted');
+        expect(contract.acceptedAt).toBe(1700000000000);
+        expect(contract.acceptedBy).toBe('knight-1');
+      });
+
+      it('should create valid completed contract', () => {
+        const contract: Contract = {
+          id: 'contract-3',
+          name: 'Completed Contract',
+          description: 'This contract has been completed.',
+          status: 'completed',
+          acceptedAt: 1700000000000,
+          acceptedBy: 'knight-1',
+          completedAt: 1700000001000,
+          completedBy: 'knight-1',
+        };
+
+        expect(contract.status).toBe('completed');
+        expect(contract.acceptedAt).toBe(1700000000000);
+        expect(contract.acceptedBy).toBe('knight-1');
+        expect(contract.completedAt).toBe(1700000001000);
+        expect(contract.completedBy).toBe('knight-1');
+      });
+    });
+
+    describe('DelveProgress', () => {
+      it('should create valid delve progress', () => {
+        const delveProgress: DelveProgress = {
+          clues: [
+            {
+              id: 'clue-1',
+              name: 'Mysterious Clue',
+              description: 'A piece of information.',
+              discoveredAt: 1700000000000,
+              discoveredBy: 'knight-1',
+            },
+          ],
+          objectives: [
+            {
+              id: 'obj-1',
+              name: 'Sample Objective',
+              description: 'Complete this objective.',
+              status: 'active',
+            },
+          ],
+          contracts: [
+            {
+              id: 'contract-1',
+              name: 'Sample Contract',
+              description: 'Accept this contract.',
+              status: 'available',
+            },
+          ],
+          exploredLocations: ['location-1', 'location-2'],
+          currentLocation: 'location-2',
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
+        };
+
+        expect(delveProgress.clues).toHaveLength(1);
+        expect(delveProgress.objectives).toHaveLength(1);
+        expect(delveProgress.contracts).toHaveLength(1);
+        expect(delveProgress.exploredLocations).toHaveLength(2);
+        expect(delveProgress.currentLocation).toBe('location-2');
+      });
+
+      it('should create empty delve progress', () => {
+        const delveProgress: DelveProgress = {
+          clues: [],
+          objectives: [],
+          contracts: [],
+          exploredLocations: [],
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
+        };
+
+        expect(delveProgress.clues).toEqual([]);
+        expect(delveProgress.objectives).toEqual([]);
+        expect(delveProgress.contracts).toEqual([]);
+        expect(delveProgress.exploredLocations).toEqual([]);
+        expect(delveProgress.currentLocation).toBeUndefined();
+        expect(delveProgress.threatTrack.currentPosition).toBe(0);
+        expect(delveProgress.threatTrack.maxPosition).toBe(9);
+        expect(delveProgress.timeTrack.currentPosition).toBe(1);
+        expect(delveProgress.timeTrack.maxPosition).toBe(16);
+      });
+    });
+  });
+
+  describe('ExpeditionState with DelveProgress', () => {
+    it('should create expedition state with delve progress', () => {
+      const expeditionState: ExpeditionState = {
+        currentPhase: 'delve',
+        knightChoices: [],
+        phaseStartedAt: 1700000000000,
+        delveProgress: {
+          clues: [],
+          objectives: [],
+          contracts: [],
+          exploredLocations: [],
+          threatTrack: {
+            currentPosition: 0,
+            maxPosition: 9,
+          },
+          timeTrack: {
+            currentPosition: 1,
+            maxPosition: 16,
+          },
+        },
+      };
+
+      expect(expeditionState.currentPhase).toBe('delve');
+      expect(expeditionState.delveProgress).toBeTruthy();
+      expect(expeditionState.delveProgress?.clues).toEqual([]);
+    });
+
+    it('should handle expedition state without delve progress', () => {
+      const expeditionState: ExpeditionState = {
+        currentPhase: 'vision',
+        knightChoices: [],
+        phaseStartedAt: 1700000000000,
+      };
+
+      expect(expeditionState.delveProgress).toBeUndefined();
     });
   });
 });

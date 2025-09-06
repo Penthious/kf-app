@@ -470,4 +470,302 @@ describe('campaigns store', () => {
       expect(campaign.updatedAt).toBe(now);
     });
   });
+
+  describe('delve progress actions', () => {
+    it('initializeDelveProgress creates delve progress state', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-1', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-1');
+      useCampaigns.getState().initializeDelveProgress('delve-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-1'];
+      expect(campaign.expedition?.delveProgress).toEqual({
+        clues: [],
+        objectives: [],
+        contracts: [],
+        exploredLocations: [],
+        threatTrack: {
+          currentPosition: 0,
+          maxPosition: 9,
+        },
+        timeTrack: {
+          currentPosition: 1,
+          maxPosition: 16,
+        },
+      });
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('addClue adds a clue to delve progress', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-2', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-2');
+      useCampaigns.getState().initializeDelveProgress('delve-2');
+      useCampaigns.getState().addClue('delve-2', {
+        id: 'clue-1',
+        name: 'Test Clue',
+        description: 'A test clue',
+        discoveredBy: 'knight-1',
+      });
+
+      const campaign = useCampaigns.getState().campaigns['delve-2'];
+      const clues = campaign.expedition?.delveProgress?.clues;
+      expect(clues).toHaveLength(1);
+      expect(clues?.[0]).toEqual({
+        id: 'clue-1',
+        name: 'Test Clue',
+        description: 'A test clue',
+        discoveredBy: 'knight-1',
+        discoveredAt: now,
+      });
+    });
+
+    it('addObjective adds an objective to delve progress', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-3', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-3');
+      useCampaigns.getState().initializeDelveProgress('delve-3');
+      useCampaigns.getState().addObjective('delve-3', {
+        id: 'obj-1',
+        name: 'Test Objective',
+        description: 'A test objective',
+        status: 'active',
+      });
+
+      const campaign = useCampaigns.getState().campaigns['delve-3'];
+      const objectives = campaign.expedition?.delveProgress?.objectives;
+      expect(objectives).toHaveLength(1);
+      expect(objectives?.[0]).toEqual({
+        id: 'obj-1',
+        name: 'Test Objective',
+        description: 'A test objective',
+        status: 'active',
+      });
+    });
+
+    it('completeObjective marks objective as completed', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-4', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-4');
+      useCampaigns.getState().initializeDelveProgress('delve-4');
+      useCampaigns.getState().addObjective('delve-4', {
+        id: 'obj-1',
+        name: 'Test Objective',
+        description: 'A test objective',
+        status: 'active',
+      });
+      useCampaigns.getState().completeObjective('delve-4', 'obj-1', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-4'];
+      const objective = campaign.expedition?.delveProgress?.objectives[0];
+      expect(objective?.status).toBe('completed');
+      expect(objective?.completedAt).toBe(now);
+      expect(objective?.completedBy).toBe('knight-1');
+    });
+
+    it('addContract adds a contract to delve progress', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-5', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-5');
+      useCampaigns.getState().initializeDelveProgress('delve-5');
+      useCampaigns.getState().addContract('delve-5', {
+        id: 'contract-1',
+        name: 'Test Contract',
+        description: 'A test contract',
+        status: 'available',
+      });
+
+      const campaign = useCampaigns.getState().campaigns['delve-5'];
+      const contracts = campaign.expedition?.delveProgress?.contracts;
+      expect(contracts).toHaveLength(1);
+      expect(contracts?.[0]).toEqual({
+        id: 'contract-1',
+        name: 'Test Contract',
+        description: 'A test contract',
+        status: 'available',
+      });
+    });
+
+    it('acceptContract marks contract as accepted', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-6', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-6');
+      useCampaigns.getState().initializeDelveProgress('delve-6');
+      useCampaigns.getState().addContract('delve-6', {
+        id: 'contract-1',
+        name: 'Test Contract',
+        description: 'A test contract',
+        status: 'available',
+      });
+      useCampaigns.getState().acceptContract('delve-6', 'contract-1', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-6'];
+      const contract = campaign.expedition?.delveProgress?.contracts[0];
+      expect(contract?.status).toBe('accepted');
+      expect(contract?.acceptedAt).toBe(now);
+      expect(contract?.acceptedBy).toBe('knight-1');
+    });
+
+    it('completeContract marks contract as completed', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-7', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-7');
+      useCampaigns.getState().initializeDelveProgress('delve-7');
+      useCampaigns.getState().addContract('delve-7', {
+        id: 'contract-1',
+        name: 'Test Contract',
+        description: 'A test contract',
+        status: 'available',
+      });
+      useCampaigns.getState().completeContract('delve-7', 'contract-1', 'knight-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-7'];
+      const contract = campaign.expedition?.delveProgress?.contracts[0];
+      expect(contract?.status).toBe('completed');
+      expect(contract?.completedAt).toBe(now);
+      expect(contract?.completedBy).toBe('knight-1');
+    });
+
+    it('exploreLocation adds location to explored locations', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-8', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-8');
+      useCampaigns.getState().initializeDelveProgress('delve-8');
+      useCampaigns.getState().exploreLocation('delve-8', 'location-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-8'];
+      const exploredLocations = campaign.expedition?.delveProgress?.exploredLocations;
+      expect(exploredLocations).toContain('location-1');
+    });
+
+    it('exploreLocation does not add duplicate locations', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-9', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-9');
+      useCampaigns.getState().initializeDelveProgress('delve-9');
+      useCampaigns.getState().exploreLocation('delve-9', 'location-1');
+      useCampaigns.getState().exploreLocation('delve-9', 'location-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-9'];
+      const exploredLocations = campaign.expedition?.delveProgress?.exploredLocations;
+      expect(exploredLocations).toHaveLength(1);
+      expect(exploredLocations).toContain('location-1');
+    });
+
+    it('setCurrentLocation sets the current location', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-10', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-10');
+      useCampaigns.getState().initializeDelveProgress('delve-10');
+      useCampaigns.getState().setCurrentLocation('delve-10', 'location-1');
+
+      const campaign = useCampaigns.getState().campaigns['delve-10'];
+      const currentLocation = campaign.expedition?.delveProgress?.currentLocation;
+      expect(currentLocation).toBe('location-1');
+    });
+
+    it('advanceThreatTrack advances threat position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-11', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-11');
+      useCampaigns.getState().initializeDelveProgress('delve-11');
+      useCampaigns.getState().advanceThreatTrack('delve-11', 2);
+
+      const campaign = useCampaigns.getState().campaigns['delve-11'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(2);
+    });
+
+    it('advanceThreatTrack respects max position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-12', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-12');
+      useCampaigns.getState().initializeDelveProgress('delve-12');
+      useCampaigns.getState().advanceThreatTrack('delve-12', 15); // More than max
+
+      const campaign = useCampaigns.getState().campaigns['delve-12'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(9); // Max position
+    });
+
+    it('advanceTimeTrack advances time position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-13', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-13');
+      useCampaigns.getState().initializeDelveProgress('delve-13');
+      useCampaigns.getState().advanceTimeTrack('delve-13', 3);
+
+      const campaign = useCampaigns.getState().campaigns['delve-13'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(4); // Started at 1, advanced by 3
+    });
+
+    it('advanceTimeTrack respects max position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-14', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-14');
+      useCampaigns.getState().initializeDelveProgress('delve-14');
+      useCampaigns.getState().advanceTimeTrack('delve-14', 20); // More than max
+
+      const campaign = useCampaigns.getState().campaigns['delve-14'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(16); // Max position
+    });
+
+    it('setThreatTrackPosition sets specific position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-15', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-15');
+      useCampaigns.getState().initializeDelveProgress('delve-15');
+      useCampaigns.getState().setThreatTrackPosition('delve-15', 5);
+
+      const campaign = useCampaigns.getState().campaigns['delve-15'];
+      const threatTrack = campaign.expedition?.delveProgress?.threatTrack;
+      expect(threatTrack?.currentPosition).toBe(5);
+    });
+
+    it('setTimeTrackPosition sets specific position', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('delve-16', 'Delve Campaign');
+      useCampaigns.getState().startExpedition('delve-16');
+      useCampaigns.getState().initializeDelveProgress('delve-16');
+      useCampaigns.getState().setTimeTrackPosition('delve-16', 8);
+
+      const campaign = useCampaigns.getState().campaigns['delve-16'];
+      const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
+      expect(timeTrack?.currentPosition).toBe(8);
+    });
+  });
 });

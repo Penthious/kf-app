@@ -166,6 +166,19 @@ describe('CampaignGear', () => {
         clearKnightExpeditionChoice: jest.fn(),
         completeKnightExpeditionChoice: jest.fn(),
         setSelectedKingdom: jest.fn(),
+        initializeDelveProgress: jest.fn(),
+        addClue: jest.fn(),
+        addObjective: jest.fn(),
+        completeObjective: jest.fn(),
+        addContract: jest.fn(),
+        acceptContract: jest.fn(),
+        completeContract: jest.fn(),
+        exploreLocation: jest.fn(),
+        setCurrentLocation: jest.fn(),
+        advanceThreatTrack: jest.fn(),
+        advanceTimeTrack: jest.fn(),
+        setThreatTrackPosition: jest.fn(),
+        setTimeTrackPosition: jest.fn(),
       };
 
       if (typeof selector === 'function') {
