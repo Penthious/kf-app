@@ -1,10 +1,12 @@
 import type {
   Campaign,
   CampaignsState,
+  ClashResult,
   Clue,
   Contract,
   ExpeditionPhase,
   KnightExpeditionChoice,
+  LootCard,
   Objective,
 } from '@/models/campaign';
 import { create } from 'zustand';
@@ -79,6 +81,47 @@ export type CampaignsActions = {
   advanceTimeTrack: (campaignId: string, amount?: number) => void;
   setThreatTrackPosition: (campaignId: string, position: number) => void;
   setTimeTrackPosition: (campaignId: string, position: number) => void;
+
+  // Clash phase actions
+  startClash: (campaignId: string, type: 'exhibition' | 'full') => void;
+  completeClash: (
+    campaignId: string,
+    outcome: 'victory' | 'defeat',
+    woundsDealt: number,
+    woundsReceived: number,
+    specialEffects?: string[]
+  ) => void;
+
+  // Rest phase actions
+  startRestPhase: (campaignId: string) => void;
+  useRestAbility: (campaignId: string, abilityId: string) => void;
+  discardResourceTokens: (campaignId: string, count: number) => void;
+  performMonsterRotation: (campaignId: string) => void;
+  resolveCampfireTale: (
+    campaignId: string,
+    taleId: string,
+    rapportBonus: number,
+    result: string
+  ) => void;
+
+  // Spoils phase actions
+  startSpoilsPhase: (campaignId: string) => void;
+  addLootCard: (
+    campaignId: string,
+    type: 'kingdom-gear' | 'upgrade' | 'consumable-gear' | 'exhibition-clash' | 'full-clash',
+    source: string,
+    obtainedBy: string
+  ) => void;
+  exchangeLootForGold: (campaignId: string, lootCardId: string, goldAmount: number) => void;
+  exchangeLootForGear: (campaignId: string, lootCardId: string, gearCardId: string) => void;
+  completeQuest: (
+    campaignId: string,
+    knightUID: string,
+    status: 'success' | 'failure',
+    details: string,
+    rewards?: string[]
+  ) => void;
+  endExpedition: (campaignId: string) => void;
 };
 
 export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get) => {
@@ -1110,6 +1153,395 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                   },
                 },
               },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    // Clash phase actions
+    startClash: (campaignId, type) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                currentPhase: 'clash' as ExpeditionPhase,
+                phaseStartedAt: Date.now(),
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    completeClash: (campaignId, outcome, woundsDealt, woundsReceived, specialEffects) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const clashResult: ClashResult = {
+          type: c.expedition.currentPhase === 'clash' ? 'exhibition' : 'full',
+          outcome,
+          completedAt: Date.now(),
+          woundsDealt,
+          woundsReceived,
+          specialEffects,
+        };
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                clashResults: [...(c.expedition.clashResults || []), clashResult],
+                currentPhase: outcome === 'victory' ? 'rest' : ('spoils' as ExpeditionPhase),
+                phaseStartedAt: Date.now(),
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    // Rest phase actions
+    startRestPhase: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                currentPhase: 'rest' as ExpeditionPhase,
+                phaseStartedAt: Date.now(),
+                restProgress: {
+                  restAbilitiesUsed: [],
+                  resourceTokensDiscarded: 0,
+                  monsterRotationPerformed: false,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    useRestAbility: (campaignId, abilityId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.restProgress) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                restProgress: {
+                  ...c.expedition.restProgress,
+                  restAbilitiesUsed: [...c.expedition.restProgress.restAbilitiesUsed, abilityId],
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    discardResourceTokens: (campaignId, count) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.restProgress) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                restProgress: {
+                  ...c.expedition.restProgress,
+                  resourceTokensDiscarded:
+                    c.expedition.restProgress.resourceTokensDiscarded + count,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    performMonsterRotation: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.restProgress) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                restProgress: {
+                  ...c.expedition.restProgress,
+                  monsterRotationPerformed: true,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    resolveCampfireTale: (campaignId, taleId, rapportBonus, result) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.restProgress) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                restProgress: {
+                  ...c.expedition.restProgress,
+                  campfireTaleResolved: {
+                    taleId,
+                    rapportBonus,
+                    result,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    // Spoils phase actions
+    startSpoilsPhase: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                currentPhase: 'spoils' as ExpeditionPhase,
+                phaseStartedAt: Date.now(),
+                spoilsProgress: {
+                  lootDeck: [],
+                  goldEarned: 0,
+                  gearAcquired: [],
+                  questCompletions: [],
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    addLootCard: (campaignId, type, source, obtainedBy) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.spoilsProgress) return s;
+
+        const lootCard: LootCard = {
+          id: `loot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          type,
+          source,
+          obtainedAt: Date.now(),
+          obtainedBy,
+        };
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  lootDeck: [...c.expedition.spoilsProgress.lootDeck, lootCard],
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    exchangeLootForGold: (campaignId, lootCardId, goldAmount) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.spoilsProgress) return s;
+
+        const updatedLootDeck = c.expedition.spoilsProgress.lootDeck.map(loot =>
+          loot.id === lootCardId
+            ? { ...loot, exchangedFor: 'gold' as const, exchangedAt: Date.now() }
+            : loot
+        );
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  lootDeck: updatedLootDeck,
+                  goldEarned: c.expedition.spoilsProgress.goldEarned + goldAmount,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    exchangeLootForGear: (campaignId, lootCardId, gearCardId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.spoilsProgress) return s;
+
+        const updatedLootDeck = c.expedition.spoilsProgress.lootDeck.map(loot =>
+          loot.id === lootCardId
+            ? { ...loot, exchangedFor: 'gear' as const, exchangedAt: Date.now(), gearCardId }
+            : loot
+        );
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  lootDeck: updatedLootDeck,
+                  gearAcquired: [...c.expedition.spoilsProgress.gearAcquired, gearCardId],
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    completeQuest: (campaignId, knightUID, status, details, rewards) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.spoilsProgress) return s;
+
+        const knightChoice = c.expedition.knightChoices.find(
+          choice => choice.knightUID === knightUID
+        );
+        if (!knightChoice) return s;
+
+        const questCompletion = {
+          knightUID,
+          choice: knightChoice,
+          completionStatus: status,
+          rewards,
+        };
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  questCompletions: [
+                    ...c.expedition.spoilsProgress.questCompletions,
+                    questCompletion,
+                  ],
+                },
+                knightChoices: c.expedition.knightChoices.map(choice =>
+                  choice.knightUID === knightUID
+                    ? {
+                        ...choice,
+                        status: status === 'success' ? ('completed' as const) : ('failed' as const),
+                        completedAt: status === 'success' ? Date.now() : undefined,
+                        failedAt: status === 'failure' ? Date.now() : undefined,
+                        successDetails: status === 'success' ? details : undefined,
+                        failureDetails: status === 'failure' ? details : undefined,
+                      }
+                    : choice
+                ),
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    endExpedition: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: undefined, // Remove all expedition data
               updatedAt: Date.now(),
             },
           },

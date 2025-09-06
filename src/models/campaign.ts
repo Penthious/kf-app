@@ -24,7 +24,11 @@ export type KnightExpeditionChoice = {
   choice: 'quest' | 'investigation' | 'free-roam';
   questId?: string; // if choice is 'quest'
   investigationId?: string; // if choice is 'investigation'
-  status: 'in-progress' | 'completed';
+  status: 'in-progress' | 'completed' | 'failed';
+  completedAt?: number;
+  failedAt?: number;
+  successDetails?: string; // details about how it was completed
+  failureDetails?: string; // details about why it failed
 };
 
 export type Clue = {
@@ -71,11 +75,57 @@ export type DelveProgress = {
   };
 };
 
+export type ClashResult = {
+  type: 'exhibition' | 'full';
+  outcome: 'victory' | 'defeat';
+  completedAt: number;
+  woundsDealt: number;
+  woundsReceived: number;
+  specialEffects?: string[]; // any special effects from the clash
+};
+
+export type RestPhaseProgress = {
+  restAbilitiesUsed: string[]; // technique cards with Rest keyword
+  resourceTokensDiscarded: number;
+  monsterRotationPerformed: boolean;
+  campfireTaleResolved?: {
+    taleId: string;
+    rapportBonus: number;
+    result: string;
+  };
+};
+
+export type LootCard = {
+  id: string;
+  type: 'kingdom-gear' | 'upgrade' | 'consumable-gear' | 'exhibition-clash' | 'full-clash';
+  source: string; // where it was obtained
+  obtainedAt: number;
+  obtainedBy: string; // knightUID
+  exchangedFor?: 'gold' | 'gear';
+  exchangedAt?: number;
+  gearCardId?: string; // if exchanged for gear
+};
+
+export type SpoilsProgress = {
+  lootDeck: LootCard[];
+  goldEarned: number;
+  gearAcquired: string[]; // gear card IDs
+  questCompletions: {
+    knightUID: string;
+    choice: KnightExpeditionChoice;
+    completionStatus: 'success' | 'failure';
+    rewards?: string[]; // any special rewards
+  }[];
+};
+
 export type ExpeditionState = {
   currentPhase: ExpeditionPhase;
   knightChoices: KnightExpeditionChoice[];
   phaseStartedAt: number;
   delveProgress?: DelveProgress;
+  clashResults?: ClashResult[];
+  restProgress?: RestPhaseProgress;
+  spoilsProgress?: SpoilsProgress;
 };
 
 export type CampaignSettings = {

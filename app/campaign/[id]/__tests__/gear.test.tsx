@@ -179,6 +179,19 @@ describe('CampaignGear', () => {
         advanceTimeTrack: jest.fn(),
         setThreatTrackPosition: jest.fn(),
         setTimeTrackPosition: jest.fn(),
+        startClash: jest.fn(),
+        completeClash: jest.fn(),
+        startRestPhase: jest.fn(),
+        useRestAbility: jest.fn(),
+        discardResourceTokens: jest.fn(),
+        performMonsterRotation: jest.fn(),
+        resolveCampfireTale: jest.fn(),
+        startSpoilsPhase: jest.fn(),
+        addLootCard: jest.fn(),
+        exchangeLootForGold: jest.fn(),
+        exchangeLootForGear: jest.fn(),
+        completeQuest: jest.fn(),
+        endExpedition: jest.fn(),
       };
 
       if (typeof selector === 'function') {
