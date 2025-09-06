@@ -52,8 +52,7 @@ export default function CampaignTabsLayout() {
             kingdoms: 'castle',
             knights: 'head',
             gear: 'toolbox-outline', // or 'cog-outline'
-            delve: 'road-variant',
-            clash: 'sword-cross',
+            expedition: 'compass',
           };
           const iconName = nameMap[route.name as keyof typeof nameMap] ?? 'dots-horizontal';
 
@@ -64,8 +63,7 @@ export default function CampaignTabsLayout() {
       <Tabs.Screen name='kingdoms' options={{ title: 'Kingdoms' }} />
       <Tabs.Screen name='knights' options={{ title: 'Knights' }} />
       <Tabs.Screen name='gear' options={{ title: 'Gear' }} />
-      <Tabs.Screen name='delve' options={{ title: 'Delve' }} />
-      <Tabs.Screen name='clash' options={{ title: 'Clash' }} />
+      <Tabs.Screen name='expedition' options={{ title: 'Expedition' }} />
     </Tabs>
   );
 }
