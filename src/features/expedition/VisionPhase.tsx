@@ -221,21 +221,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               );
             })}
           </View>
-          {campaign.selectedKingdomId && (
-            <View
-              style={{
-                marginTop: 12,
-                padding: 12,
-                backgroundColor: tokens.surface,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
-                Selected Kingdom:{' '}
-                {allKingdomsCatalog.find(k => k.id === campaign.selectedKingdomId)?.name}
-              </Text>
-            </View>
-          )}
         </View>
       )}
 
