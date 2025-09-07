@@ -10,6 +10,7 @@ import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import ClueSelectionModal from './ClueSelectionModal';
+import DistrictWheel from './DistrictWheel';
 import KingdomTrack from './KingdomTrack';
 
 interface DelvePhaseProps {
@@ -33,6 +34,8 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     advanceTimeTrack,
     setThreatTrackPosition,
     setTimeTrackPosition,
+    rotateDistrictWheel,
+    replaceDistrictMonster,
   } = useCampaigns();
   const { knightsById } = useKnights();
 
@@ -315,6 +318,18 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       </Card>
 
       {/* Kingdom Tracks */}
+      {/* District Wheel */}
+      {campaign?.expedition?.districtWheel && (
+        <DistrictWheel
+          districtWheel={campaign.expedition.districtWheel}
+          onRotate={() => rotateDistrictWheel(campaignId)}
+          onReplaceMonster={(districtId, monsterId) =>
+            replaceDistrictMonster(campaignId, districtId, monsterId)
+          }
+          campaignExpansions={campaign.settings.expansions}
+        />
+      )}
+
       {delveProgress && (
         <View style={{ marginBottom: 16 }}>
           {/* Threat Track */}

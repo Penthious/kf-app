@@ -22,6 +22,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     setKnightExpeditionChoice,
     setSelectedKingdom,
     setExpeditionPhase,
+    initializeDistrictWheel,
   } = useCampaigns();
   const { knightsById } = useKnights();
 
@@ -451,7 +452,13 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                 <Button
                   key={kingdom.id}
                   label={kingdom.name}
-                  onPress={() => setSelectedKingdom(campaignId, kingdom.id)}
+                  onPress={() => {
+                    setSelectedKingdom(campaignId, kingdom.id);
+                    // Initialize district wheel when kingdom is selected
+                    if (expedition) {
+                      initializeDistrictWheel(campaignId, kingdom.id);
+                    }
+                  }}
                   tone={isSelected ? 'accent' : 'default'}
                 />
               );

@@ -104,6 +104,7 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     ],
     stages: createSubKingdomStages(POS_KINGDOM_STAGES, BASE_WANDERING_STAGES),
   },
+  districts: ['Noble', 'Craftsman', 'Port', 'Merchant'],
   adventures: [
     { name: 'A Song in Silica', roll: { min: 1, max: 3 }, singleAttempt: false },
     { name: 'Scrabbling in Stone', roll: { min: 4, max: 6 }, singleAttempt: false },

@@ -2,11 +2,11 @@ import type { KnightExpeditionChoice } from '@/models/campaign';
 import type { BestiaryStageRow, KingdomCatalog } from '@/models/kingdom';
 import { describe, expect, it } from 'vitest';
 import {
-  calculateExpeditionMonsterStage,
-  normalizeRow,
-  progressKey,
-  resolveExpeditionStagesForBestiary,
-  resolveStagesForBestiary,
+    calculateExpeditionMonsterStage,
+    normalizeRow,
+    progressKey,
+    resolveExpeditionStagesForBestiary,
+    resolveStagesForBestiary,
 } from './utils';
 
 describe('progressKey', () => {
@@ -98,6 +98,7 @@ describe('resolveStagesForBestiary', () => {
     id: 'test-kingdom',
     name: 'Test Kingdom',
     type: 'main',
+    districts: ['District A', 'District B'],
     adventures: [],
     bestiary: {
       monsters: [],
@@ -217,6 +218,7 @@ describe('resolveStagesForBestiary', () => {
       id: 'test-kingdom',
       name: 'Test Kingdom',
       type: 'main',
+      districts: ['District A'],
       adventures: [],
       bestiary: {
         monsters: [],
@@ -452,6 +454,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
     id: 'test-kingdom',
     name: 'Test Kingdom',
     type: 'main',
+    districts: ['District A', 'District B'],
     adventures: [],
     bestiary: {
       monsters: [

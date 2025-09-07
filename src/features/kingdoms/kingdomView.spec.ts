@@ -8,6 +8,7 @@ describe('buildKingdomView', () => {
     id: 'test-kingdom',
     name: 'Test Kingdom',
     type: 'main',
+    districts: ['District A', 'District B'],
     adventures: [
       {
         name: 'First Adventure',
@@ -233,6 +234,8 @@ describe('buildKingdomView', () => {
     const kingdomWithSpecialChars: KingdomCatalog = {
       id: 'test-kingdom',
       name: 'Test Kingdom',
+      type: 'main',
+      districts: ['District A'],
       adventures: [
         {
           name: 'Adventure with Spaces & Symbols!',
@@ -240,6 +243,7 @@ describe('buildKingdomView', () => {
           roll: { min: 1, max: 6 },
         },
       ],
+      bestiary: { monsters: [], stages: [] },
     } as KingdomCatalog;
 
     const result = buildKingdomView('test-kingdom', mockCampaign, [kingdomWithSpecialChars]);
@@ -332,6 +336,8 @@ describe('buildKingdomView', () => {
     const kingdomWithoutBestiary: KingdomCatalog = {
       id: 'test-kingdom',
       name: 'Test Kingdom',
+      type: 'main',
+      districts: ['District A'],
       adventures: [
         {
           name: 'First Adventure',
@@ -339,6 +345,7 @@ describe('buildKingdomView', () => {
           roll: { min: 1, max: 6 },
         },
       ],
+      bestiary: { monsters: [], stages: [] },
     } as KingdomCatalog;
 
     const result = buildKingdomView('test-kingdom', mockCampaign, [kingdomWithoutBestiary]);
@@ -350,6 +357,8 @@ describe('buildKingdomView', () => {
     const kingdomWithComplexNames: KingdomCatalog = {
       id: 'test-kingdom',
       name: 'Test Kingdom',
+      type: 'main',
+      districts: ['District A'],
       adventures: [
         { name: 'Simple Name', singleAttempt: true, roll: { min: 1, max: 6 } },
         { name: 'Complex Name with Spaces!', singleAttempt: true, roll: { min: 1, max: 6 } },
@@ -357,6 +366,7 @@ describe('buildKingdomView', () => {
         { name: 'Name with Numbers 123', singleAttempt: true, roll: { min: 1, max: 6 } },
         { name: '---Name with Dashes---', singleAttempt: true, roll: { min: 1, max: 6 } },
       ],
+      bestiary: { monsters: [], stages: [] },
     } as KingdomCatalog;
 
     const result = buildKingdomView('test-kingdom', mockCampaign, [kingdomWithComplexNames]);

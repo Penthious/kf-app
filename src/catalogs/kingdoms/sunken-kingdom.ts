@@ -109,6 +109,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
     ],
     stages: createSubKingdomStages(SUNKEN_KINGDOM_STAGES, BASE_WANDERING_STAGES),
   },
+  districts: ['Drowned District', 'Marsh District', 'Mud District'],
   adventures: [
     { name: 'Former Glories', roll: { min: 1, max: 3 }, singleAttempt: false },
     { name: 'Sundered Hope', roll: { min: 4, max: 6 }, singleAttempt: true },
