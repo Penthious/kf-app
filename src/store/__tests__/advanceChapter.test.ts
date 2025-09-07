@@ -301,4 +301,86 @@ describe('advanceChapter', () => {
     const updatedKnight = useKnights.getState().knightsById[knightUID];
     expect(updatedKnight.sheet.chapter).toBe(2);
   });
+
+  it('should advance chapter when 3rd investigation is completed and quest is already done', () => {
+    const knightUID = 'test-knight-6';
+
+    const knight = {
+      knightUID,
+      name: 'Test Knight',
+      catalogId: 'catalog-1',
+      ownerUserId: 'user-1',
+      sheet: {
+        chapter: 1,
+        chapters: {
+          '1': {
+            quest: { completed: true, outcome: 'pass' as 'pass' | 'fail' },
+            attempts: [
+              { code: 'I1-1', result: 'pass' as 'pass' | 'fail', at: Date.now() },
+              { code: 'I1-2', result: 'pass' as 'pass' | 'fail', at: Date.now() },
+              // I1-3 will be added when completing the 3rd investigation
+            ],
+            completed: ['I1-1', 'I1-2'],
+          },
+        },
+        virtues: { bravery: 0, tenacity: 0, sagacity: 0, fortitude: 0, might: 0, insight: 0 },
+        vices: { cowardice: 0, dishonor: 0, duplicity: 0, disregard: 0, cruelty: 0, treachery: 0 },
+        bane: 0,
+        sighOfGraal: 0 as 0 | 1,
+        gold: 0,
+        leads: 0,
+        prologueDone: false,
+        postgameDone: false,
+        firstDeath: false,
+        choiceMatrix: {},
+        saints: [],
+        mercenaries: [],
+        armory: [],
+        notes: [],
+        cipher: 0,
+      },
+      version: 1,
+      updatedAt: Date.now(),
+      rapport: [],
+    };
+
+    useKnights.setState({ knightsById: { [knightUID]: knight } });
+
+    // Simulate completing the 3rd investigation
+    const updatedKnight = useKnights.getState().knightsById[knightUID];
+    const updatedChapterProgress = {
+      ...updatedKnight.sheet.chapters['1'],
+      attempts: [
+        ...updatedKnight.sheet.chapters['1'].attempts,
+        { code: 'I1-3', result: 'pass' as 'pass' | 'fail', at: Date.now() },
+      ],
+      completed: [...updatedKnight.sheet.chapters['1'].completed, 'I1-3'],
+    };
+
+    // Update the knight with the 3rd investigation completed
+    useKnights.setState({
+      knightsById: {
+        ...useKnights.getState().knightsById,
+        [knightUID]: {
+          ...updatedKnight,
+          sheet: {
+            ...updatedKnight.sheet,
+            chapters: {
+              ...updatedKnight.sheet.chapters,
+              '1': updatedChapterProgress,
+            },
+          },
+        },
+      },
+    });
+
+    // Now try to advance chapter - should work since quest is done and 3 investigations attempted
+    const result = useKnights.getState().advanceChapter(knightUID);
+
+    expect(result.ok).toBe(true);
+    expect(result.error).toBeUndefined();
+
+    const finalKnight = useKnights.getState().knightsById[knightUID];
+    expect(finalKnight.sheet.chapter).toBe(2);
+  });
 });

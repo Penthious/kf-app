@@ -321,8 +321,8 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
       },
     });
 
-    // Check for chapter advancement if quest was completed successfully
-    if (choice.choice === 'quest' && status === 'success') {
+    // Check for chapter advancement after any successful completion
+    if (status === 'success') {
       const advanceResult = advanceChapter(knightUID);
       if (advanceResult.ok) {
         Alert.alert(
