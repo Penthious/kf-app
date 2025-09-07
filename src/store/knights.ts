@@ -36,6 +36,7 @@ export type KnightsActions = {
     invId: string
   ) => { ok: boolean; error?: string };
   isNormalLocked: (knightUID: string, chapter: number) => boolean;
+  advanceChapter: (knightUID: string) => { ok: boolean; error?: string };
 };
 
 export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
@@ -280,6 +281,65 @@ export const useKnights = create<KnightsState & KnightsActions>((set, get) => ({
     if (!chapterProgress) return false;
 
     return normalLocked(chapterProgress);
+  },
+
+  advanceChapter: knightUID => {
+    const state = get();
+    const knight = state.knightsById[knightUID];
+    if (!knight) return { ok: false, error: 'Knight not found' };
+
+    const currentChapter = knight.sheet.chapter;
+    if (currentChapter >= 5) return { ok: false, error: 'Already at maximum chapter' };
+
+    const chapterKey = String(currentChapter);
+    const chapterProgress = knight.sheet.chapters[chapterKey];
+    if (!chapterProgress) return { ok: false, error: 'Chapter progress not found' };
+
+    // Check if quest is completed
+    if (!chapterProgress.quest.completed) {
+      return { ok: false, error: 'Quest must be completed before advancing chapter' };
+    }
+
+    // Check if 3 normal investigations have been attempted (pass, fail, or lead)
+    const normalAttempted =
+      chapterProgress.attempts?.filter(
+        attempt =>
+          attempt.code.startsWith(`I${currentChapter}-`) &&
+          (attempt.code.endsWith('-1') ||
+            attempt.code.endsWith('-2') ||
+            attempt.code.endsWith('-3'))
+      ).length || 0;
+
+    if (normalAttempted < 3) {
+      return { ok: false, error: 'Must attempt 3 normal investigations before advancing chapter' };
+    }
+
+    // Advance to next chapter
+    const nextChapter = currentChapter + 1;
+
+    set(s => {
+      const k = s.knightsById[knightUID];
+      if (!k) return s;
+
+      const newState = {
+        knightsById: {
+          ...s.knightsById,
+          [knightUID]: {
+            ...k,
+            sheet: {
+              ...k.sheet,
+              chapter: nextChapter,
+            },
+            updatedAt: Date.now(),
+          },
+        },
+      };
+      // Save to AsyncStorage
+      storage.save(STORAGE_KEYS.KNIGHTS, newState.knightsById).catch(console.error);
+      return newState;
+    });
+
+    return { ok: true };
   },
 }));
 

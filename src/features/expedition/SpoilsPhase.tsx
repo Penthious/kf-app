@@ -21,7 +21,7 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     completeQuest,
     endExpedition,
   } = useCampaigns();
-  const { knightsById, updateKnightSheet } = useKnights();
+  const { knightsById, updateKnightSheet, advanceChapter } = useKnights();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -320,6 +320,17 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
         [currentChapter]: updatedChapterProgress,
       },
     });
+
+    // Check for chapter advancement after any successful completion
+    if (status === 'success') {
+      const advanceResult = advanceChapter(knightUID);
+      if (advanceResult.ok) {
+        Alert.alert(
+          'Chapter Advanced!',
+          `${knight.name} has completed their quest and all required investigations. They have advanced to Chapter ${knight.sheet.chapter + 1}!`
+        );
+      }
+    }
   };
 
   const handleCompleteQuest = (knightUID: string, choice: { choice: string }) => {
