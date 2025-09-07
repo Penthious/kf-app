@@ -34,18 +34,21 @@ describe('KingdomSelector', () => {
     {
       id: 'kingdom-1',
       name: 'Principality of Stone',
+      type: 'main' as const,
       bestiary: { monsters: [], stages: [] },
       adventures: [],
     },
     {
       id: 'kingdom-2',
-      name: 'Ten Thousand Succulent Fears',
+      name: 'Sunken Kingdom',
+      type: 'main' as const,
       bestiary: { monsters: [], stages: [] },
       adventures: [],
     },
     {
       id: 'kingdom-3',
       name: 'The Verdant Expanse',
+      type: 'main' as const,
       bestiary: { monsters: [], stages: [] },
       adventures: [],
     },
@@ -75,7 +78,7 @@ describe('KingdomSelector', () => {
     );
 
     expect(getByText('Principality of Stone')).toBeTruthy();
-    expect(getByText('Ten Thousand Succulent Fears')).toBeTruthy();
+    expect(getByText('Sunken Kingdom')).toBeTruthy();
     expect(getByText('The Verdant Expanse')).toBeTruthy();
   });
 
@@ -100,7 +103,7 @@ describe('KingdomSelector', () => {
     );
 
     // Second kingdom should be active
-    const secondKingdomName = getByText('Ten Thousand Succulent Fears');
+    const secondKingdomName = getByText('Sunken Kingdom');
 
     expect(secondKingdomName.props.style.color).toBe('#0B0B0B');
 
@@ -115,7 +118,7 @@ describe('KingdomSelector', () => {
       <KingdomSelector kingdoms={mockKingdoms} onSelect={mockOnSelect} />
     );
 
-    fireEvent.press(getByText('Ten Thousand Succulent Fears'));
+    fireEvent.press(getByText('Sunken Kingdom'));
 
     expect(mockOnSelect).toHaveBeenCalledWith('kingdom-2');
   });
@@ -163,7 +166,7 @@ describe('KingdomSelector', () => {
       />
     );
 
-    const kingdomName = getByText('Ten Thousand Succulent Fears');
+    const kingdomName = getByText('Sunken Kingdom');
 
     expect(kingdomName.props.style).toMatchObject({
       color: '#0B0B0B',
@@ -193,6 +196,7 @@ describe('KingdomSelector', () => {
       {
         id: 'kingdom-1',
         name: 'Single Kingdom',
+        type: 'main' as const,
         bestiary: { monsters: [], stages: [] },
         adventures: [],
       },

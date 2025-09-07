@@ -2,18 +2,29 @@ import KNIGHT_CATALOG from '@/catalogs/knights';
 import Card from '@/components/Card';
 import Pill from '@/components/ui/Pill';
 import TextRow from '@/components/ui/TextRow';
+import type { CampaignSettings } from '@/models/campaign';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { getAvailableKnights } from '@/utils/knights';
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 export type QuickCreateKnightProps = {
   onCreate: (args: { name: string; catalogId: string; asActive: boolean }) => void;
+  campaignExpansions?: CampaignSettings['expansions'];
 };
 
-export default function QuickCreateKnight({ onCreate }: QuickCreateKnightProps) {
+export default function QuickCreateKnight({
+  onCreate,
+  campaignExpansions,
+}: QuickCreateKnightProps) {
   const { tokens } = useThemeTokens();
   const [newName, setNewName] = useState('');
   const [newCatalog, setNewCatalog] = useState<string | null>(null);
+
+  // Filter available knights based on campaign expansion settings
+  const availableKnights = useMemo(() => {
+    return getAvailableKnights(KNIGHT_CATALOG, campaignExpansions);
+  }, [campaignExpansions]);
 
   const canCreate = useMemo(() => newName.trim().length > 0 && !!newCatalog, [newName, newCatalog]);
 
@@ -21,7 +32,7 @@ export default function QuickCreateKnight({ onCreate }: QuickCreateKnightProps) 
   const handleCatalogSelection = (catalogId: string) => {
     setNewCatalog(catalogId);
     // Find the selected knight and set the name to their catalog name
-    const selectedKnight = KNIGHT_CATALOG.find(k => k.id === catalogId);
+    const selectedKnight = availableKnights.find(k => k.id === catalogId);
     if (selectedKnight) {
       setNewName(selectedKnight.name);
     }
@@ -48,15 +59,14 @@ export default function QuickCreateKnight({ onCreate }: QuickCreateKnightProps) 
       <View style={{ marginTop: 8 }}>
         <Text style={{ color: tokens.textMuted, marginBottom: 6 }}>Catalog Knight</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {Array.isArray(KNIGHT_CATALOG) &&
-            (KNIGHT_CATALOG as Array<{ id: string; name: string }>).map(k => (
-              <Pill
-                key={k.id}
-                label={k.name}
-                selected={newCatalog === k.id}
-                onPress={() => handleCatalogSelection(k.id)}
-              />
-            ))}
+          {availableKnights.map(k => (
+            <Pill
+              key={k.id}
+              label={k.name}
+              selected={newCatalog === k.id}
+              onPress={() => handleCatalogSelection(k.id)}
+            />
+          ))}
         </View>
       </View>
 

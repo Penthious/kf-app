@@ -20,8 +20,8 @@ import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
 import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
 import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
 import {
-  resolveStagesForBestiary,
   resolveExpeditionStagesForBestiary,
+  resolveStagesForBestiary,
 } from '@/features/kingdoms/utils';
 import type { KingdomCatalog } from '@/models/kingdom';
 
@@ -85,6 +85,9 @@ export default function CampaignKingdoms() {
     [kingdoms, activeKingdomId]
   );
 
+  // ----- Build kingdom view first (includes expansion monsters) -----
+  const kv = buildKingdomView(activeKingdom?.id ?? '', c, allKingdomsCatalog);
+
   // ----- Stage row for current leader + kingdom -----
   const stageRow = leader
     ? (() => {
@@ -107,11 +110,14 @@ export default function CampaignKingdoms() {
         }
 
         // Otherwise, use the traditional completed progress calculation
-        return resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row;
+        // Use the expanded kingdom view to include TTSF monsters in stage calculation
+        const expandedKingdom =
+          kv && activeKingdom && kv.bestiary
+            ? { ...activeKingdom, bestiary: kv.bestiary }
+            : activeKingdom;
+        return resolveStagesForBestiary(expandedKingdom, chapter, questDone, completedInvs).row;
       })()
     : {};
-
-  const kv = buildKingdomView(activeKingdom?.id ?? '', c, allKingdomsCatalog);
 
   // ----- Guard if no campaign -----
   if (!c) {

@@ -77,10 +77,15 @@ jest.mock('@/theme/ThemeProvider', () => ({
 
 // Mock knight catalog
 jest.mock('@/catalogs/knights', () => [
-  { id: 'knight-1', name: 'Sir Galahad' },
-  { id: 'knight-2', name: 'Sir Lancelot' },
-  { id: 'knight-3', name: 'Sir Percival' },
+  { id: 'knight-1', name: 'Sir Galahad', source: 'Core' },
+  { id: 'knight-2', name: 'Sir Lancelot', source: 'Core' },
+  { id: 'knight-3', name: 'Sir Percival', source: 'Core' },
 ]);
+
+// Mock the getAvailableKnights utility to return all knights (for testing)
+jest.mock('@/utils/knights', () => ({
+  getAvailableKnights: (knights: any[]) => knights, // Return all knights for testing
+}));
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';

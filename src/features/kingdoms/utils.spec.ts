@@ -97,6 +97,7 @@ describe('resolveStagesForBestiary', () => {
   const mockKingdom: KingdomCatalog = {
     id: 'test-kingdom',
     name: 'Test Kingdom',
+    type: 'main',
     adventures: [],
     bestiary: {
       monsters: [],
@@ -215,6 +216,7 @@ describe('resolveStagesForBestiary', () => {
     const kingdomWithNulls: KingdomCatalog = {
       id: 'test-kingdom',
       name: 'Test Kingdom',
+      type: 'main',
       adventures: [],
       bestiary: {
         monsters: [],
@@ -449,13 +451,14 @@ describe('resolveExpeditionStagesForBestiary', () => {
   const mockKingdom: KingdomCatalog = {
     id: 'test-kingdom',
     name: 'Test Kingdom',
+    type: 'main',
     adventures: [],
     bestiary: {
       monsters: [
-        { id: 'monster-1' },
-        { id: 'monster-2' },
-        { id: 'monster-3' },
-        { id: 'monster-4' },
+        { id: 'monster-1', type: 'kingdom' },
+        { id: 'monster-2', type: 'kingdom' },
+        { id: 'monster-3', type: 'kingdom' },
+        { id: 'monster-4', type: 'kingdom' },
       ],
       stages: [
         { 'monster-1': 1, 'monster-2': 0 }, // Stage 0

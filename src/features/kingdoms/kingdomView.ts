@@ -1,5 +1,6 @@
 import type { Campaign } from '@/models/campaign';
 import type { Bestiary, KingdomAdventureDef, KingdomCatalog, KingdomState } from '@/models/kingdom';
+import { getBestiaryWithExpansions } from '@/models/kingdom';
 
 export type KingdomAdventureView = KingdomAdventureDef & {
   id: string; // advId, e.g. `${kingdomId}:${slug(name)}`
@@ -71,6 +72,6 @@ export function buildKingdomView(
     id: catalog.id,
     name: catalog.name,
     adventures,
-    bestiary: catalog.bestiary,
+    bestiary: getBestiaryWithExpansions(catalog, campaign?.settings?.expansions),
   };
 }

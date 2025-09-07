@@ -241,7 +241,10 @@ export default function CampaignKnightsPage() {
           <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
             Quick Create Knight
           </Text>
-          <QuickCreateKnight onCreate={handleQuickCreate} />
+          <QuickCreateKnight
+            onCreate={handleQuickCreate}
+            campaignExpansions={campaign.settings.expansions}
+          />
         </Card>
       </ScrollView>
     </View>

@@ -132,6 +132,23 @@ export type ExpeditionState = {
 export type CampaignSettings = {
   fivePlayerMode: boolean;
   notes?: string;
+  expansions?: {
+    ttsf?: {
+      enabled: boolean;
+    };
+    tbbh?: {
+      enabled: boolean;
+    };
+    trkoe?: {
+      enabled: boolean;
+    };
+    'absolute-bastard'?: {
+      enabled: boolean;
+    };
+    'ser-gallant'?: {
+      enabled: boolean;
+    };
+  };
 };
 
 export type Campaign = {
