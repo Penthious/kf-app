@@ -51,25 +51,21 @@ export function resolveStagesForBestiary(
 export function calculateExpeditionMonsterStage(
   partyLeaderChoice: KnightExpeditionChoice | undefined,
   partyLeaderChapter: number,
-  allKnightChoices: KnightExpeditionChoice[]
+  allKnightChoices: KnightExpeditionChoice[],
+  partyLeaderCompletedInvestigations: number = 0
 ): number {
   if (!partyLeaderChoice || partyLeaderChoice.choice === 'free-roam') {
     return 0; // Default to first stage for free-roam
   }
 
-  // Count how many investigations the party leader has attempted in their current chapter
-  const partyLeaderInvestigationsAttempted = allKnightChoices
-    .filter(choice => choice.knightUID === partyLeaderChoice.knightUID)
-    .filter(choice => choice.choice === 'investigation').length;
-
   let stageIndex = 0;
 
   if (partyLeaderChoice.choice === 'quest') {
-    // For quest, use the number of investigations attempted
-    stageIndex = partyLeaderInvestigationsAttempted;
+    // For quest, use the number of completed investigations
+    stageIndex = partyLeaderCompletedInvestigations;
   } else if (partyLeaderChoice.choice === 'investigation') {
-    // For investigation, use investigations attempted + 1
-    stageIndex = partyLeaderInvestigationsAttempted + 1;
+    // For investigation, use completed investigations + 1
+    stageIndex = partyLeaderCompletedInvestigations + 1;
   }
 
   // Add chapter offset: each chapter has 4 stages (0-3, 4-7, 8-11, etc.)
@@ -86,7 +82,8 @@ export function resolveExpeditionStagesForBestiary(
   kingdom: KingdomCatalog | undefined,
   partyLeaderChoice: KnightExpeditionChoice | undefined,
   partyLeaderChapter: number,
-  allKnightChoices: KnightExpeditionChoice[]
+  allKnightChoices: KnightExpeditionChoice[],
+  partyLeaderCompletedInvestigations: number = 0
 ): { row: Record<string, number>; hasChapter: boolean; stageIndex: number } {
   const b = kingdom?.bestiary;
   if (!b || !Array.isArray(b.stages) || !partyLeaderChapter || partyLeaderChapter <= 0)
@@ -95,7 +92,8 @@ export function resolveExpeditionStagesForBestiary(
   const stageIndex = calculateExpeditionMonsterStage(
     partyLeaderChoice,
     partyLeaderChapter,
-    allKnightChoices
+    allKnightChoices,
+    partyLeaderCompletedInvestigations
   );
 
   const row = b.stages[stageIndex];

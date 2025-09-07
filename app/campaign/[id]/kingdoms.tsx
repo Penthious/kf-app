@@ -99,7 +99,8 @@ export default function CampaignKingdoms() {
             activeKingdom,
             partyLeaderChoice,
             chapter,
-            allKnightChoices
+            allKnightChoices,
+            completedInvs
           );
 
           return expeditionStageInfo.row;

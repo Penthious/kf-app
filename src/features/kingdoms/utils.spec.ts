@@ -259,12 +259,12 @@ describe('calculateExpeditionMonsterStage', () => {
       choice: 'free-roam',
       status: 'in-progress',
     };
-    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    const result = calculateExpeditionMonsterStage(choice, 1, [], 0);
     expect(result).toBe(0);
   });
 
   it('returns 0 for undefined choice', () => {
-    const result = calculateExpeditionMonsterStage(undefined, 1, []);
+    const result = calculateExpeditionMonsterStage(undefined, 1, [], 0);
     expect(result).toBe(0);
   });
 
@@ -274,7 +274,7 @@ describe('calculateExpeditionMonsterStage', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    const result = calculateExpeditionMonsterStage(choice, 1, [], 0);
     expect(result).toBe(0);
   });
 
@@ -285,7 +285,7 @@ describe('calculateExpeditionMonsterStage', () => {
       investigationId: 'I1-1',
       status: 'in-progress',
     };
-    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    const result = calculateExpeditionMonsterStage(choice, 1, [], 0);
     expect(result).toBe(1);
   });
 
@@ -303,7 +303,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 1);
     expect(result).toBe(1);
   });
 
@@ -322,7 +322,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 1);
     expect(result).toBe(2);
   });
 
@@ -346,7 +346,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 2);
     expect(result).toBe(2);
   });
 
@@ -371,7 +371,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 2);
     expect(result).toBe(3);
   });
 
@@ -401,7 +401,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 3);
     expect(result).toBe(3);
   });
 
@@ -411,7 +411,7 @@ describe('calculateExpeditionMonsterStage', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = calculateExpeditionMonsterStage(choice, 2, []);
+    const result = calculateExpeditionMonsterStage(choice, 2, [], 0);
     expect(result).toBe(4); // (2-1) * 4 + 0 = 4
   });
 
@@ -422,7 +422,7 @@ describe('calculateExpeditionMonsterStage', () => {
       investigationId: 'I2-1',
       status: 'in-progress',
     };
-    const result = calculateExpeditionMonsterStage(choice, 2, []);
+    const result = calculateExpeditionMonsterStage(choice, 2, [], 0);
     expect(result).toBe(5); // (2-1) * 4 + 1 = 5
   });
 
@@ -440,7 +440,7 @@ describe('calculateExpeditionMonsterStage', () => {
         status: 'completed',
       },
     ];
-    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices, 0);
     expect(result).toBe(0); // Should not count other knight's investigations
   });
 });
@@ -476,7 +476,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, []);
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, [], 0);
     expect(result).toEqual({
       row: { 'monster-1': 1, 'monster-2': 0 },
       hasChapter: true,
@@ -491,7 +491,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       investigationId: 'I1-1',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, []);
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, [], 0);
     expect(result).toEqual({
       row: { 'monster-1': 1, 'monster-2': 1 },
       hasChapter: true,
@@ -505,7 +505,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 2, []);
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 2, [], 0);
     expect(result).toEqual({
       row: { 'monster-3': 1, 'monster-4': 0 },
       hasChapter: true,
@@ -519,7 +519,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(undefined, choice, 1, []);
+    const result = resolveExpeditionStagesForBestiary(undefined, choice, 1, [], 0);
     expect(result).toEqual({
       row: {},
       hasChapter: false,
@@ -533,7 +533,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 0, []);
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 0, [], 0);
     expect(result).toEqual({
       row: {},
       hasChapter: false,
@@ -547,7 +547,7 @@ describe('resolveExpeditionStagesForBestiary', () => {
       choice: 'quest',
       status: 'in-progress',
     };
-    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 10, []); // Chapter 10 would be stage 36
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 10, [], 0); // Chapter 10 would be stage 36
     expect(result).toEqual({
       row: {},
       hasChapter: false,
