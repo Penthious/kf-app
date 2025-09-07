@@ -368,17 +368,27 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                       {choice.choice === 'quest' &&
                         isLeader &&
                         `Quest (${getQuestLevel(member.knightUID)})${getMonsterStageInfo(member.knightUID)}`}
-                      {choice.choice === 'quest' &&
-                        !isLeader &&
-                        `Quest${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'quest' && !isLeader && `Quest`}
                       {choice.choice === 'investigation' &&
                         choice.investigationId &&
+                        isLeader &&
                         `Investigation ${choice.investigationId}${getMonsterStageInfo(member.knightUID)}`}
                       {choice.choice === 'investigation' &&
+                        choice.investigationId &&
+                        !isLeader &&
+                        `Investigation ${choice.investigationId}`}
+                      {choice.choice === 'investigation' &&
                         !choice.investigationId &&
+                        isLeader &&
                         `Investigation (not selected)${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'investigation' &&
+                        !choice.investigationId &&
+                        !isLeader &&
+                        `Investigation (not selected)`}
                       {choice.choice === 'free-roam' &&
+                        isLeader &&
                         `Free Roam${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'free-roam' && !isLeader && `Free Roam`}
                     </Text>
                   </Text>
                 </View>
