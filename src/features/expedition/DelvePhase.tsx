@@ -275,23 +275,30 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
             <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
               Clues Found: {delveProgress.clues.length}
             </Text>
-            {delveProgress.clues.length > 0 && (
-              <View style={{ marginLeft: 16, marginBottom: 4 }}>
-                {Object.entries(
-                  delveProgress.clues.reduce(
-                    (acc, clue) => {
-                      acc[clue.type] = (acc[clue.type] || 0) + 1;
-                      return acc;
-                    },
-                    {} as Record<string, number>
-                  )
-                ).map(([type, count]) => (
+            <View style={{ marginLeft: 16, marginBottom: 4 }}>
+              {(() => {
+                const clueCounts = delveProgress.clues.reduce(
+                  (acc, clue) => {
+                    acc[clue.type] = (acc[clue.type] || 0) + 1;
+                    return acc;
+                  },
+                  {} as Record<string, number>
+                );
+
+                const clueTypeColors: Record<string, string> = {
+                  swords: 'Red',
+                  faces: 'Teal',
+                  eye: 'Blue',
+                  book: 'Yellow',
+                };
+
+                return Object.entries(clueTypeColors).map(([type, colorName]) => (
                   <Text key={type} style={{ color: tokens.textMuted, fontSize: 12 }}>
-                    • {type.charAt(0).toUpperCase() + type.slice(1)}: {count}
+                    • {colorName}: {clueCounts[type] || 0}
                   </Text>
-                ))}
-              </View>
-            )}
+                ));
+              })()}
+            </View>
             <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
               Active Objectives:{' '}
               {delveProgress.objectives.filter(o => o.status === 'active').length}
