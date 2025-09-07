@@ -131,17 +131,33 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setShowClueSelection(true);
   };
 
-  const handleSelectClue = (clueType: ClueType) => {
+  const handleSelectClues = (clueSelections: { type: ClueType; count: number }[]) => {
     if (!partyLeader) return;
 
-    const clueId = `clue-${Date.now()}`;
-    addClue(campaignId, {
-      id: clueId,
-      type: clueType,
-      discoveredBy: partyLeader.knightUID,
+    const totalClues = clueSelections.reduce((sum, selection) => sum + selection.count, 0);
+
+    // Add each clue
+    clueSelections.forEach(selection => {
+      for (let i = 0; i < selection.count; i++) {
+        const clueId = `clue-${Date.now()}-${Math.random()}`;
+        addClue(campaignId, {
+          id: clueId,
+          type: selection.type,
+          discoveredBy: partyLeader.knightUID,
+        });
+      }
     });
 
-    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a clue!`);
+    const clueTypesText = clueSelections
+      .map(
+        selection => `${selection.count} ${selection.type} clue${selection.count > 1 ? 's' : ''}`
+      )
+      .join(', ');
+
+    Alert.alert(
+      'Clues Discovered',
+      `${partyLeader.displayName} has discovered ${totalClues} clue${totalClues > 1 ? 's' : ''}: ${clueTypesText}!`
+    );
   };
 
   const handleAddObjective = () => {
@@ -356,7 +372,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       <ClueSelectionModal
         visible={showClueSelection}
         onClose={() => setShowClueSelection(false)}
-        onSelectClue={handleSelectClue}
+        onSelectClues={handleSelectClues}
         discoveredBy={partyLeader?.displayName || 'Unknown Knight'}
       />
     </ScrollView>
