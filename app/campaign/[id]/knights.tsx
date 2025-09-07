@@ -10,13 +10,14 @@ import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 
 import type { Campaign } from '@/models/campaign';
-import { Knight, defaultSheet } from '@/models/knight';
+import { Knight, createSheetWithStartingVirtues } from '@/models/knight';
 
 import ActiveLineup from '@/features/knights/ui/ActiveLineup';
 import AddExistingKnights from '@/features/knights/ui/AddExistingKnights';
 import BenchedList from '@/features/knights/ui/BenchedList';
 import QuickCreateKnight from '@/features/knights/ui/QuickCreateKnight';
 
+import { KNIGHT_CATALOG } from '@/catalogs/knights';
 import { getMemberSets } from '@/features/knights/selectors';
 import { KnightsById } from '@/features/knights/types';
 import uuid from 'react-native-uuid';
@@ -149,7 +150,7 @@ export default function CampaignKnightsPage() {
         ownerUserId: 'me',
         catalogId,
         name: name.trim() || catalogId,
-        sheet: defaultSheet(),
+        sheet: createSheetWithStartingVirtues(catalogId, KNIGHT_CATALOG),
         rapport: [],
       };
       const result = knightsStore.addKnight(k);

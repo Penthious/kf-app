@@ -119,6 +119,21 @@ export function defaultSheet(): KnightSheet {
   };
 }
 
+/** Create a knight sheet with startingVirtues applied from the catalog */
+export function createSheetWithStartingVirtues(
+  catalogId: string,
+  catalog: Array<{ id: string; startingVirtues?: { [key: string]: number } }>
+): KnightSheet {
+  const sheet = defaultSheet();
+  const catalogEntry = catalog.find(k => k.id === catalogId);
+
+  if (catalogEntry?.startingVirtues) {
+    sheet.virtues = { ...sheet.virtues, ...catalogEntry.startingVirtues };
+  }
+
+  return sheet;
+}
+
 /** Count distinct investigations that have been ATTEMPTED (pass, fail, or lead). */
 export function countDistinctAttempted(ch?: ChapterProgress): number {
   if (!ch) return 0;

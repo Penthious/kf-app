@@ -3,7 +3,7 @@ import KNIGHTS_CATALOG from '@/catalogs/knights';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import TextRow from '@/components/ui/TextRow';
-import { Knight, defaultSheet } from '@/models/knight';
+import { Knight, createSheetWithStartingVirtues } from '@/models/knight';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router } from 'expo-router';
@@ -38,7 +38,7 @@ export default function NewKnightScreen() {
       ownerUserId: 'me',
       catalogId,
       name: knightName,
-      sheet: defaultSheet(),
+      sheet: createSheetWithStartingVirtues(catalogId, KNIGHTS_CATALOG),
       rapport: [],
     };
 

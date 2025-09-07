@@ -45,6 +45,13 @@ export const KNIGHT_CATALOG: KnightCatalogEntry[] = [
     id: 'stoneface',
     name: 'Stoneface',
     source: 'Expansion: Ten Thousand Succulent Fears',
+    startingVirtues: { fortitude: 1, tenacity: 2, might: 1 },
+  },
+  {
+    id: 'ser-ubar',
+    name: 'Ser Ubar',
+    source: 'Expansion: Ten Thousand Succulent Fears',
+    startingVirtues: { tenacity: 1, sagacity: 1, might: 2 },
   },
   {
     id: 'delphine',
