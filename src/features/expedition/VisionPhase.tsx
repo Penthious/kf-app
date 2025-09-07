@@ -256,6 +256,16 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
         </View>
       </View>
 
+      {/* Border between Party Leader and Knight Choices */}
+      <View
+        style={{
+          height: 1,
+          backgroundColor: tokens.textMuted,
+          opacity: 0.3,
+          marginBottom: 20,
+        }}
+      />
+
       {/* Knight Choices */}
       <View style={{ marginBottom: 20 }}>
         <Text style={{ color: tokens.textPrimary, fontWeight: '700', marginBottom: 12 }}>
@@ -274,6 +284,8 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                 padding: 12,
                 backgroundColor: tokens.surface,
                 borderRadius: 8,
+                borderWidth: 1,
+                borderColor: tokens.textMuted + '30',
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
@@ -336,6 +348,18 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
           );
         })}
       </View>
+
+      {/* Border between Knight Choices and Kingdom Selection */}
+      {selectedPartyLeader && (
+        <View
+          style={{
+            height: 1,
+            backgroundColor: tokens.textMuted,
+            opacity: 0.3,
+            marginBottom: 20,
+          }}
+        />
+      )}
 
       {/* Kingdom Selection */}
       {selectedPartyLeader && (
