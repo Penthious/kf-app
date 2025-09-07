@@ -1,8 +1,8 @@
 import type {
-    MockCardProps,
-    MockCardTitleProps,
-    MockPillProps,
-    MockTextRowProps,
+  MockCardProps,
+  MockCardTitleProps,
+  MockPillProps,
+  MockTextRowProps,
 } from '../../../../test-utils/types';
 
 // Mock the Card component
