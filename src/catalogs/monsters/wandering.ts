@@ -5,8 +5,8 @@ import { KNIGHT_OF_THE_FEN_ID, KNIGHT_OF_THE_FEN_STAGES } from './knight-of-the-
 import { KNIGHTEATER_ID, KNIGHTEATER_STAGES } from './knighteater';
 import { PALEBLOOD_WORMS_STAGES } from './paleblood-worms';
 import {
-    PUMPKINHEAD_MONSTROSITIES_ID,
-    PUMPKINHEAD_MONSTROSITIES_STAGES,
+  PUMPKINHEAD_MONSTROSITIES_ID,
+  PUMPKINHEAD_MONSTROSITIES_STAGES,
 } from './pumpkinhead-monstrosities';
 import { RATWOLVES_ID, RATWOLVES_STAGES } from './ratwolves';
 import { WINGED_NIGHTMARE_ID, WINGED_NIGHTMARE_STAGES } from './winged-nightmare';

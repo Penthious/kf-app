@@ -17,7 +17,8 @@
       "@/features/*": ["src/features/*"],
       "@/expo-utils/*": ["src/expo-utils/*"],
       "@/models/*": ["src/models/*"],
-      "@/db/*": ["src/db/*"]
+      "@/db/*": ["src/db/*"],
+      "@/utils/*": ["src/utils/*"]
     }
   },
 

@@ -136,6 +136,18 @@ export type CampaignSettings = {
     ttsf?: {
       enabled: boolean;
     };
+    tbbh?: {
+      enabled: boolean;
+    };
+    trkoe?: {
+      enabled: boolean;
+    };
+    'absolute-bastard'?: {
+      enabled: boolean;
+    };
+    'ser-gallant'?: {
+      enabled: boolean;
+    };
   };
 };
 

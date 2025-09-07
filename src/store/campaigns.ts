@@ -20,7 +20,11 @@ export type CampaignsActions = {
   setCurrentCampaignId: (id?: string) => void;
   setFivePlayerMode: (campaignId: string, on: boolean) => void;
   setNotes: (campaignId: string, notes: string) => void;
-  setExpansionEnabled: (campaignId: string, expansion: 'ttsf', enabled: boolean) => void;
+  setExpansionEnabled: (
+    campaignId: string,
+    expansion: 'ttsf' | 'tbbh' | 'trkoe' | 'absolute-bastard' | 'ser-gallant',
+    enabled: boolean
+  ) => void;
   openCampaign: (campaignId: string) => void;
   closeCampaign: () => void;
 
@@ -156,6 +160,18 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             notes: '',
             expansions: {
               ttsf: {
+                enabled: false,
+              },
+              tbbh: {
+                enabled: false,
+              },
+              trkoe: {
+                enabled: false,
+              },
+              'absolute-bastard': {
+                enabled: false,
+              },
+              'ser-gallant': {
                 enabled: false,
               },
             },
