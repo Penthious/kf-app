@@ -637,8 +637,8 @@ describe('VisionPhase', () => {
       expect(screen.getByText('Choose an investigation for Knight Two')).toBeTruthy();
     });
 
-    it('shows alert when knight has attempted all normal investigations', () => {
-      // Create a knight with all normal investigations attempted
+    it('shows alert when knight has attempted all investigations', () => {
+      // Create a knight with all investigations attempted
       const knightWithAllAttempts = {
         ...mockKnightsById['knight-2'],
         sheet: {
@@ -651,8 +651,10 @@ describe('VisionPhase', () => {
                 { code: 'I1-1', result: 'pass' },
                 { code: 'I1-2', result: 'fail' },
                 { code: 'I1-3', result: 'pass' },
+                { code: 'I1-4', result: 'pass' },
+                { code: 'I1-5', result: 'fail' },
               ],
-              completed: ['I1-1', 'I1-3'],
+              completed: ['I1-1', 'I1-3', 'I1-4'],
             },
           },
         },
@@ -674,11 +676,11 @@ describe('VisionPhase', () => {
 
       render(<VisionPhase campaignId='test-campaign-1' />);
 
-      // Find and press the Investigation button for Knight Two (has attempted all normal investigations)
+      // Find and press the Investigation button for Knight Two (has attempted all investigations)
       const investigationButtons = screen.getAllByText('Investigation');
       fireEvent.press(investigationButtons[1]); // Second investigation button
 
-      // Should show alert since all normal investigations have been attempted
+      // Should show alert since all investigations have been attempted
       expect(Alert.alert).toHaveBeenCalled();
       expect(Alert.alert).toHaveBeenCalledWith(
         'No Available Investigations',
@@ -726,12 +728,12 @@ describe('VisionPhase', () => {
       const investigationButtons = screen.getAllByText('Investigation');
       fireEvent.press(investigationButtons[1]); // Second investigation button
 
-      // Should show available investigation: I1-3 (only normal investigations 1-3 are allowed)
+      // Should show available investigations: I1-3, I1-4, I1-5 (all investigations 1-5 are now allowed)
       expect(screen.getByText('I1-3')).toBeTruthy();
+      expect(screen.getByText('I1-4')).toBeTruthy();
+      expect(screen.getByText('I1-5')).toBeTruthy();
       expect(screen.queryByText('I1-1')).toBeNull(); // Attempted (passed)
       expect(screen.queryByText('I1-2')).toBeNull(); // Attempted (failed)
-      expect(screen.queryByText('I1-4')).toBeNull(); // Special investigations not available
-      expect(screen.queryByText('I1-5')).toBeNull(); // Special investigations not available
     });
 
     it('shows all investigations for knight with no completed investigations', () => {
@@ -748,12 +750,12 @@ describe('VisionPhase', () => {
       const investigationButtons = screen.getAllByText('Investigation');
       fireEvent.press(investigationButtons[1]); // Second investigation button
 
-      // Should show normal investigations for chapter 2: I2-1, I2-2, I2-3 (only normal investigations 1-3 are allowed)
+      // Should show all investigations for chapter 2: I2-1, I2-2, I2-3, I2-4, I2-5 (all investigations 1-5 are now allowed)
       expect(screen.getByText('I2-1')).toBeTruthy();
       expect(screen.getByText('I2-2')).toBeTruthy();
       expect(screen.getByText('I2-3')).toBeTruthy();
-      expect(screen.queryByText('I2-4')).toBeNull(); // Special investigations not available
-      expect(screen.queryByText('I2-5')).toBeNull(); // Special investigations not available
+      expect(screen.getByText('I2-4')).toBeTruthy();
+      expect(screen.getByText('I2-5')).toBeTruthy();
     });
 
     it('shows alert when knight has no available investigations', () => {

@@ -246,15 +246,15 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
 
     if (!chapterProgress) return [];
 
-    // Only allow normal investigations (1-3), not special investigations (4-5)
-    const normalInvestigations = [1, 2, 3].map(i => `I${currentChapter}-${i}`);
+    // Allow all investigations (1-5) - investigations 4-5 are "lead" investigations
+    const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
 
     // Filter out investigations that have been attempted (both passed and failed) OR completed
     const attemptedInvestigations = (chapterProgress.attempts || []).map(attempt => attempt.code);
     const completedInvestigations = chapterProgress.completed || [];
     const unavailableInvestigations = [...attemptedInvestigations, ...completedInvestigations];
 
-    const availableInvestigations = normalInvestigations.filter(
+    const availableInvestigations = allInvestigations.filter(
       investigation => !unavailableInvestigations.includes(investigation)
     );
 
