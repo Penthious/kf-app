@@ -1,13 +1,16 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+import { getClueByType } from '@/catalogs/clues';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
+import type { ClueType } from '@/models/campaign';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
+import ClueSelectionModal from './ClueSelectionModal';
 import KingdomTrack from './KingdomTrack';
 
 interface DelvePhaseProps {
@@ -17,6 +20,7 @@ interface DelvePhaseProps {
 
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
+  const [showClueSelection, setShowClueSelection] = useState(false);
   const {
     campaigns,
     setExpeditionPhase,
@@ -125,15 +129,25 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       return;
     }
 
+    setShowClueSelection(true);
+  };
+
+  const handleSelectClue = (clueType: ClueType) => {
+    if (!partyLeader) return;
+
+    const clueData = getClueByType(clueType);
+    if (!clueData) return;
+
     const clueId = `clue-${Date.now()}`;
     addClue(campaignId, {
       id: clueId,
-      name: 'Mysterious Clue',
-      description: 'A piece of information that might be useful for your quest.',
+      type: clueType,
+      name: clueData.name,
+      description: clueData.description,
       discoveredBy: partyLeader.knightUID,
     });
 
-    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a new clue!`);
+    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a ${clueData.name}!`);
   };
 
   const handleAddObjective = () => {
@@ -343,6 +357,13 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           setExpeditionPhase(campaignId, phase === 'second' ? 'second-clash' : 'clash')
         }
         tone='accent'
+      />
+
+      <ClueSelectionModal
+        visible={showClueSelection}
+        onClose={() => setShowClueSelection(false)}
+        onSelectClue={handleSelectClue}
+        discoveredBy={partyLeader?.displayName || 'Unknown Knight'}
       />
     </ScrollView>
   );

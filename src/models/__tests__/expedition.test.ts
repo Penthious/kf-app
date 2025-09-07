@@ -200,6 +200,7 @@ describe('Expedition Types', () => {
       it('should create valid clue', () => {
         const clue: Clue = {
           id: 'clue-1',
+          type: 'swords',
           name: 'Mysterious Clue',
           description: 'A piece of information that might be useful for your quest.',
           discoveredAt: 1700000000000,
@@ -311,6 +312,7 @@ describe('Expedition Types', () => {
           clues: [
             {
               id: 'clue-1',
+              type: 'swords',
               name: 'Mysterious Clue',
               description: 'A piece of information.',
               discoveredAt: 1700000000000,
