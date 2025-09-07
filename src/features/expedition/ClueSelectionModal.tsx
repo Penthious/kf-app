@@ -9,14 +9,12 @@ interface ClueSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   onSelectClues: (clueSelections: { type: ClueType; count: number }[]) => void;
-  discoveredBy: string;
 }
 
 export default function ClueSelectionModal({
   visible,
   onClose,
   onSelectClues,
-  discoveredBy,
 }: ClueSelectionModalProps) {
   const { tokens } = useThemeTokens();
   const [clueCounts, setClueCounts] = useState<Record<ClueType, number>>({
@@ -61,7 +59,7 @@ export default function ClueSelectionModal({
             Select Clues to Discover
           </Text>
           <Text style={[styles.subtitle, { color: tokens.textMuted }]}>
-            Discovered by {discoveredBy}
+            Discovered during Delve
           </Text>
 
           <View style={styles.clueList}>
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 16,
+    marginRight: 40,
   },
   clueTypeName: {
     marginLeft: 12,
@@ -169,8 +167,8 @@ const styles = StyleSheet.create({
   stepperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    minWidth: 100,
+    gap: 16,
+    minWidth: 140,
     justifyContent: 'flex-end',
   },
   stepperButton: {

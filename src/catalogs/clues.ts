@@ -25,7 +25,7 @@ export const CLUE_CATALOG: ClueCatalogEntry[] = [
   {
     type: 'book',
     imagePath: 'clue-book.png',
-    backgroundColor: '#96CEB4', // Green
+    backgroundColor: '#FFD93D', // Yellow
   },
 ];
 
