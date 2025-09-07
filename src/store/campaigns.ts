@@ -1493,12 +1493,27 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
     completeQuest: (campaignId, knightUID, status, details, rewards) =>
       set(s => {
         const c = s.campaigns[campaignId];
-        if (!c?.expedition?.spoilsProgress) return s;
+        if (!c?.expedition) {
+          return s;
+        }
+
+        // Initialize spoilsProgress if it doesn't exist
+        if (!c.expedition.spoilsProgress) {
+          c.expedition.spoilsProgress = {
+            lootDeck: [],
+            goldEarned: 0,
+            gearAcquired: [],
+            questCompletions: [],
+          };
+        }
 
         const knightChoice = c.expedition.knightChoices.find(
           choice => choice.knightUID === knightUID
         );
         if (!knightChoice) return s;
+
+        // Note: Knight data updates will be handled by the UI components
+        // to avoid circular dependencies between stores
 
         const questCompletion = {
           knightUID,
