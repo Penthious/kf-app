@@ -1,6 +1,9 @@
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import { progressKey } from '@/features/kingdoms/utils';
+import { countCompletedInvestigations } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
@@ -18,11 +21,44 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     completeQuest,
     endExpedition,
   } = useCampaigns();
+  const { knightsById, updateKnightSheet } = useKnights();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
   const spoilsProgress = expedition?.spoilsProgress;
   const knightChoices = expedition?.knightChoices || [];
+
+  // Debug logging
+  console.log('SpoilsPhase render - knightChoices:', knightChoices);
+
+  // Helper function to get quest level for a knight
+  const getQuestLevel = (knightUID: string): string => {
+    const knight = knightsById[knightUID];
+    if (!knight) return 'Unknown';
+
+    const chapter = knight.sheet.chapter;
+    const chapterProgress = knight.sheet.chapters[chapter];
+
+    if (!chapterProgress) return `Chapter ${chapter} - Q`;
+
+    const questCompleted = chapterProgress.quest.completed;
+    const investigationsDone = countCompletedInvestigations(chapterProgress);
+    const level = progressKey(questCompleted, investigationsDone);
+
+    // Map level to quest stage
+    switch (level) {
+      case 0:
+        return `Chapter ${chapter} - Q`;
+      case 1:
+        return `Chapter ${chapter} - I1`;
+      case 2:
+        return `Chapter ${chapter} - I2`;
+      case 3:
+        return `Chapter ${chapter} - I3`;
+      default:
+        return `Chapter ${chapter} - Q`;
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -225,19 +261,97 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     });
   };
 
+  const updateKnightData = (
+    knightUID: string,
+    choice: { choice: string; investigationId?: string },
+    status: 'success' | 'failure'
+  ) => {
+    const knight = knightsById[knightUID];
+    if (!knight) return;
+
+    const currentChapter = knight.sheet.chapter;
+    const chapterProgress = knight.sheet.chapters[currentChapter];
+
+    if (!chapterProgress) return;
+
+    let updatedChapterProgress = { ...chapterProgress };
+
+    if (choice.choice === 'quest') {
+      // Update quest completion
+      updatedChapterProgress = {
+        ...updatedChapterProgress,
+        quest: {
+          completed: status === 'success',
+          outcome: status === 'success' ? 'pass' : 'fail',
+        },
+      };
+    } else if (choice.choice === 'investigation' && choice.investigationId) {
+      // Update investigation completion
+      const investigationCode = choice.investigationId;
+      const existingAttempt = updatedChapterProgress.attempts.find(
+        attempt => attempt.code === investigationCode
+      );
+
+      if (!existingAttempt) {
+        // Add new attempt
+        updatedChapterProgress = {
+          ...updatedChapterProgress,
+          attempts: [
+            ...updatedChapterProgress.attempts,
+            {
+              code: investigationCode,
+              result: status === 'success' ? 'pass' : 'fail',
+              at: Date.now(),
+            },
+          ],
+        };
+      }
+
+      // Update completed list if successful
+      if (status === 'success' && !updatedChapterProgress.completed.includes(investigationCode)) {
+        updatedChapterProgress = {
+          ...updatedChapterProgress,
+          completed: [...updatedChapterProgress.completed, investigationCode],
+        };
+      }
+    }
+
+    // Update the knight's sheet
+    console.log('Updating knight sheet for:', knightUID, 'with:', updatedChapterProgress);
+    updateKnightSheet(knightUID, {
+      chapters: {
+        ...knight.sheet.chapters,
+        [currentChapter]: updatedChapterProgress,
+      },
+    });
+  };
+
   const handleCompleteQuest = (knightUID: string, choice: { choice: string }) => {
-    Alert.alert('Complete Quest', `Mark ${choice.choice} as successful or failed?`, [
+    console.log('handleCompleteQuest called with:', { knightUID, choice });
+    const choiceType =
+      choice.choice === 'quest'
+        ? 'Quest'
+        : choice.choice === 'investigation'
+          ? 'Investigation'
+          : 'Free Roam';
+    Alert.alert(`Complete ${choiceType}`, `Mark ${choice.choice} as successful or failed?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Success',
         onPress: () => {
           Alert.prompt(
             'Success Details',
-            'Enter details about how the quest was completed:',
+            `Enter details about how the ${choice.choice} was completed:`,
             details => {
-              if (details && details.trim()) {
-                completeQuest(campaignId, knightUID, 'success', details.trim());
-              }
+              const finalDetails =
+                details && details.trim() ? details.trim() : 'Completed successfully';
+              console.log('Calling completeQuest with success:', {
+                campaignId,
+                knightUID,
+                details: finalDetails,
+              });
+              completeQuest(campaignId, knightUID, 'success', finalDetails);
+              updateKnightData(knightUID, choice, 'success');
             }
           );
         },
@@ -245,11 +359,20 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
       {
         text: 'Failure',
         onPress: () => {
-          Alert.prompt('Failure Details', 'Enter details about why the quest failed:', details => {
-            if (details && details.trim()) {
-              completeQuest(campaignId, knightUID, 'failure', details.trim());
+          Alert.prompt(
+            'Failure Details',
+            `Enter details about why the ${choice.choice} failed:`,
+            details => {
+              const finalDetails = details && details.trim() ? details.trim() : 'Failed';
+              console.log('Calling completeQuest with failure:', {
+                campaignId,
+                knightUID,
+                details: finalDetails,
+              });
+              completeQuest(campaignId, knightUID, 'failure', finalDetails);
+              updateKnightData(knightUID, choice, 'failure');
             }
-          });
+          );
         },
       },
     ]);
@@ -399,20 +522,35 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                     choice.status === 'in-progress' && styles.questStatusInProgress,
                   ]}
                 >
-                  {choice.status}
+                  {choice.status === 'completed' ? 'completed' : choice.status}
                 </Text>
               </View>
-              <Text style={styles.questChoice}>{choice.choice}</Text>
+              <Text style={styles.questChoice}>
+                {choice.choice === 'quest' && `Quest (${getQuestLevel(choice.knightUID)})`}
+                {choice.choice === 'investigation' &&
+                  choice.investigationId &&
+                  `Investigation ${choice.investigationId}`}
+                {choice.choice === 'investigation' &&
+                  !choice.investigationId &&
+                  'Investigation (not selected)'}
+                {choice.choice === 'free-roam' && 'Free Roam'}
+              </Text>
               {choice.successDetails && (
                 <Text style={styles.questDetails}>Success: {choice.successDetails}</Text>
               )}
               {choice.failureDetails && (
                 <Text style={styles.questDetails}>Failure: {choice.failureDetails}</Text>
               )}
-              {choice.status === 'in-progress' && (
+              {choice.status === 'in-progress' ? (
                 <Button
-                  label='Complete Quest'
+                  label={`Complete ${choice.choice === 'quest' ? 'Quest' : choice.choice === 'investigation' ? 'Investigation' : 'Free Roam'}`}
                   onPress={() => handleCompleteQuest(choice.knightUID, choice)}
+                />
+              ) : (
+                <Button
+                  label={choice.status === 'completed' ? 'Completed ✓' : 'Failed ✗'}
+                  onPress={() => handleCompleteQuest(choice.knightUID, choice)}
+                  tone={choice.status === 'completed' ? 'success' : 'danger'}
                 />
               )}
             </View>

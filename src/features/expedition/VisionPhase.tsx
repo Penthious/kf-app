@@ -1,10 +1,13 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import { progressKey } from '@/features/kingdoms/utils';
+import { countCompletedInvestigations } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert, Modal, Text, View } from 'react-native';
 
 interface VisionPhaseProps {
   campaignId: string;
@@ -20,6 +23,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     setSelectedKingdom,
     setExpeditionPhase,
   } = useCampaigns();
+  const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -27,6 +31,44 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   const [selectedPartyLeader, setSelectedPartyLeader] = useState<string | null>(
     campaign?.partyLeaderUID || null
   );
+  const [investigationSelectionModal, setInvestigationSelectionModal] = useState<{
+    isVisible: boolean;
+    knightUID: string;
+    knightName: string;
+  }>({
+    isVisible: false,
+    knightUID: '',
+    knightName: '',
+  });
+
+  // Helper function to get quest level for a knight
+  const getQuestLevel = (knightUID: string): string => {
+    const knight = knightsById[knightUID];
+    if (!knight) return 'Unknown';
+
+    const chapter = knight.sheet.chapter;
+    const chapterProgress = knight.sheet.chapters[chapter];
+
+    if (!chapterProgress) return `Chapter ${chapter} - Q`;
+
+    const questCompleted = chapterProgress.quest.completed;
+    const investigationsDone = countCompletedInvestigations(chapterProgress);
+    const level = progressKey(questCompleted, investigationsDone);
+
+    // Map level to quest stage
+    switch (level) {
+      case 0:
+        return `Chapter ${chapter} - Q`;
+      case 1:
+        return `Chapter ${chapter} - I1`;
+      case 2:
+        return `Chapter ${chapter} - I2`;
+      case 3:
+        return `Chapter ${chapter} - I3`;
+      default:
+        return `Chapter ${chapter} - Q`;
+    }
+  };
 
   if (!campaign) {
     return (
@@ -102,6 +144,27 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       return;
     }
 
+    // If investigation is chosen, show investigation selection modal
+    if (choice === 'investigation') {
+      const knight = knightsById[knightUID];
+      const availableInvestigations = getAvailableInvestigations(knightUID);
+
+      if (availableInvestigations.length === 0) {
+        Alert.alert(
+          'No Available Investigations',
+          'This knight has completed all investigations for their current chapter.'
+        );
+        return;
+      }
+
+      setInvestigationSelectionModal({
+        isVisible: true,
+        knightUID,
+        knightName: knight?.name || 'Unknown Knight',
+      });
+      return;
+    }
+
     setKnightExpeditionChoice(campaignId, knightUID, choice);
   };
 
@@ -111,6 +174,54 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
 
   const isPartyLeader = (knightUID: string) => {
     return selectedPartyLeader === knightUID;
+  };
+
+  // Get available investigations for a knight based on their current chapter and completed investigations
+  const getAvailableInvestigations = (knightUID: string): string[] => {
+    const knight = knightsById[knightUID];
+    if (!knight) return [];
+
+    const currentChapter = knight.sheet.chapter;
+    const chapterProgress = knight.sheet.chapters[currentChapter];
+
+    if (!chapterProgress) return [];
+
+    // Only allow normal investigations (1-3), not special investigations (4-5)
+    const normalInvestigations = [1, 2, 3].map(i => `I${currentChapter}-${i}`);
+
+    // Filter out investigations that have been attempted (both passed and failed) OR completed
+    const attemptedInvestigations = (chapterProgress.attempts || []).map(attempt => attempt.code);
+    const completedInvestigations = chapterProgress.completed || [];
+    const unavailableInvestigations = [...attemptedInvestigations, ...completedInvestigations];
+
+    const availableInvestigations = normalInvestigations.filter(
+      investigation => !unavailableInvestigations.includes(investigation)
+    );
+
+    return availableInvestigations;
+  };
+
+  const handleInvestigationSelection = (investigationId: string) => {
+    setKnightExpeditionChoice(
+      campaignId,
+      investigationSelectionModal.knightUID,
+      'investigation',
+      undefined,
+      investigationId
+    );
+    setInvestigationSelectionModal({
+      isVisible: false,
+      knightUID: '',
+      knightName: '',
+    });
+  };
+
+  const closeInvestigationSelectionModal = () => {
+    setInvestigationSelectionModal({
+      isVisible: false,
+      knightUID: '',
+      knightName: '',
+    });
   };
 
   return (
@@ -176,6 +287,28 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                 )}
               </View>
 
+              {/* Show what the knight is attempting */}
+              {choice?.choice && (
+                <View style={{ marginBottom: 8 }}>
+                  <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
+                    Attempting:{' '}
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                      {choice.choice === 'quest' &&
+                        isLeader &&
+                        `Quest (${getQuestLevel(member.knightUID)})`}
+                      {choice.choice === 'quest' && !isLeader && 'Quest'}
+                      {choice.choice === 'investigation' &&
+                        choice.investigationId &&
+                        `Investigation ${choice.investigationId}`}
+                      {choice.choice === 'investigation' &&
+                        !choice.investigationId &&
+                        'Investigation (not selected)'}
+                      {choice.choice === 'free-roam' && 'Free Roam'}
+                    </Text>
+                  </Text>
+                </View>
+              )}
+
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {isLeader && (
                   <Button
@@ -185,7 +318,11 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                   />
                 )}
                 <Button
-                  label='Investigation'
+                  label={
+                    choice?.choice === 'investigation' && choice?.investigationId
+                      ? `Investigation (${choice.investigationId})`
+                      : 'Investigation'
+                  }
                   onPress={() => handleKnightChoice(member.knightUID, 'investigation')}
                   tone={choice?.choice === 'investigation' ? 'accent' : 'default'}
                 />
@@ -264,6 +401,55 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
           tone='accent'
         />
       )}
+
+      {/* Investigation Selection Modal */}
+      <Modal
+        visible={investigationSelectionModal.isVisible}
+        transparent={true}
+        animationType='fade'
+        onRequestClose={closeInvestigationSelectionModal}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+          }}
+        >
+          <Card style={{ width: '100%', maxWidth: 400 }}>
+            <Text
+              style={{
+                color: tokens.textPrimary,
+                fontWeight: '800',
+                marginBottom: 16,
+                textAlign: 'center',
+              }}
+            >
+              Select Investigation
+            </Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 16, textAlign: 'center' }}>
+              Choose an investigation for {investigationSelectionModal.knightName}
+            </Text>
+
+            <View style={{ gap: 8, marginBottom: 16 }}>
+              {getAvailableInvestigations(investigationSelectionModal.knightUID).map(
+                investigationId => (
+                  <Button
+                    key={investigationId}
+                    label={investigationId}
+                    onPress={() => handleInvestigationSelection(investigationId)}
+                    tone='default'
+                  />
+                )
+              )}
+            </View>
+
+            <Button label='Cancel' onPress={closeInvestigationSelectionModal} tone='default' />
+          </Card>
+        </View>
+      </Modal>
     </Card>
   );
 }
