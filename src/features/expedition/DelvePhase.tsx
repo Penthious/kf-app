@@ -1,7 +1,9 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useEffect } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
@@ -28,6 +30,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setThreatTrackPosition,
     setTimeTrackPosition,
   } = useCampaigns();
+  const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
   const activeKnights = campaign?.members.filter(member => member.isActive) || [];
@@ -77,6 +80,23 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
   const partyLeader = activeKnights.find(k => k.knightUID === campaign.partyLeaderUID);
   const selectedKingdomData = allKingdomsCatalog.find(k => k.id === selectedKingdom);
+
+  // Calculate monster stage based on expedition choices
+  const partyLeaderChoice = campaign?.expedition?.knightChoices.find(
+    choice => choice.knightUID === campaign.partyLeaderUID
+  );
+  const partyLeaderKnight = partyLeader ? knightsById[partyLeader.knightUID] : undefined;
+  const partyLeaderChapter = partyLeaderKnight?.sheet.chapter || 1;
+  const allKnightChoices = campaign?.expedition?.knightChoices || [];
+
+  const monsterStageInfo = selectedKingdomData
+    ? resolveExpeditionStagesForBestiary(
+        selectedKingdomData,
+        partyLeaderChoice,
+        partyLeaderChapter,
+        allKnightChoices
+      )
+    : { row: {}, hasChapter: false, stageIndex: 0 };
 
   const handleExploreLocation = () => {
     if (!selectedKingdomData) {
@@ -194,6 +214,25 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           <Text style={{ color: tokens.textPrimary, marginBottom: 12 }}>
             Destination Kingdom:{' '}
             <Text style={{ fontWeight: 'bold' }}>{selectedKingdomData.name}</Text>
+          </Text>
+        )}
+
+        {monsterStageInfo.hasChapter && (
+          <Text style={{ color: tokens.textPrimary, marginBottom: 12 }}>
+            Monster Stage:{' '}
+            <Text style={{ fontWeight: 'bold' }}>Stage {monsterStageInfo.stageIndex}</Text>
+            {partyLeaderChoice && (
+              <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
+                {' '}
+                (
+                {partyLeaderChoice.choice === 'quest'
+                  ? 'Quest'
+                  : partyLeaderChoice.choice === 'investigation'
+                    ? 'Investigation'
+                    : 'Free Roam'}
+                )
+              </Text>
+            )}
           </Text>
         )}
 

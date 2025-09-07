@@ -1,6 +1,7 @@
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
-import { progressKey } from '@/features/kingdoms/utils';
+import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import { countCompletedInvestigations } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
@@ -55,6 +56,33 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
       default:
         return `Chapter ${chapter} - Q`;
     }
+  };
+
+  // Helper function to get monster stage for expedition
+  const getMonsterStageInfo = (knightUID: string): string => {
+    if (!campaign?.selectedKingdomId) return '';
+
+    const selectedKingdomData = allKingdomsCatalog.find(k => k.id === campaign.selectedKingdomId);
+    if (!selectedKingdomData) return '';
+
+    const partyLeaderChoice = campaign?.expedition?.knightChoices.find(
+      choice => choice.knightUID === knightUID
+    );
+    const knight = knightsById[knightUID];
+    const knightChapter = knight?.sheet.chapter || 1;
+    const allKnightChoices = campaign?.expedition?.knightChoices || [];
+
+    const monsterStageInfo = resolveExpeditionStagesForBestiary(
+      selectedKingdomData,
+      partyLeaderChoice,
+      knightChapter,
+      allKnightChoices
+    );
+
+    if (monsterStageInfo.hasChapter) {
+      return ` (Monster Stage ${monsterStageInfo.stageIndex})`;
+    }
+    return '';
   };
 
   const styles = StyleSheet.create({
@@ -522,14 +550,16 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                 </Text>
               </View>
               <Text style={styles.questChoice}>
-                {choice.choice === 'quest' && `Quest (${getQuestLevel(choice.knightUID)})`}
+                {choice.choice === 'quest' &&
+                  `Quest (${getQuestLevel(choice.knightUID)})${getMonsterStageInfo(choice.knightUID)}`}
                 {choice.choice === 'investigation' &&
                   choice.investigationId &&
-                  `Investigation ${choice.investigationId}`}
+                  `Investigation ${choice.investigationId}${getMonsterStageInfo(choice.knightUID)}`}
                 {choice.choice === 'investigation' &&
                   !choice.investigationId &&
-                  'Investigation (not selected)'}
-                {choice.choice === 'free-roam' && 'Free Roam'}
+                  `Investigation (not selected)${getMonsterStageInfo(choice.knightUID)}`}
+                {choice.choice === 'free-roam' &&
+                  `Free Roam${getMonsterStageInfo(choice.knightUID)}`}
               </Text>
               {choice.successDetails && (
                 <Text style={styles.questDetails}>Success: {choice.successDetails}</Text>
