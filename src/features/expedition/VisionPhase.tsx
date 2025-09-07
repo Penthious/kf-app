@@ -2,7 +2,7 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
-import { countCompletedInvestigations } from '@/models/knight';
+import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -84,11 +84,17 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     const knightChapter = knight?.sheet.chapter || 1;
     const allKnightChoices = campaign?.expedition?.knightChoices || [];
 
+    // Get completed investigations count for this knight
+    const completedInvestigations = knight
+      ? countCompletedInvestigations(ensureChapter(knight.sheet, knightChapter))
+      : 0;
+
     const monsterStageInfo = resolveExpeditionStagesForBestiary(
       selectedKingdomData,
       partyLeaderChoice,
       knightChapter,
-      allKnightChoices
+      allKnightChoices,
+      completedInvestigations
     );
 
     if (monsterStageInfo.hasChapter) {
@@ -362,17 +368,27 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                       {choice.choice === 'quest' &&
                         isLeader &&
                         `Quest (${getQuestLevel(member.knightUID)})${getMonsterStageInfo(member.knightUID)}`}
-                      {choice.choice === 'quest' &&
-                        !isLeader &&
-                        `Quest${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'quest' && !isLeader && `Quest`}
                       {choice.choice === 'investigation' &&
                         choice.investigationId &&
+                        isLeader &&
                         `Investigation ${choice.investigationId}${getMonsterStageInfo(member.knightUID)}`}
                       {choice.choice === 'investigation' &&
+                        choice.investigationId &&
+                        !isLeader &&
+                        `Investigation ${choice.investigationId}`}
+                      {choice.choice === 'investigation' &&
                         !choice.investigationId &&
+                        isLeader &&
                         `Investigation (not selected)${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'investigation' &&
+                        !choice.investigationId &&
+                        !isLeader &&
+                        `Investigation (not selected)`}
                       {choice.choice === 'free-roam' &&
+                        isLeader &&
                         `Free Roam${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'free-roam' && !isLeader && `Free Roam`}
                     </Text>
                   </Text>
                 </View>

@@ -2,6 +2,7 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
+import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -89,12 +90,18 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
   const partyLeaderChapter = partyLeaderKnight?.sheet.chapter || 1;
   const allKnightChoices = campaign?.expedition?.knightChoices || [];
 
+  // Get completed investigations count for party leader
+  const partyLeaderCompletedInvestigations = partyLeaderKnight
+    ? countCompletedInvestigations(ensureChapter(partyLeaderKnight.sheet, partyLeaderChapter))
+    : 0;
+
   const monsterStageInfo = selectedKingdomData
     ? resolveExpeditionStagesForBestiary(
         selectedKingdomData,
         partyLeaderChoice,
         partyLeaderChapter,
-        allKnightChoices
+        allKnightChoices,
+        partyLeaderCompletedInvestigations
       )
     : { row: {}, hasChapter: false, stageIndex: 0 };
 
