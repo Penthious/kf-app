@@ -200,17 +200,13 @@ describe('Expedition Types', () => {
       it('should create valid clue', () => {
         const clue: Clue = {
           id: 'clue-1',
-          name: 'Mysterious Clue',
-          description: 'A piece of information that might be useful for your quest.',
+          type: 'swords',
           discoveredAt: 1700000000000,
           discoveredBy: 'knight-1',
         };
 
         expect(clue.id).toBe('clue-1');
-        expect(clue.name).toBe('Mysterious Clue');
-        expect(clue.description).toBe(
-          'A piece of information that might be useful for your quest.'
-        );
+        expect(clue.type).toBe('swords');
         expect(clue.discoveredAt).toBe(1700000000000);
         expect(clue.discoveredBy).toBe('knight-1');
       });
@@ -311,8 +307,7 @@ describe('Expedition Types', () => {
           clues: [
             {
               id: 'clue-1',
-              name: 'Mysterious Clue',
-              description: 'A piece of information.',
+              type: 'swords',
               discoveredAt: 1700000000000,
               discoveredBy: 'knight-1',
             },

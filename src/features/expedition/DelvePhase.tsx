@@ -2,12 +2,14 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
+import type { ClueType } from '@/models/campaign';
 import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
+import ClueSelectionModal from './ClueSelectionModal';
 import KingdomTrack from './KingdomTrack';
 
 interface DelvePhaseProps {
@@ -17,6 +19,7 @@ interface DelvePhaseProps {
 
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
+  const [showClueSelection, setShowClueSelection] = useState(false);
   const {
     campaigns,
     setExpeditionPhase,
@@ -125,15 +128,36 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       return;
     }
 
-    const clueId = `clue-${Date.now()}`;
-    addClue(campaignId, {
-      id: clueId,
-      name: 'Mysterious Clue',
-      description: 'A piece of information that might be useful for your quest.',
-      discoveredBy: partyLeader.knightUID,
+    setShowClueSelection(true);
+  };
+
+  const handleSelectClues = (clueSelections: { type: ClueType; count: number }[]) => {
+    if (!partyLeader) return;
+
+    const totalClues = clueSelections.reduce((sum, selection) => sum + selection.count, 0);
+
+    // Add each clue
+    clueSelections.forEach(selection => {
+      for (let i = 0; i < selection.count; i++) {
+        const clueId = `clue-${Date.now()}-${Math.random()}`;
+        addClue(campaignId, {
+          id: clueId,
+          type: selection.type,
+          discoveredBy: partyLeader.knightUID,
+        });
+      }
     });
 
-    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a new clue!`);
+    const clueTypesText = clueSelections
+      .map(
+        selection => `${selection.count} ${selection.type} clue${selection.count > 1 ? 's' : ''}`
+      )
+      .join(', ');
+
+    Alert.alert(
+      'Clues Discovered',
+      `${partyLeader.displayName} has discovered ${totalClues} clue${totalClues > 1 ? 's' : ''}: ${clueTypesText}!`
+    );
   };
 
   const handleAddObjective = () => {
@@ -251,6 +275,30 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
             <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
               Clues Found: {delveProgress.clues.length}
             </Text>
+            <View style={{ marginLeft: 16, marginBottom: 4 }}>
+              {(() => {
+                const clueCounts = delveProgress.clues.reduce(
+                  (acc, clue) => {
+                    acc[clue.type] = (acc[clue.type] || 0) + 1;
+                    return acc;
+                  },
+                  {} as Record<string, number>
+                );
+
+                const clueTypeColors: Record<string, string> = {
+                  swords: 'Red',
+                  faces: 'Teal',
+                  eye: 'Blue',
+                  book: 'Yellow',
+                };
+
+                return Object.entries(clueTypeColors).map(([type, colorName]) => (
+                  <Text key={type} style={{ color: tokens.textMuted, fontSize: 12 }}>
+                    • {colorName}: {clueCounts[type] || 0}
+                  </Text>
+                ));
+              })()}
+            </View>
             <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
               Active Objectives:{' '}
               {delveProgress.objectives.filter(o => o.status === 'active').length}
@@ -343,6 +391,12 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           setExpeditionPhase(campaignId, phase === 'second' ? 'second-clash' : 'clash')
         }
         tone='accent'
+      />
+
+      <ClueSelectionModal
+        visible={showClueSelection}
+        onClose={() => setShowClueSelection(false)}
+        onSelectClues={handleSelectClues}
       />
     </ScrollView>
   );

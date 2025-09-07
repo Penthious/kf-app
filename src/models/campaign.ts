@@ -31,10 +31,11 @@ export type KnightExpeditionChoice = {
   failureDetails?: string; // details about why it failed
 };
 
+export type ClueType = 'swords' | 'faces' | 'eye' | 'book';
+
 export type Clue = {
   id: string;
-  name: string;
-  description: string;
+  type: ClueType;
   discoveredAt: number;
   discoveredBy: string; // knightUID
 };

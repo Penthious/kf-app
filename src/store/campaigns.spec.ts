@@ -507,8 +507,7 @@ describe('campaigns store', () => {
       useCampaigns.getState().initializeDelveProgress('delve-2');
       useCampaigns.getState().addClue('delve-2', {
         id: 'clue-1',
-        name: 'Test Clue',
-        description: 'A test clue',
+        type: 'swords',
         discoveredBy: 'knight-1',
       });
 
@@ -517,8 +516,7 @@ describe('campaigns store', () => {
       expect(clues).toHaveLength(1);
       expect(clues?.[0]).toEqual({
         id: 'clue-1',
-        name: 'Test Clue',
-        description: 'A test clue',
+        type: 'swords',
         discoveredBy: 'knight-1',
         discoveredAt: now,
       });
