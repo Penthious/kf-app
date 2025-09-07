@@ -36,8 +36,6 @@ export type ClueType = 'swords' | 'faces' | 'eye' | 'book';
 export type Clue = {
   id: string;
   type: ClueType;
-  name: string;
-  description: string;
   discoveredAt: number;
   discoveredBy: string; // knightUID
 };

@@ -1,10 +1,9 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
-import { getClueByType } from '@/catalogs/clues';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
-import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import type { ClueType } from '@/models/campaign';
+import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -135,19 +134,14 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
   const handleSelectClue = (clueType: ClueType) => {
     if (!partyLeader) return;
 
-    const clueData = getClueByType(clueType);
-    if (!clueData) return;
-
     const clueId = `clue-${Date.now()}`;
     addClue(campaignId, {
       id: clueId,
       type: clueType,
-      name: clueData.name,
-      description: clueData.description,
       discoveredBy: partyLeader.knightUID,
     });
 
-    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a ${clueData.name}!`);
+    Alert.alert('Clue Discovered', `${partyLeader.displayName} has discovered a clue!`);
   };
 
   const handleAddObjective = () => {
