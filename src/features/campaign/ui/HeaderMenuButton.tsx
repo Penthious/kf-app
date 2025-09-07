@@ -80,6 +80,15 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
     { key: 'keywords', label: 'Keywords', onPress: () => go(() => router.push('/keywords')) },
     { key: 'theme', label: 'Theme', onPress: () => go(() => router.push('/theme')) },
     { key: 'faq', label: 'FAQ', onPress: () => go(() => router.push('/faq')) },
+    ...(id
+      ? [
+          {
+            key: 'expansions',
+            label: 'Expansions',
+            onPress: () => go(() => router.push(`/expansions?id=${id}`)),
+          },
+        ]
+      : []),
     ...(id && isPastVisionPhase
       ? [
           {

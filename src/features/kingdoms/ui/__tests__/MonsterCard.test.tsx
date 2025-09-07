@@ -1,7 +1,7 @@
-import type { MockMonstersState } from '../../../../test-utils/types';
 import MonsterCard from '@/features/kingdoms/ui/MonsterCard';
 import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
+import type { MockMonstersState } from '../../../../test-utils/types';
 
 // ---- real types from your app ----
 import type { KingdomView } from '@/features/kingdoms/kingdomView';
@@ -67,7 +67,11 @@ const kingdom: KingdomView = {
   name: 'Test Kingdom',
   adventures: [],
   bestiary: {
-    monsters: [{ id: 'goblin' }, { id: 'orc' }, { id: 'troll' }],
+    monsters: [
+      { id: 'goblin', type: 'kingdom' as const },
+      { id: 'orc', type: 'kingdom' as const },
+      { id: 'troll', type: 'kingdom' as const },
+    ],
     stages: [],
   },
 };
@@ -174,7 +178,7 @@ describe('MonsterCard', () => {
     const kingdomWithUnknownMonster = {
       ...kingdom,
       bestiary: {
-        monsters: [{ id: 'unknown-monster' }],
+        monsters: [{ id: 'unknown-monster', type: 'kingdom' as const }],
         stages: [],
       },
     };

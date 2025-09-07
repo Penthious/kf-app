@@ -1,6 +1,5 @@
 import { POS_ID } from './kingdoms/principality-of-stone';
 import { SUNKEN_ID } from './kingdoms/sunken-kingdom';
-import { TEN_THOUSAND_SUCCULENT_FEARS_ID } from './kingdoms/ten-thousand-succulent-fears';
 import { RATWOLVES_ID, WINGED_NIGHTMARE_ID } from './monsters';
 
 enum Tier {
@@ -28,7 +27,6 @@ export const KINGDOM_GEAR = {
     },
   ],
   [SUNKEN_ID]: [],
-  [TEN_THOUSAND_SUCCULENT_FEARS_ID]: [],
 };
 
 export const MONSTER_GEAR = {

@@ -2,179 +2,93 @@ import {
   DEVIL_OF_THE_SMELTED_FEARS_ID,
   EGGKNIGHT_ID,
   IRONCAST_DEAD_ID,
-  KNIGHT_OF_THE_FEN_ID,
-  PALEBLOOD_WORM_ID,
   PANZERDRAGON_VELDR_ID,
-  PUMPKINHEAD_MONSTROSITIES_ID,
   PUPPET_KING_EDELHARDT_ID,
-  RATWOLVES_ID,
-  WINGED_NIGHTMARE_ID,
 } from '@/catalogs/monsters';
-import type { KingdomCatalog } from '@/models/kingdom';
+import { DEVIL_OF_THE_SMELTED_FEARS_STAGES } from '@/catalogs/monsters/devil-of-the-smelted-fears';
+import { EGGKNIGHT_STAGES } from '@/catalogs/monsters/eggknight';
+import { IRONCAST_DEAD_STAGES } from '@/catalogs/monsters/ironcast-dead';
+import { KNIGHTEATER_ID } from '@/catalogs/monsters/knighteater';
+import { PANZERDRAGON_VELDR_STAGES } from '@/catalogs/monsters/panzerdragon-veldr';
+import { PANZERGEIST_ID, PANZERGEIST_STAGES } from '@/catalogs/monsters/panzergeist';
+import { PUPPET_KING_EDELHARDT_STAGES } from '@/catalogs/monsters/puppet-king-edelhardt';
+import {
+  STONEMASON_KNIGHT_ID,
+  STONEMASON_KNIGHT_STAGES,
+} from '@/catalogs/monsters/stonemason-knight';
+import {
+  BASE_WANDERING_MONSTERS,
+  BASE_WANDERING_STAGES,
+  TTSF_WANDERING_MONSTERS,
+  TTSF_WANDERING_STAGES,
+} from '@/catalogs/monsters/wandering';
+import { YOUNG_DEVOURER_DRAGON_ID } from '@/catalogs/monsters/young-devourer-dragon';
+import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
+import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
 
 export const POS_ID = 'principality-of-stone';
+export const SCHWARZREICH_ID = 'schwarzreich';
+
+// Schwarzreich kingdom-specific stages (without wandering monsters)
+// Panzergeist: '111 222 333 444     '
+// Stonemason Knight: ' 111 222. 333. 44444'
+const SCHWARZREICH_KINGDOM_STAGES = createStageRows([
+  { [PANZERGEIST_ID]: PANZERGEIST_STAGES },
+  { [STONEMASON_KNIGHT_ID]: STONEMASON_KNIGHT_STAGES },
+]);
+
+// Schwarzreich sub-kingdom (accessible only during PoS expeditions)
+export const SCHWARZREICH: SubKingdomCatalog = {
+  id: SCHWARZREICH_ID,
+  name: 'Schwarzreich',
+  parentKingdomId: POS_ID,
+  accessCondition: 'pos-only',
+  bestiary: {
+    monsters: [
+      // Inherits all monsters from parent kingdom (Principality of Stone)
+      ...BASE_WANDERING_MONSTERS,
+      // Kingdom Monsters from parent
+      { id: IRONCAST_DEAD_ID, type: 'kingdom' },
+      { id: EGGKNIGHT_ID, type: 'kingdom' },
+      { id: PUPPET_KING_EDELHARDT_ID, type: 'kingdom' },
+      { id: DEVIL_OF_THE_SMELTED_FEARS_ID, type: 'kingdom' },
+      { id: PANZERDRAGON_VELDR_ID, type: 'kingdom' },
+      // Sub-kingdom specific monsters (TTSF expansion)
+      { id: PANZERGEIST_ID, type: 'kingdom', expansion: 'ttsf' },
+      { id: STONEMASON_KNIGHT_ID, type: 'kingdom', expansion: 'ttsf' },
+      ...TTSF_WANDERING_MONSTERS,
+    ],
+    stages: createSubKingdomStages(SCHWARZREICH_KINGDOM_STAGES, TTSF_WANDERING_STAGES),
+  },
+  adventures: [
+    // TODO: Add Schwarzreich-specific adventures when catalog is available
+  ],
+};
+
+// Principality of Stone kingdom-specific stages (without wandering monsters)
+const POS_KINGDOM_STAGES = createStageRows([
+  { [IRONCAST_DEAD_ID]: IRONCAST_DEAD_STAGES },
+  { [EGGKNIGHT_ID]: EGGKNIGHT_STAGES },
+  { [PUPPET_KING_EDELHARDT_ID]: PUPPET_KING_EDELHARDT_STAGES },
+  { [DEVIL_OF_THE_SMELTED_FEARS_ID]: DEVIL_OF_THE_SMELTED_FEARS_STAGES },
+  { [PANZERDRAGON_VELDR_ID]: PANZERDRAGON_VELDR_STAGES },
+]);
+
 export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
   id: POS_ID,
   name: 'Principality of Stone',
+  type: 'main',
   bestiary: {
     monsters: [
-      { id: RATWOLVES_ID },
-      { id: WINGED_NIGHTMARE_ID },
-      { id: PALEBLOOD_WORM_ID },
-      { id: PUMPKINHEAD_MONSTROSITIES_ID },
-      { id: KNIGHT_OF_THE_FEN_ID },
-      { id: IRONCAST_DEAD_ID },
-      { id: EGGKNIGHT_ID },
-      { id: PUPPET_KING_EDELHARDT_ID },
-      { id: DEVIL_OF_THE_SMELTED_FEARS_ID },
-      { id: PANZERDRAGON_VELDR_ID },
+      ...BASE_WANDERING_MONSTERS,
+      // Kingdom Monsters
+      { id: IRONCAST_DEAD_ID, type: 'kingdom' },
+      { id: EGGKNIGHT_ID, type: 'kingdom' },
+      { id: PUPPET_KING_EDELHARDT_ID, type: 'kingdom' },
+      { id: DEVIL_OF_THE_SMELTED_FEARS_ID, type: 'kingdom' },
+      { id: PANZERDRAGON_VELDR_ID, type: 'kingdom' },
     ],
-    stages: [
-      {
-        [RATWOLVES_ID]: 1,
-        [WINGED_NIGHTMARE_ID]: null,
-        [PALEBLOOD_WORM_ID]: 1,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 1,
-        [KNIGHT_OF_THE_FEN_ID]: null,
-        [IRONCAST_DEAD_ID]: 1,
-        [EGGKNIGHT_ID]: 1,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: null,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 1,
-        [WINGED_NIGHTMARE_ID]: null,
-        [PALEBLOOD_WORM_ID]: 1,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 1,
-        [KNIGHT_OF_THE_FEN_ID]: 1,
-        [IRONCAST_DEAD_ID]: 1,
-        [EGGKNIGHT_ID]: 1,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: null,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 2,
-        [WINGED_NIGHTMARE_ID]: 1,
-        [PALEBLOOD_WORM_ID]: 1,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 1,
-        [KNIGHT_OF_THE_FEN_ID]: 1,
-        [IRONCAST_DEAD_ID]: null,
-        [EGGKNIGHT_ID]: 1,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: null,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 2,
-        [WINGED_NIGHTMARE_ID]: 1,
-        [PALEBLOOD_WORM_ID]: 2,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: null,
-        [KNIGHT_OF_THE_FEN_ID]: 1,
-        [IRONCAST_DEAD_ID]: 2,
-        [EGGKNIGHT_ID]: null,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: null,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 3,
-        [WINGED_NIGHTMARE_ID]: 2,
-        [PALEBLOOD_WORM_ID]: 2,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 2,
-        [KNIGHT_OF_THE_FEN_ID]: 2,
-        [IRONCAST_DEAD_ID]: 2,
-        [EGGKNIGHT_ID]: 2,
-        [PUPPET_KING_EDELHARDT_ID]: 3,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 3,
-        [PANZERDRAGON_VELDR_ID]: 1,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 3,
-        [PALEBLOOD_WORM_ID]: 3,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: null,
-        [KNIGHT_OF_THE_FEN_ID]: null,
-        [IRONCAST_DEAD_ID]: 3,
-        [EGGKNIGHT_ID]: null,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: null,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 3,
-        [PALEBLOOD_WORM_ID]: 3,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 3,
-        [KNIGHT_OF_THE_FEN_ID]: null,
-        [IRONCAST_DEAD_ID]: 3,
-        [EGGKNIGHT_ID]: 3,
-        [PUPPET_KING_EDELHARDT_ID]: null,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 1,
-        [PANZERDRAGON_VELDR_ID]: null,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 4,
-        [PALEBLOOD_WORM_ID]: 3,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 3,
-        [KNIGHT_OF_THE_FEN_ID]: 3,
-        [IRONCAST_DEAD_ID]: 3,
-        [EGGKNIGHT_ID]: 3,
-        [PUPPET_KING_EDELHARDT_ID]: 4,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 4,
-        [PANZERDRAGON_VELDR_ID]: 1,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 4,
-        [PALEBLOOD_WORM_ID]: 4,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 3,
-        [KNIGHT_OF_THE_FEN_ID]: 4,
-        [IRONCAST_DEAD_ID]: 4,
-        [EGGKNIGHT_ID]: 4,
-        [PUPPET_KING_EDELHARDT_ID]: 4,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 3,
-        [PANZERDRAGON_VELDR_ID]: 2,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 4,
-        [PALEBLOOD_WORM_ID]: 4,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 4,
-        [KNIGHT_OF_THE_FEN_ID]: 4,
-        [IRONCAST_DEAD_ID]: 4,
-        [EGGKNIGHT_ID]: 4,
-        [PUPPET_KING_EDELHARDT_ID]: 4,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 3,
-        [PANZERDRAGON_VELDR_ID]: 2,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 4,
-        [PALEBLOOD_WORM_ID]: 4,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 4,
-        [KNIGHT_OF_THE_FEN_ID]: 4,
-        [IRONCAST_DEAD_ID]: 4,
-        [EGGKNIGHT_ID]: 4,
-        [PUPPET_KING_EDELHARDT_ID]: 4,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 3,
-        [PANZERDRAGON_VELDR_ID]: 2,
-      },
-      {
-        [RATWOLVES_ID]: 4,
-        [WINGED_NIGHTMARE_ID]: 4,
-        [PALEBLOOD_WORM_ID]: 4,
-        [PUMPKINHEAD_MONSTROSITIES_ID]: 4,
-        [KNIGHT_OF_THE_FEN_ID]: 4,
-        [IRONCAST_DEAD_ID]: 4,
-        [EGGKNIGHT_ID]: 4,
-        [PUPPET_KING_EDELHARDT_ID]: 4,
-        [DEVIL_OF_THE_SMELTED_FEARS_ID]: 3,
-        [PANZERDRAGON_VELDR_ID]: 2,
-      },
-    ],
+    stages: createSubKingdomStages(POS_KINGDOM_STAGES, BASE_WANDERING_STAGES),
   },
   adventures: [
     { name: 'A Song in Silica', roll: { min: 1, max: 3 }, singleAttempt: false },
@@ -208,4 +122,18 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     { name: 'Eaves-drip Kindness', roll: { min: 93, max: 95 }, singleAttempt: true },
     { name: 'The Devil You Know', roll: { min: 96, max: 100 }, singleAttempt: false },
   ],
+  subKingdoms: [SCHWARZREICH],
+  expansions: {
+    ttsf: {
+      enabled: false,
+      additionalMonsters: [
+        // TTSF Kingdom Monsters (added to stage 0 when expansion enabled)
+        { id: PANZERGEIST_ID, type: 'kingdom', expansion: 'ttsf' },
+        { id: STONEMASON_KNIGHT_ID, type: 'kingdom', expansion: 'ttsf' },
+        // TTSF Wandering Monsters (added to stage 0 when expansion enabled)
+        { id: KNIGHTEATER_ID, type: 'wandering', expansion: 'ttsf' },
+        { id: YOUNG_DEVOURER_DRAGON_ID, type: 'wandering', expansion: 'ttsf' },
+      ],
+    },
+  },
 };

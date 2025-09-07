@@ -7,6 +7,7 @@ describe('buildKingdomView', () => {
   const mockKingdomCatalog: KingdomCatalog = {
     id: 'test-kingdom',
     name: 'Test Kingdom',
+    type: 'main',
     adventures: [
       {
         name: 'First Adventure',
@@ -342,7 +343,7 @@ describe('buildKingdomView', () => {
 
     const result = buildKingdomView('test-kingdom', mockCampaign, [kingdomWithoutBestiary]);
 
-    expect(result?.bestiary).toBeUndefined();
+    expect(result?.bestiary).toEqual({ monsters: [], stages: [] });
   });
 
   it('generates correct adventure IDs with slugification', () => {

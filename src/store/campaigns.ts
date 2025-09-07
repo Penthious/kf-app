@@ -20,6 +20,7 @@ export type CampaignsActions = {
   setCurrentCampaignId: (id?: string) => void;
   setFivePlayerMode: (campaignId: string, on: boolean) => void;
   setNotes: (campaignId: string, notes: string) => void;
+  setExpansionEnabled: (campaignId: string, expansion: 'ttsf', enabled: boolean) => void;
   openCampaign: (campaignId: string) => void;
   closeCampaign: () => void;
 
@@ -153,6 +154,11 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           settings: {
             fivePlayerMode: false,
             notes: '',
+            expansions: {
+              ttsf: {
+                enabled: false,
+              },
+            },
           },
           partyLeaderUID: undefined,
         };
@@ -233,6 +239,36 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             },
           },
         };
+        // Save to AsyncStorage
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setExpansionEnabled: (campaignId, expansion, enabled) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              settings: {
+                ...c.settings,
+                expansions: {
+                  ...c.settings.expansions,
+                  [expansion]: {
+                    ...c.settings.expansions?.[expansion],
+                    enabled,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+
         // Save to AsyncStorage
         saveToStorage(newState);
         return newState;

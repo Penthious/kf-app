@@ -14,11 +14,12 @@ export default function NewCampaign() {
   const { tokens } = useThemeTokens();
   const router = useRouter();
 
-  const { addCampaign, setFivePlayerMode, setNotes } = useCampaigns();
+  const { addCampaign, setFivePlayerMode, setNotes, setExpansionEnabled } = useCampaigns();
 
   const [name, setName] = useState('');
   const [fivePlayerMode, setFive] = useState(false);
   const [notes, setNotesText] = useState('');
+  const [ttsfEnabled, setTTSFEnabled] = useState(false);
 
   const onSave = () => {
     const title = name.trim() || 'New Campaign';
@@ -30,6 +31,7 @@ export default function NewCampaign() {
     // 2) apply settings
     setFivePlayerMode(campaignId, fivePlayerMode);
     if (notes.trim()) setNotes(campaignId, notes.trim());
+    setExpansionEnabled(campaignId, 'ttsf', ttsfEnabled);
 
     // 3) go to the campaign workspace - always start with knights tab for new campaigns
     router.replace(`/campaign/${campaignId}/knights`);
@@ -102,6 +104,19 @@ export default function NewCampaign() {
             placeholder='Optional'
             multiline
             numberOfLines={4}
+          />
+        </Card>
+
+        <Card style={{ marginBottom: 12 }}>
+          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+            Expansions
+          </Text>
+          <SwitchRow
+            label='Ten Thousand Succulent Fears'
+            description='Adds new wandering monsters and specific kingdom monsters to all stages of the bestiary.'
+            value={ttsfEnabled}
+            onValueChange={setTTSFEnabled}
+            testID='ttsf-expansion-switch'
           />
         </Card>
 
