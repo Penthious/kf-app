@@ -1,14 +1,14 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import type {
-    Campaign,
-    CampaignsState,
-    ClashResult,
-    Clue,
-    Contract,
-    ExpeditionPhase,
-    KnightExpeditionChoice,
-    LootCard,
-    Objective,
+  Campaign,
+  CampaignsState,
+  ClashResult,
+  Clue,
+  Contract,
+  ExpeditionPhase,
+  KnightExpeditionChoice,
+  LootCard,
+  Objective,
 } from '@/models/campaign';
 import { createDistrictWheel, rotateDistrictWheel } from '@/models/district';
 import { getBestiaryWithExpansions } from '@/models/kingdom';

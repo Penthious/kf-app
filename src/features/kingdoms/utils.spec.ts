@@ -2,11 +2,11 @@ import type { KnightExpeditionChoice } from '@/models/campaign';
 import type { BestiaryStageRow, KingdomCatalog } from '@/models/kingdom';
 import { describe, expect, it } from 'vitest';
 import {
-    calculateExpeditionMonsterStage,
-    normalizeRow,
-    progressKey,
-    resolveExpeditionStagesForBestiary,
-    resolveStagesForBestiary,
+  calculateExpeditionMonsterStage,
+  normalizeRow,
+  progressKey,
+  resolveExpeditionStagesForBestiary,
+  resolveStagesForBestiary,
 } from './utils';
 
 describe('progressKey', () => {

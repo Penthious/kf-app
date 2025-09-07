@@ -1,8 +1,8 @@
 import {
-    createDistrictWheel,
-    getDistrictsWithMonsters,
-    getMonsterForDistrict,
-    rotateDistrictWheel,
+  createDistrictWheel,
+  getDistrictsWithMonsters,
+  getMonsterForDistrict,
+  rotateDistrictWheel,
 } from '../district';
 
 describe('District Wheel System', () => {
