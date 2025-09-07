@@ -60,6 +60,13 @@ describe('VisionPhase', () => {
       isActive: true,
       joinedAt: Date.now(),
     },
+    {
+      knightUID: 'knight-4',
+      displayName: 'Knight Four',
+      catalogId: 'catalog-4',
+      isActive: true,
+      joinedAt: Date.now(),
+    },
   ];
 
   const mockKnightsById = {
@@ -145,6 +152,39 @@ describe('VisionPhase', () => {
             quest: { completed: false },
             attempts: [],
             completed: ['I1-1', 'I1-2', 'I1-3', 'I1-4', 'I1-5'], // Knight has completed all investigations
+          },
+        },
+        virtues: { faith: 0, hope: 0, charity: 0 },
+        vices: { pride: 0, greed: 0, lust: 0, envy: 0, gluttony: 0, wrath: 0, sloth: 0 },
+        bane: 0,
+        sighOfGraal: 0,
+        gold: 0,
+        leads: 0,
+        prologueDone: false,
+        postgameDone: false,
+        firstDeath: false,
+        choiceMatrix: {},
+        saints: [],
+        mercenaries: [],
+        armory: [],
+        notes: [],
+        cipher: 0,
+      },
+      version: 1,
+      updatedAt: Date.now(),
+    },
+    'knight-4': {
+      knightUID: 'knight-4',
+      name: 'Knight Four',
+      catalogId: 'catalog-4',
+      ownerUserId: 'user-1',
+      sheet: {
+        chapter: 1,
+        chapters: {
+          1: {
+            quest: { completed: true }, // Knight has completed their quest
+            attempts: [],
+            completed: [],
           },
         },
         virtues: { faith: 0, hope: 0, charity: 0 },
@@ -342,6 +382,7 @@ describe('VisionPhase', () => {
           { knightUID: 'knight-1', choice: 'quest', status: 'in-progress' as const },
           { knightUID: 'knight-2', choice: 'investigation', status: 'in-progress' as const },
           { knightUID: 'knight-3', choice: 'free-roam', status: 'in-progress' as const },
+          { knightUID: 'knight-4', choice: 'free-roam', status: 'in-progress' as const },
         ],
       };
 
@@ -406,7 +447,7 @@ describe('VisionPhase', () => {
 
       expect(Alert.alert).toHaveBeenCalledWith(
         'Incomplete Choices',
-        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight Two, Knight Three'
+        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight Two, Knight Three, Knight Four'
       );
     });
 
@@ -424,7 +465,7 @@ describe('VisionPhase', () => {
 
       expect(Alert.alert).toHaveBeenCalledWith(
         'Incomplete Choices',
-        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight One, Knight Two, Knight Three'
+        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight One, Knight Two, Knight Three, Knight Four'
       );
     });
 
@@ -451,7 +492,7 @@ describe('VisionPhase', () => {
 
       expect(Alert.alert).toHaveBeenCalledWith(
         'Incomplete Choices',
-        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight Two'
+        'All active knights must choose their quest, investigation, or free roam before proceeding. Missing choices from: Knight Two, Knight Four'
       );
     });
 
@@ -462,6 +503,7 @@ describe('VisionPhase', () => {
           { knightUID: 'knight-1', choice: 'quest', status: 'in-progress' as const },
           { knightUID: 'knight-2', choice: 'investigation', status: 'in-progress' as const },
           { knightUID: 'knight-3', choice: 'free-roam', status: 'in-progress' as const },
+          { knightUID: 'knight-4', choice: 'free-roam', status: 'in-progress' as const },
         ],
       };
 
@@ -880,6 +922,36 @@ describe('VisionPhase', () => {
 
       // Should show quest level for party leader (knight-1 has 2 completed investigations, so I2)
       expect(screen.getByText('Attempting: Quest (Chapter 1 - I2)')).toBeTruthy();
+    });
+
+    it('prevents party leader from selecting quest if already completed', () => {
+      // Set up campaign with knight-4 as party leader (who has completed quest)
+      const campaignWithCompletedQuestLeader = {
+        ...mockCampaign,
+        partyLeaderUID: 'knight-4',
+        expedition: mockExpedition,
+      };
+
+      mockUseCampaigns.mockReturnValue({
+        campaigns: {
+          'test-campaign-1': campaignWithCompletedQuestLeader,
+        },
+        ...mockStoreActions,
+      });
+
+      render(<VisionPhase campaignId='test-campaign-1' />);
+
+      // Find the quest button for knight-4 (party leader)
+      const questButton = screen.getByText('Quest (Completed)');
+
+      // Try to press the quest button
+      fireEvent.press(questButton);
+
+      // Should show alert about quest already being completed
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Quest Already Completed',
+        'This knight has already completed their quest for the current chapter.'
+      );
     });
   });
 });

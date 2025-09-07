@@ -144,6 +144,23 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       return;
     }
 
+    // Check if party leader has already completed their quest
+    if (choice === 'quest' && isPartyLeader(knightUID)) {
+      const knight = knightsById[knightUID];
+      if (knight) {
+        const currentChapter = knight.sheet.chapter;
+        const chapterProgress = knight.sheet.chapters[currentChapter];
+
+        if (chapterProgress?.quest.completed) {
+          Alert.alert(
+            'Quest Already Completed',
+            'This knight has already completed their quest for the current chapter.'
+          );
+          return;
+        }
+      }
+    }
+
     // If investigation is chosen, show investigation selection modal
     if (choice === 'investigation') {
       const knight = knightsById[knightUID];
@@ -174,6 +191,16 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
 
   const isPartyLeader = (knightUID: string) => {
     return selectedPartyLeader === knightUID;
+  };
+
+  const isQuestCompleted = (knightUID: string) => {
+    const knight = knightsById[knightUID];
+    if (!knight) return false;
+
+    const currentChapter = knight.sheet.chapter;
+    const chapterProgress = knight.sheet.chapters[currentChapter];
+
+    return chapterProgress?.quest.completed || false;
   };
 
   // Get available investigations for a knight based on their current chapter and completed investigations
@@ -324,9 +351,10 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {isLeader && (
                   <Button
-                    label='Quest'
+                    label={isQuestCompleted(member.knightUID) ? 'Quest (Completed)' : 'Quest'}
                     onPress={() => handleKnightChoice(member.knightUID, 'quest')}
                     tone={choice?.choice === 'quest' ? 'accent' : 'default'}
+                    disabled={isQuestCompleted(member.knightUID)}
                   />
                 )}
                 <Button
