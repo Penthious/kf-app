@@ -64,7 +64,21 @@ export const ANCESTOR_RUINS: SubKingdomCatalog = {
     stages: createSubKingdomStages(ANCESTOR_RUINS_KINGDOM_STAGES, TTSF_WANDERING_STAGES),
   },
   adventures: [
-    // TODO: Add Ancestor Ruins-specific adventures when catalog is available
+    { name: 'Primal Descent', roll: { min: 1, max: 5 }, singleAttempt: false },
+    { name: 'Breakthrough', roll: { min: 6, max: 11 }, singleAttempt: false },
+    { name: "Trail's End", roll: { min: 12, max: 18 }, singleAttempt: true },
+    { name: 'Safe Passage', roll: { min: 19, max: 25 }, singleAttempt: true },
+    { name: 'Kindness in a Cruel Age', roll: { min: 26, max: 32 }, singleAttempt: true },
+    { name: 'Even To Direct His Step', roll: { min: 33, max: 39 }, singleAttempt: true },
+    { name: 'Pit of Memories', roll: { min: 40, max: 46 }, singleAttempt: false },
+    { name: 'Heavy as a Feather', roll: { min: 47, max: 53 }, singleAttempt: true },
+    { name: 'Grave-Robbing', roll: { min: 54, max: 60 }, singleAttempt: false },
+    { name: 'Blood Covenant', roll: { min: 61, max: 67 }, singleAttempt: false },
+    { name: 'Dome of Stars', roll: { min: 68, max: 74 }, singleAttempt: false },
+    { name: 'Floodgates', roll: { min: 75, max: 81 }, singleAttempt: true },
+    { name: 'Mirewolves', roll: { min: 82, max: 88 }, singleAttempt: false },
+    { name: 'Rosetta', roll: { min: 89, max: 94 }, singleAttempt: true },
+    { name: 'Secret Keeper', roll: { min: 95, max: 100 }, singleAttempt: true },
   ],
 };
 

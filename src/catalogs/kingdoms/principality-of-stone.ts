@@ -61,7 +61,21 @@ export const SCHWARZREICH: SubKingdomCatalog = {
     stages: createSubKingdomStages(SCHWARZREICH_KINGDOM_STAGES, TTSF_WANDERING_STAGES),
   },
   adventures: [
-    // TODO: Add Schwarzreich-specific adventures when catalog is available
+    { name: 'Gardens of Envy', roll: { min: 1, max: 5 }, singleAttempt: false },
+    { name: "Traitor's Crossing", roll: { min: 6, max: 11 }, singleAttempt: true },
+    { name: 'Fated Pilgrimage', roll: { min: 12, max: 18 }, singleAttempt: true },
+    { name: 'Solitary Confinement', roll: { min: 19, max: 25 }, singleAttempt: true },
+    { name: 'Wyrmery', roll: { min: 26, max: 32 }, singleAttempt: false },
+    { name: 'Quake', roll: { min: 33, max: 39 }, singleAttempt: false },
+    { name: "Defiance's Spoils", roll: { min: 40, max: 46 }, singleAttempt: false },
+    { name: 'Heroic End', roll: { min: 47, max: 53 }, singleAttempt: false },
+    { name: 'Corrosive Spiral', roll: { min: 54, max: 60 }, singleAttempt: false },
+    { name: 'In Tandem', roll: { min: 61, max: 67 }, singleAttempt: false },
+    { name: 'Heartburn', roll: { min: 68, max: 74 }, singleAttempt: false },
+    { name: 'Free at Last', roll: { min: 75, max: 81 }, singleAttempt: false },
+    { name: 'Stonemen', roll: { min: 82, max: 88 }, singleAttempt: false },
+    { name: 'Escape This Cage of Flesh', roll: { min: 89, max: 94 }, singleAttempt: false },
+    { name: 'Profane Terror', roll: { min: 95, max: 100 }, singleAttempt: false },
   ],
 };
 
