@@ -246,7 +246,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
 
     if (!chapterProgress) return [];
 
-    // Allow all investigations (1-5) - investigations 4-5 are "lead" investigations
+    // Allow all investigations (1-5) - all investigations are treated equally
     const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
 
     // Filter out investigations that have been attempted (both passed and failed) OR completed
