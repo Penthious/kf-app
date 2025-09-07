@@ -1,7 +1,7 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
-import { progressKey } from '@/features/kingdoms/utils';
+import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import { countCompletedInvestigations } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
@@ -68,6 +68,33 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       default:
         return `Chapter ${chapter} - Q`;
     }
+  };
+
+  // Helper function to get monster stage for expedition
+  const getMonsterStageInfo = (knightUID: string): string => {
+    if (!campaign?.selectedKingdomId) return '';
+
+    const selectedKingdomData = allKingdomsCatalog.find(k => k.id === campaign.selectedKingdomId);
+    if (!selectedKingdomData) return '';
+
+    const partyLeaderChoice = campaign?.expedition?.knightChoices.find(
+      choice => choice.knightUID === knightUID
+    );
+    const knight = knightsById[knightUID];
+    const knightChapter = knight?.sheet.chapter || 1;
+    const allKnightChoices = campaign?.expedition?.knightChoices || [];
+
+    const monsterStageInfo = resolveExpeditionStagesForBestiary(
+      selectedKingdomData,
+      partyLeaderChoice,
+      knightChapter,
+      allKnightChoices
+    );
+
+    if (monsterStageInfo.hasChapter) {
+      return ` (Monster Stage ${monsterStageInfo.stageIndex})`;
+    }
+    return '';
   };
 
   if (!campaign) {
@@ -334,15 +361,18 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                     <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
                       {choice.choice === 'quest' &&
                         isLeader &&
-                        `Quest (${getQuestLevel(member.knightUID)})`}
-                      {choice.choice === 'quest' && !isLeader && 'Quest'}
+                        `Quest (${getQuestLevel(member.knightUID)})${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'quest' &&
+                        !isLeader &&
+                        `Quest${getMonsterStageInfo(member.knightUID)}`}
                       {choice.choice === 'investigation' &&
                         choice.investigationId &&
-                        `Investigation ${choice.investigationId}`}
+                        `Investigation ${choice.investigationId}${getMonsterStageInfo(member.knightUID)}`}
                       {choice.choice === 'investigation' &&
                         !choice.investigationId &&
-                        'Investigation (not selected)'}
-                      {choice.choice === 'free-roam' && 'Free Roam'}
+                        `Investigation (not selected)${getMonsterStageInfo(member.knightUID)}`}
+                      {choice.choice === 'free-roam' &&
+                        `Free Roam${getMonsterStageInfo(member.knightUID)}`}
                     </Text>
                   </Text>
                 </View>

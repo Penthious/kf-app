@@ -19,7 +19,10 @@ import AdventuresCard from '@/features/kingdoms/ui/AdventuresCard';
 import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
 import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
 import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
-import { resolveStagesForBestiary } from '@/features/kingdoms/utils';
+import {
+  resolveStagesForBestiary,
+  resolveExpeditionStagesForBestiary,
+} from '@/features/kingdoms/utils';
 import type { KingdomCatalog } from '@/models/kingdom';
 
 import { getMemberSets } from '@/features/knights/selectors';
@@ -84,7 +87,27 @@ export default function CampaignKingdoms() {
 
   // ----- Stage row for current leader + kingdom -----
   const stageRow = leader
-    ? resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row
+    ? (() => {
+        // If we're in an expedition, use expedition-aware monster stage calculation
+        if (c?.expedition && c.expedition.currentPhase !== 'vision') {
+          const partyLeaderChoice = c.expedition.knightChoices.find(
+            choice => choice.knightUID === leaderUID
+          );
+          const allKnightChoices = c.expedition.knightChoices || [];
+
+          const expeditionStageInfo = resolveExpeditionStagesForBestiary(
+            activeKingdom,
+            partyLeaderChoice,
+            chapter,
+            allKnightChoices
+          );
+
+          return expeditionStageInfo.row;
+        }
+
+        // Otherwise, use the traditional completed progress calculation
+        return resolveStagesForBestiary(activeKingdom, chapter, questDone, completedInvs).row;
+      })()
     : {};
 
   const kv = buildKingdomView(activeKingdom?.id ?? '', c, allKingdomsCatalog);

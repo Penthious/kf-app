@@ -1,6 +1,13 @@
+import type { KnightExpeditionChoice } from '@/models/campaign';
 import type { BestiaryStageRow, KingdomCatalog } from '@/models/kingdom';
 import { describe, expect, it } from 'vitest';
-import { normalizeRow, progressKey, resolveStagesForBestiary } from './utils';
+import {
+  calculateExpeditionMonsterStage,
+  normalizeRow,
+  progressKey,
+  resolveExpeditionStagesForBestiary,
+  resolveStagesForBestiary,
+} from './utils';
 
 describe('progressKey', () => {
   it('returns 0 when quest is not completed and no investigations done', () => {
@@ -239,6 +246,312 @@ describe('resolveStagesForBestiary', () => {
     expect(resolveStagesForBestiary(mockKingdom, 2, false, 1)).toEqual({
       row: { 'monster-3': 2, 'monster-4': 1 },
       hasChapter: true,
+    });
+  });
+});
+
+describe('calculateExpeditionMonsterStage', () => {
+  const mockKnightUID = 'knight-1';
+
+  it('returns 0 for free-roam choice', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'free-roam',
+      status: 'in-progress',
+    };
+    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    expect(result).toBe(0);
+  });
+
+  it('returns 0 for undefined choice', () => {
+    const result = calculateExpeditionMonsterStage(undefined, 1, []);
+    expect(result).toBe(0);
+  });
+
+  it('returns 0 for quest with no previous investigations', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    expect(result).toBe(0);
+  });
+
+  it('returns 1 for first investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'investigation',
+      investigationId: 'I1-1',
+      status: 'in-progress',
+    };
+    const result = calculateExpeditionMonsterStage(choice, 1, []);
+    expect(result).toBe(1);
+  });
+
+  it('returns 1 for quest after 1 investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(1);
+  });
+
+  it('returns 2 for second investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'investigation',
+      investigationId: 'I1-2',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(2);
+  });
+
+  it('returns 2 for quest after 2 investigations', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-2',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(2);
+  });
+
+  it('returns 3 for third investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'investigation',
+      investigationId: 'I1-3',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-2',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(3);
+  });
+
+  it('returns 3 for quest after 3 investigations', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-2',
+        status: 'completed',
+      },
+      {
+        knightUID: mockKnightUID,
+        choice: 'investigation',
+        investigationId: 'I1-3',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(3);
+  });
+
+  it('adds chapter offset correctly for chapter 2', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = calculateExpeditionMonsterStage(choice, 2, []);
+    expect(result).toBe(4); // (2-1) * 4 + 0 = 4
+  });
+
+  it('adds chapter offset correctly for chapter 2, first investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'investigation',
+      investigationId: 'I2-1',
+      status: 'in-progress',
+    };
+    const result = calculateExpeditionMonsterStage(choice, 2, []);
+    expect(result).toBe(5); // (2-1) * 4 + 1 = 5
+  });
+
+  it('ignores choices from other knights', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: mockKnightUID,
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const previousChoices: KnightExpeditionChoice[] = [
+      {
+        knightUID: 'other-knight',
+        choice: 'investigation',
+        investigationId: 'I1-1',
+        status: 'completed',
+      },
+    ];
+    const result = calculateExpeditionMonsterStage(choice, 1, previousChoices);
+    expect(result).toBe(0); // Should not count other knight's investigations
+  });
+});
+
+describe('resolveExpeditionStagesForBestiary', () => {
+  const mockKingdom: KingdomCatalog = {
+    id: 'test-kingdom',
+    name: 'Test Kingdom',
+    adventures: [],
+    bestiary: {
+      monsters: [
+        { id: 'monster-1' },
+        { id: 'monster-2' },
+        { id: 'monster-3' },
+        { id: 'monster-4' },
+      ],
+      stages: [
+        { 'monster-1': 1, 'monster-2': 0 }, // Stage 0
+        { 'monster-1': 1, 'monster-2': 1 }, // Stage 1
+        { 'monster-1': 2, 'monster-2': 1 }, // Stage 2
+        { 'monster-1': 2, 'monster-2': 2 }, // Stage 3
+        { 'monster-3': 1, 'monster-4': 0 }, // Stage 4 (Chapter 2)
+        { 'monster-3': 1, 'monster-4': 1 }, // Stage 5 (Chapter 2)
+        { 'monster-3': 2, 'monster-4': 1 }, // Stage 6 (Chapter 2)
+        { 'monster-3': 2, 'monster-4': 2 }, // Stage 7 (Chapter 2)
+      ],
+    },
+  } as KingdomCatalog;
+
+  it('returns correct stage for quest with no investigations', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, []);
+    expect(result).toEqual({
+      row: { 'monster-1': 1, 'monster-2': 0 },
+      hasChapter: true,
+      stageIndex: 0,
+    });
+  });
+
+  it('returns correct stage for first investigation', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'investigation',
+      investigationId: 'I1-1',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 1, []);
+    expect(result).toEqual({
+      row: { 'monster-1': 1, 'monster-2': 1 },
+      hasChapter: true,
+      stageIndex: 1,
+    });
+  });
+
+  it('returns correct stage for chapter 2 quest', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 2, []);
+    expect(result).toEqual({
+      row: { 'monster-3': 1, 'monster-4': 0 },
+      hasChapter: true,
+      stageIndex: 4,
+    });
+  });
+
+  it('returns empty result for undefined kingdom', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(undefined, choice, 1, []);
+    expect(result).toEqual({
+      row: {},
+      hasChapter: false,
+      stageIndex: 0,
+    });
+  });
+
+  it('returns empty result for invalid chapter', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 0, []);
+    expect(result).toEqual({
+      row: {},
+      hasChapter: false,
+      stageIndex: 0,
+    });
+  });
+
+  it('returns empty result for out-of-bounds stage index', () => {
+    const choice: KnightExpeditionChoice = {
+      knightUID: 'knight-1',
+      choice: 'quest',
+      status: 'in-progress',
+    };
+    const result = resolveExpeditionStagesForBestiary(mockKingdom, choice, 10, []); // Chapter 10 would be stage 36
+    expect(result).toEqual({
+      row: {},
+      hasChapter: false,
+      stageIndex: 36,
     });
   });
 });
