@@ -28,9 +28,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
   const spoilsProgress = expedition?.spoilsProgress;
   const knightChoices = expedition?.knightChoices || [];
 
-  // Debug logging
-  console.log('SpoilsPhase render - knightChoices:', knightChoices);
-
   // Helper function to get quest level for a knight
   const getQuestLevel = (knightUID: string): string => {
     const knight = knightsById[knightUID];
@@ -317,7 +314,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     }
 
     // Update the knight's sheet
-    console.log('Updating knight sheet for:', knightUID, 'with:', updatedChapterProgress);
     updateKnightSheet(knightUID, {
       chapters: {
         ...knight.sheet.chapters,
@@ -327,7 +323,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
   };
 
   const handleCompleteQuest = (knightUID: string, choice: { choice: string }) => {
-    console.log('handleCompleteQuest called with:', { knightUID, choice });
     const choiceType =
       choice.choice === 'quest'
         ? 'Quest'
@@ -345,11 +340,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
             details => {
               const finalDetails =
                 details && details.trim() ? details.trim() : 'Completed successfully';
-              console.log('Calling completeQuest with success:', {
-                campaignId,
-                knightUID,
-                details: finalDetails,
-              });
               completeQuest(campaignId, knightUID, 'success', finalDetails);
               updateKnightData(knightUID, choice, 'success');
             }
@@ -364,11 +354,6 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
             `Enter details about why the ${choice.choice} failed:`,
             details => {
               const finalDetails = details && details.trim() ? details.trim() : 'Failed';
-              console.log('Calling completeQuest with failure:', {
-                campaignId,
-                knightUID,
-                details: finalDetails,
-              });
               completeQuest(campaignId, knightUID, 'failure', finalDetails);
               updateKnightData(knightUID, choice, 'failure');
             }

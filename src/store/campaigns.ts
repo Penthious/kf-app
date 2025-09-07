@@ -1,13 +1,13 @@
 import type {
-    Campaign,
-    CampaignsState,
-    ClashResult,
-    Clue,
-    Contract,
-    ExpeditionPhase,
-    KnightExpeditionChoice,
-    LootCard,
-    Objective,
+  Campaign,
+  CampaignsState,
+  ClashResult,
+  Clue,
+  Contract,
+  ExpeditionPhase,
+  KnightExpeditionChoice,
+  LootCard,
+  Objective,
 } from '@/models/campaign';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
@@ -1492,24 +1492,13 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
 
     completeQuest: (campaignId, knightUID, status, details, rewards) =>
       set(s => {
-        console.log('completeQuest called with:', {
-          campaignId,
-          knightUID,
-          status,
-          details,
-          rewards,
-        });
         const c = s.campaigns[campaignId];
-        console.log('Campaign data:', c);
-        console.log('Expedition data:', c?.expedition);
         if (!c?.expedition) {
-          console.log('No expedition found');
           return s;
         }
 
         // Initialize spoilsProgress if it doesn't exist
         if (!c.expedition.spoilsProgress) {
-          console.log('Initializing spoilsProgress');
           c.expedition.spoilsProgress = {
             lootDeck: [],
             goldEarned: 0,
@@ -1564,18 +1553,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             },
           },
         };
-        console.log(
-          'Updated expedition state:',
-          newState.campaigns[campaignId]?.expedition?.knightChoices
-        );
-        console.log(
-          'Updated knight choice for',
-          knightUID,
-          ':',
-          newState.campaigns[campaignId]?.expedition?.knightChoices?.find(
-            c => c.knightUID === knightUID
-          )
-        );
         saveToStorage(newState);
         return newState;
       }),
