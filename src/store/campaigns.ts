@@ -1,3 +1,4 @@
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import type {
   Campaign,
   CampaignsState,
@@ -9,6 +10,8 @@ import type {
   LootCard,
   Objective,
 } from '@/models/campaign';
+import { createDistrictWheel, rotateDistrictWheel } from '@/models/district';
+import { getBestiaryWithExpansions } from '@/models/kingdom';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
 
@@ -71,6 +74,11 @@ export type CampaignsActions = {
   clearKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
   completeKnightExpeditionChoice: (campaignId: string, knightUID: string) => void;
   setSelectedKingdom: (campaignId: string, kingdomId: string) => void;
+
+  // District wheel actions
+  initializeDistrictWheel: (campaignId: string, kingdomId: string) => void;
+  rotateDistrictWheel: (campaignId: string) => void;
+  replaceDistrictMonster: (campaignId: string, districtId: string, newMonsterId: string) => void;
 
   // Delve progress actions
   initializeDelveProgress: (campaignId: string) => void;
@@ -816,6 +824,158 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             [campaignId]: {
               ...c,
               selectedKingdomId: kingdomId,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    // District wheel actions
+    initializeDistrictWheel: (campaignId, kingdomId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c || !c.expedition) return s;
+
+        // Get available monsters for the kingdom
+        const kingdomCatalog = allKingdomsCatalog.find(k => k.id === kingdomId);
+        if (!kingdomCatalog || !kingdomCatalog.districts) return s;
+
+        const bestiary = getBestiaryWithExpansions(kingdomCatalog, c.settings.expansions);
+        if (!bestiary) return s;
+
+        // Get party leader's current chapter/progress to determine monster level
+        const currentKingdom = c.kingdoms.find(k => k.kingdomId === kingdomId);
+        const currentChapter = currentKingdom?.chapter || 1; // Default to chapter 1 if not found
+
+        // Create random monster assignments for each district (no duplicates)
+        const availableMonsters = bestiary.monsters.filter(m => m.type === 'kingdom');
+        const shuffledMonsters = [...availableMonsters].sort(() => Math.random() - 0.5);
+
+        const assignments = kingdomCatalog.districts.map((districtName, index) => {
+          // Use modulo to cycle through monsters if we have more districts than monsters
+          const monsterIndex = index % shuffledMonsters.length;
+          const selectedMonster = shuffledMonsters[monsterIndex];
+
+          return {
+            districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
+            monsterId: selectedMonster.id,
+            level: currentChapter, // Use party leader's current chapter as monster level
+          };
+        });
+
+        const districtWheel = createDistrictWheel(kingdomId, kingdomCatalog.districts, assignments);
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                districtWheel,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    rotateDistrictWheel: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c || !c.expedition || !c.expedition.districtWheel) return s;
+
+        const rotatedWheel = rotateDistrictWheel(c.expedition.districtWheel);
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                districtWheel: rotatedWheel,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    replaceDistrictMonster: (campaignId: string, districtId: string, newMonsterId: string) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c || !c.expedition?.districtWheel) return s;
+
+        const currentWheel = c.expedition.districtWheel;
+
+        // Find the current kingdom to get available monsters
+        const kingdomCatalog = allKingdomsCatalog.find(k => k.id === currentWheel.kingdomId);
+        if (!kingdomCatalog) return s;
+
+        const bestiary = getBestiaryWithExpansions(kingdomCatalog, c.settings.expansions);
+        if (!bestiary) return s;
+
+        const availableMonsters = bestiary.monsters.filter(m => m.type === 'kingdom');
+        const newMonster = availableMonsters.find(m => m.id === newMonsterId);
+        if (!newMonster) return s;
+
+        // Get current chapter for monster level
+        const currentKingdom = c.kingdoms.find(k => k.kingdomId === currentWheel.kingdomId);
+        const currentChapter = currentKingdom?.chapter || 1;
+
+        // Create new assignments array
+        const newAssignments = currentWheel.assignments.map(assignment => {
+          if (assignment.districtId === districtId) {
+            // Replace monster in the target district
+            return {
+              ...assignment,
+              monsterId: newMonsterId,
+              level: currentChapter,
+            };
+          } else if (assignment.monsterId === newMonsterId) {
+            // Remove the new monster from its current district (if any)
+            // We'll need to assign a different monster to this district
+            const availableForReplacement = availableMonsters.filter(
+              m =>
+                m.id !== newMonsterId &&
+                !currentWheel.assignments.some(
+                  a => a.monsterId === m.id && a.districtId !== assignment.districtId
+                )
+            );
+
+            if (availableForReplacement.length > 0) {
+              const replacementMonster = availableForReplacement[0];
+              return {
+                ...assignment,
+                monsterId: replacementMonster.id,
+                level: currentChapter,
+              };
+            }
+          }
+          return assignment;
+        });
+
+        const updatedWheel = {
+          ...currentWheel,
+          assignments: newAssignments,
+        };
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                districtWheel: updatedWheel,
+              },
               updatedAt: Date.now(),
             },
           },

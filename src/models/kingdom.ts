@@ -43,6 +43,7 @@ export type KingdomCatalog = {
   type: 'main';
   bestiary: Bestiary;
   adventures: KingdomAdventureDef[];
+  districts: string[]; // District names in order for the district wheel
   subKingdoms?: SubKingdomCatalog[];
   expansions?: {
     ttsf?: {

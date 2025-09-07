@@ -193,6 +193,9 @@ describe('CampaignGear', () => {
         completeQuest: jest.fn(),
         endExpedition: jest.fn(),
         setExpansionEnabled: jest.fn(),
+        initializeDistrictWheel: jest.fn(),
+        rotateDistrictWheel: jest.fn(),
+        replaceDistrictMonster: jest.fn(),
       };
 
       if (typeof selector === 'function') {

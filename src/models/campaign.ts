@@ -1,3 +1,4 @@
+import type { DistrictWheel } from '@/models/district';
 import type { KingdomState } from '@/models/kingdom';
 
 export type CampaignMember = {
@@ -123,6 +124,7 @@ export type ExpeditionState = {
   currentPhase: ExpeditionPhase;
   knightChoices: KnightExpeditionChoice[];
   phaseStartedAt: number;
+  districtWheel?: DistrictWheel;
   delveProgress?: DelveProgress;
   clashResults?: ClashResult[];
   restProgress?: RestPhaseProgress;
