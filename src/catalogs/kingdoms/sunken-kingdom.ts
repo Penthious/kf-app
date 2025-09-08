@@ -15,7 +15,7 @@ import {
 import { FIRST_MEN_WARRIORS_STAGES } from '@/catalogs/monsters/first-men-warriors';
 import { HAUNTS_OF_UTREBANT_STAGES } from '@/catalogs/monsters/haunts-of-utrebant';
 import { KING_LAID_LOW_STAGES } from '@/catalogs/monsters/king-laid-low';
-import { KNIGHTEATER_ID } from '@/catalogs/monsters/knighteater';
+import { KNIGHTEATER_ID, KNIGHTEATER_STAGES } from '@/catalogs/monsters/knighteater';
 import { TOADRAGON_STAGES } from '@/catalogs/monsters/toadragon';
 import {
   BASE_WANDERING_MONSTERS,
@@ -24,7 +24,10 @@ import {
   TTSF_WANDERING_STAGES,
 } from '@/catalogs/monsters/wandering';
 import { WHITE_APE_TROLL_STAGES } from '@/catalogs/monsters/white-ape-troll';
-import { YOUNG_DEVOURER_DRAGON_ID } from '@/catalogs/monsters/young-devourer-dragon';
+import {
+  YOUNG_DEVOURER_DRAGON_ID,
+  YOUNG_DEVOURER_DRAGON_STAGES,
+} from '@/catalogs/monsters/young-devourer-dragon';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
 
@@ -151,12 +154,22 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
     ttsf: {
       enabled: false,
       additionalMonsters: [
-        // TTSF Kingdom Monsters (added to stage 0 when expansion enabled)
-        { id: FIRST_MEN_LICTOR_HUNTERS_ID, type: 'kingdom', expansion: 'ttsf' },
-        { id: BOG_WITCH_ID, type: 'kingdom', expansion: 'ttsf' },
-        // TTSF Wandering Monsters (added to stage 0 when expansion enabled)
-        { id: KNIGHTEATER_ID, type: 'wandering', expansion: 'ttsf' },
-        { id: YOUNG_DEVOURER_DRAGON_ID, type: 'wandering', expansion: 'ttsf' },
+        // TTSF Kingdom Monsters (added to all stages when expansion enabled)
+        {
+          id: FIRST_MEN_LICTOR_HUNTERS_ID,
+          type: 'kingdom',
+          expansion: 'ttsf',
+          stages: FIRST_MEN_LICTOR_HUNTERS_STAGES,
+        },
+        { id: BOG_WITCH_ID, type: 'kingdom', expansion: 'ttsf', stages: BOG_WITCH_STAGES },
+        // TTSF Wandering Monsters (added to all stages when expansion enabled)
+        { id: KNIGHTEATER_ID, type: 'wandering', expansion: 'ttsf', stages: KNIGHTEATER_STAGES },
+        {
+          id: YOUNG_DEVOURER_DRAGON_ID,
+          type: 'wandering',
+          expansion: 'ttsf',
+          stages: YOUNG_DEVOURER_DRAGON_STAGES,
+        },
       ],
     },
   },

@@ -8,7 +8,7 @@ import {
 import { DEVIL_OF_THE_SMELTED_FEARS_STAGES } from '@/catalogs/monsters/devil-of-the-smelted-fears';
 import { EGGKNIGHT_STAGES } from '@/catalogs/monsters/eggknight';
 import { IRONCAST_DEAD_STAGES } from '@/catalogs/monsters/ironcast-dead';
-import { KNIGHTEATER_ID } from '@/catalogs/monsters/knighteater';
+import { KNIGHTEATER_ID, KNIGHTEATER_STAGES } from '@/catalogs/monsters/knighteater';
 import { PANZERDRAGON_VELDR_STAGES } from '@/catalogs/monsters/panzerdragon-veldr';
 import { PANZERGEIST_ID, PANZERGEIST_STAGES } from '@/catalogs/monsters/panzergeist';
 import { PUPPET_KING_EDELHARDT_STAGES } from '@/catalogs/monsters/puppet-king-edelhardt';
@@ -22,7 +22,10 @@ import {
   TTSF_WANDERING_MONSTERS,
   TTSF_WANDERING_STAGES,
 } from '@/catalogs/monsters/wandering';
-import { YOUNG_DEVOURER_DRAGON_ID } from '@/catalogs/monsters/young-devourer-dragon';
+import {
+  YOUNG_DEVOURER_DRAGON_ID,
+  YOUNG_DEVOURER_DRAGON_STAGES,
+} from '@/catalogs/monsters/young-devourer-dragon';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
 
@@ -142,12 +145,22 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     ttsf: {
       enabled: false,
       additionalMonsters: [
-        // TTSF Kingdom Monsters (added to stage 0 when expansion enabled)
-        { id: PANZERGEIST_ID, type: 'kingdom', expansion: 'ttsf' },
-        { id: STONEMASON_KNIGHT_ID, type: 'kingdom', expansion: 'ttsf' },
-        // TTSF Wandering Monsters (added to stage 0 when expansion enabled)
-        { id: KNIGHTEATER_ID, type: 'wandering', expansion: 'ttsf' },
-        { id: YOUNG_DEVOURER_DRAGON_ID, type: 'wandering', expansion: 'ttsf' },
+        // TTSF Kingdom Monsters (added to all stages when expansion enabled)
+        { id: PANZERGEIST_ID, type: 'kingdom', expansion: 'ttsf', stages: PANZERGEIST_STAGES },
+        {
+          id: STONEMASON_KNIGHT_ID,
+          type: 'kingdom',
+          expansion: 'ttsf',
+          stages: STONEMASON_KNIGHT_STAGES,
+        },
+        // TTSF Wandering Monsters (added to all stages when expansion enabled)
+        { id: KNIGHTEATER_ID, type: 'wandering', expansion: 'ttsf', stages: KNIGHTEATER_STAGES },
+        {
+          id: YOUNG_DEVOURER_DRAGON_ID,
+          type: 'wandering',
+          expansion: 'ttsf',
+          stages: YOUNG_DEVOURER_DRAGON_STAGES,
+        },
       ],
     },
   },
