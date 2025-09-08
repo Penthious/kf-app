@@ -15,7 +15,7 @@ export default function NewCampaign() {
   const { tokens } = useThemeTokens();
   const router = useRouter();
 
-  const { addCampaign, setFivePlayerMode, setNotes, setExpansionEnabled } = useCampaigns();
+  const { addCampaign, setFivePlayerMode, setNotes } = useCampaigns();
 
   const [name, setName] = useState('');
   const [fivePlayerMode, setFive] = useState(false);
