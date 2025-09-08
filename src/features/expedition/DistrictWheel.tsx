@@ -109,8 +109,8 @@ export default function DistrictWheel({
               </Text>
               {assignment && (
                 <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
-                  {selectMonsterName(assignment.monsterId)(monstersState)} (Level {assignment.level}
-                  )
+                  {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
+                  {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
                 </Text>
               )}
             </View>
@@ -144,6 +144,11 @@ export default function DistrictWheel({
                 ?.monsterId
             : undefined
         }
+        partyLeaderChoice={partyLeaderChoice}
+        currentChapter={currentChapter}
+        allKnightChoices={allKnightChoices}
+        partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
+        campaignExpansions={campaignExpansions}
       />
     </Card>
   );

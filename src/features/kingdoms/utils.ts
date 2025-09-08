@@ -58,20 +58,22 @@ export function calculateExpeditionMonsterStage(
     return 0; // Default to first stage for free-roam
   }
 
-  let stageIndex = 0;
+  // Calculate the base stage index for the current chapter
+  // Chapter 1 = 0-3, Chapter 2 = 4-7, Chapter 3 = 8-11, etc.
+  const chapterBaseIndex = (partyLeaderChapter - 1) * 4;
+
+  // Calculate the stage within the current chapter
+  let stageWithinChapter = 0;
 
   if (partyLeaderChoice.choice === 'quest') {
-    // For quest, use the number of completed investigations
-    stageIndex = partyLeaderCompletedInvestigations;
+    // For quest, use the number of completed investigations within this chapter
+    stageWithinChapter = partyLeaderCompletedInvestigations;
   } else if (partyLeaderChoice.choice === 'investigation') {
-    // For investigation, use completed investigations + 1
-    stageIndex = partyLeaderCompletedInvestigations + 1;
+    // For investigation, use completed investigations + 1 within this chapter
+    stageWithinChapter = partyLeaderCompletedInvestigations + 1;
   }
 
-  // Add chapter offset: each chapter has 4 stages (0-3, 4-7, 8-11, etc.)
-  const chapterOffset = (partyLeaderChapter - 1) * 4;
-
-  return chapterOffset + stageIndex;
+  return chapterBaseIndex + stageWithinChapter;
 }
 
 /**

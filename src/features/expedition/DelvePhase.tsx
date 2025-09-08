@@ -3,6 +3,7 @@ import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import type { ClueType } from '@/models/campaign';
+import { getBestiaryWithExpansions } from '@/models/kingdom';
 import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
@@ -36,6 +37,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setTimeTrackPosition,
     rotateDistrictWheel,
     replaceDistrictMonster,
+    updateDistrictWheelForCurrentStage,
   } = useCampaigns();
   const { knightsById } = useKnights();
 
@@ -50,6 +52,70 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       initializeDelveProgress(campaignId);
     }
   }, [campaign, campaignId, delveProgress, initializeDelveProgress]);
+
+  // Check if the district wheel needs to be updated for the current stage
+  useEffect(() => {
+    if (campaign?.expedition?.districtWheel && selectedKingdom && campaign.partyLeaderUID) {
+      const partyLeaderKnight = knightsById[campaign.partyLeaderUID];
+      const partyLeaderChoice = campaign?.expedition?.knightChoices.find(
+        choice => choice.knightUID === campaign.partyLeaderUID
+      );
+      const partyLeaderChapter = partyLeaderKnight?.sheet.chapter || 1;
+      const allKnightChoices = campaign?.expedition?.knightChoices || [];
+      const partyLeaderCompletedInvestigations = partyLeaderKnight
+        ? countCompletedInvestigations(ensureChapter(partyLeaderKnight.sheet, partyLeaderChapter))
+        : 0;
+
+      const selectedKingdomData = allKingdomsCatalog.find(k => k.id === selectedKingdom);
+      if (selectedKingdomData) {
+        const monsterStageInfo = resolveExpeditionStagesForBestiary(
+          selectedKingdomData,
+          partyLeaderChoice,
+          partyLeaderChapter,
+          allKnightChoices,
+          partyLeaderCompletedInvestigations
+        );
+
+        const districtWheel = campaign.expedition.districtWheel;
+        const kingdomCatalog = allKingdomsCatalog.find(k => k.id === selectedKingdom);
+
+        if (kingdomCatalog) {
+          const bestiary = getBestiaryWithExpansions(
+            kingdomCatalog,
+            campaign.settings?.expansions || {}
+          );
+          const currentStageIndex = monsterStageInfo.stageIndex;
+
+          // Check if any current monsters are not available at the new stage
+          const currentMonsterIds = districtWheel.assignments.map(a => a.monsterId);
+          const availableMonsters = bestiary.monsters.filter(m => {
+            if (currentStageIndex < 0 || currentStageIndex >= bestiary.stages.length) {
+              return false;
+            }
+            const stageValue = bestiary.stages[currentStageIndex]?.[m.id];
+            return stageValue !== null && stageValue !== undefined;
+          });
+          const availableMonsterIds = availableMonsters.map(m => m.id);
+
+          // If any current monsters are not available at the new stage, update the district wheel
+          const needsUpdate = currentMonsterIds.some(id => !availableMonsterIds.includes(id));
+
+          if (needsUpdate) {
+            updateDistrictWheelForCurrentStage(campaignId, selectedKingdom, partyLeaderKnight);
+          }
+        }
+      }
+    }
+  }, [
+    campaign?.expedition?.districtWheel,
+    selectedKingdom,
+    campaign?.partyLeaderUID,
+    campaign?.expedition?.knightChoices,
+    campaign?.settings?.expansions,
+    knightsById,
+    campaignId,
+    updateDistrictWheelForCurrentStage,
+  ]);
 
   if (!campaign) {
     return (
