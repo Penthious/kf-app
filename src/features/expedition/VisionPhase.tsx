@@ -455,8 +455,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                   onPress={() => {
                     setSelectedKingdom(campaignId, kingdom.id);
                     // Initialize district wheel when kingdom is selected
-                    if (expedition) {
-                      initializeDistrictWheel(campaignId, kingdom.id);
+                    if (expedition && campaign.partyLeaderUID) {
+                      const partyLeaderKnight = knightsById[campaign.partyLeaderUID];
+                      initializeDistrictWheel(campaignId, kingdom.id, partyLeaderKnight);
                     }
                   }}
                   tone={isSelected ? 'accent' : 'default'}

@@ -24,12 +24,10 @@ function MonsterSelectionModal({
   const { tokens } = useThemeTokens();
   const monstersState = useMonsters();
 
-  // Get currently assigned monster IDs to avoid duplicates
-  const assignedMonsterIds = districtWheel.assignments.map(a => a.monsterId);
-
-  // Filter out monsters that are already assigned to other districts
+  // Show all available monsters - the user can choose any monster
+  // The replaceDistrictMonster function will handle swapping monsters between districts
   const selectableMonsters = availableMonsters.filter(
-    monster => monster.id !== currentMonsterId && !assignedMonsterIds.includes(monster.id)
+    monster => monster.id !== currentMonsterId // Only exclude the current monster for this district
   );
 
   return (
@@ -67,8 +65,8 @@ function MonsterSelectionModal({
               lineHeight: 20,
             }}
           >
-            Choose a monster to assign to this district. Monsters already assigned to other
-            districts are not shown.
+            Choose a monster to assign to this district. If the monster is already assigned to
+            another district, it will be moved to this district.
           </Text>
 
           {selectableMonsters.length === 0 ? (

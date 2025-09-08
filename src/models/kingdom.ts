@@ -2,6 +2,7 @@ export type KingdomMonster = {
   id: string;
   type: 'kingdom' | 'wandering';
   expansion?: 'ttsf'; // optional expansion requirement
+  stages?: (number | null)[]; // stage data for expansion monsters
 };
 
 export type BestiaryStageRow = Record<string, number | null>;
@@ -99,17 +100,21 @@ export function getBestiaryWithExpansions(
     const expansionMonsters = kingdom.expansions.ttsf.additionalMonsters;
     const allMonsters = [...baseMonsters, ...expansionMonsters];
 
-    // Add expansion monsters to stage 0 (first stage)
+    // Add expansion monsters to stages where they're naturally available
     const updatedStages = baseStages.map((stage, index) => {
-      if (index === 0) {
-        // Stage 0 - add expansion monsters
-        const stageWithExpansions = { ...stage };
-        expansionMonsters.forEach(monster => {
-          stageWithExpansions[monster.id] = 1; // Add to stage 0
-        });
-        return stageWithExpansions;
-      }
-      return stage;
+      const stageWithExpansions = { ...stage };
+      expansionMonsters.forEach(monster => {
+        // Only add the monster if it's naturally available at this stage
+        // Use the stage data directly from the monster object
+        if (
+          monster.stages &&
+          monster.stages[index] !== null &&
+          monster.stages[index] !== undefined
+        ) {
+          stageWithExpansions[monster.id] = monster.stages[index];
+        }
+      });
+      return stageWithExpansions;
     });
 
     return {

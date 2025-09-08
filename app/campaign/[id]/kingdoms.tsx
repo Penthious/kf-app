@@ -91,22 +91,31 @@ export default function CampaignKingdoms() {
   // ----- Stage row for current leader + kingdom -----
   const stageRow = leader
     ? (() => {
-        // If we're in an expedition, use expedition-aware monster stage calculation
-        if (c?.expedition && c.expedition.currentPhase !== 'vision') {
+        // If we're in an expedition and have knight choices, use expedition-aware monster stage calculation
+        if (c?.expedition) {
           const partyLeaderChoice = c.expedition.knightChoices.find(
             choice => choice.knightUID === leaderUID
           );
           const allKnightChoices = c.expedition.knightChoices || [];
 
-          const expeditionStageInfo = resolveExpeditionStagesForBestiary(
-            activeKingdom,
-            partyLeaderChoice,
-            chapter,
-            allKnightChoices,
-            completedInvs
-          );
+          // Only use expedition-aware logic if we have a knight choice
+          if (partyLeaderChoice) {
+            // Use the expanded kingdom view to include TTSF monsters in expedition stage calculation
+            const expandedKingdom =
+              kv && activeKingdom && kv.bestiary
+                ? { ...activeKingdom, bestiary: kv.bestiary }
+                : activeKingdom;
 
-          return expeditionStageInfo.row;
+            const expeditionStageInfo = resolveExpeditionStagesForBestiary(
+              expandedKingdom,
+              partyLeaderChoice,
+              chapter,
+              allKnightChoices,
+              completedInvs
+            );
+
+            return expeditionStageInfo.row;
+          }
         }
 
         // Otherwise, use the traditional completed progress calculation

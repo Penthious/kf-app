@@ -290,7 +290,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
                 const clueTypeColors: Record<string, string> = {
                   swords: 'Red',
-                  faces: 'Teal',
+                  faces: 'Green',
                   eye: 'Blue',
                   book: 'Yellow',
                 };
@@ -324,9 +324,13 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           districtWheel={campaign.expedition.districtWheel}
           onRotate={() => rotateDistrictWheel(campaignId)}
           onReplaceMonster={(districtId, monsterId) =>
-            replaceDistrictMonster(campaignId, districtId, monsterId)
+            replaceDistrictMonster(campaignId, districtId, monsterId, partyLeaderKnight)
           }
           campaignExpansions={campaign.settings.expansions}
+          currentChapter={partyLeaderChapter}
+          partyLeaderChoice={partyLeaderChoice}
+          allKnightChoices={allKnightChoices}
+          partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
         />
       )}
 

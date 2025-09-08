@@ -1,7 +1,8 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
-import type { CampaignSettings } from '@/models/campaign';
+import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
+import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
 import type { DistrictWheel as DistrictWheelType } from '@/models/district';
 import { getDistrictsWithMonsters } from '@/models/district';
 import { getBestiaryWithExpansions, type KingdomMonster } from '@/models/kingdom';
@@ -16,6 +17,10 @@ interface DistrictWheelProps {
   onRotate: () => void;
   onReplaceMonster: (districtId: string, monsterId: string) => void;
   campaignExpansions?: CampaignSettings['expansions'];
+  currentChapter: number;
+  partyLeaderChoice?: KnightExpeditionChoice;
+  allKnightChoices: KnightExpeditionChoice[];
+  partyLeaderCompletedInvestigations: number;
 }
 
 export default function DistrictWheel({
@@ -23,6 +28,10 @@ export default function DistrictWheel({
   onRotate,
   onReplaceMonster,
   campaignExpansions,
+  currentChapter,
+  partyLeaderChoice,
+  allKnightChoices,
+  partyLeaderCompletedInvestigations,
 }: DistrictWheelProps) {
   const { tokens } = useThemeTokens();
   const monstersState = useMonsters();
@@ -35,8 +44,28 @@ export default function DistrictWheel({
   const kingdomCatalog = allKingdomsCatalog.find(k => k.id === districtWheel.kingdomId);
   const bestiary = kingdomCatalog
     ? getBestiaryWithExpansions(kingdomCatalog, campaignExpansions)
-    : { monsters: [] };
-  const availableMonsters = bestiary.monsters.filter((m: KingdomMonster) => m.type === 'kingdom');
+    : { monsters: [], stages: [] };
+
+  // Calculate the correct stage index based on expedition choices
+  const stageIndex = calculateExpeditionMonsterStage(
+    partyLeaderChoice,
+    currentChapter,
+    allKnightChoices,
+    partyLeaderCompletedInvestigations
+  );
+
+  // Filter to monsters that have valid stage values for the current stage
+  // Both kingdom and wandering monsters can be used in the district wheel
+  const availableMonsters = bestiary.monsters.filter((m: KingdomMonster) => {
+    // Check if the stage index is within bounds
+    if (stageIndex < 0 || stageIndex >= bestiary.stages.length) {
+      return false;
+    }
+
+    // Check if this monster has a valid (non-null) stage value for the current stage
+    const stageValue = bestiary.stages[stageIndex]?.[m.id];
+    return stageValue !== null && stageValue !== undefined;
+  });
 
   const handleDistrictPress = (districtId: string) => {
     setSelectedDistrictId(districtId);

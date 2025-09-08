@@ -15,7 +15,7 @@ export default function NewCampaign() {
   const { tokens } = useThemeTokens();
   const router = useRouter();
 
-  const { addCampaign, setFivePlayerMode, setNotes, setExpansionEnabled } = useCampaigns();
+  const { addCampaign, setFivePlayerMode, setNotes } = useCampaigns();
 
   const [name, setName] = useState('');
   const [fivePlayerMode, setFive] = useState(false);
@@ -30,17 +30,19 @@ export default function NewCampaign() {
     const title = name.trim() || 'New Campaign';
     const campaignId = uuid.v4() as string;
 
-    // 1) create
-    addCampaign(campaignId, title);
+    // 1) create campaign with expansion settings applied immediately
+    const expansionSettings = {
+      ttsf: { enabled: ttsfEnabled },
+      tbbh: { enabled: tbbhEnabled },
+      trkoe: { enabled: trkoeEnabled },
+      'absolute-bastard': { enabled: absoluteBastardEnabled },
+      'ser-gallant': { enabled: serGallantEnabled },
+    };
+    addCampaign(campaignId, title, expansionSettings);
 
-    // 2) apply settings
+    // 2) apply other settings
     setFivePlayerMode(campaignId, fivePlayerMode);
     if (notes.trim()) setNotes(campaignId, notes.trim());
-    setExpansionEnabled(campaignId, 'ttsf', ttsfEnabled);
-    setExpansionEnabled(campaignId, 'tbbh', tbbhEnabled);
-    setExpansionEnabled(campaignId, 'trkoe', trkoeEnabled);
-    setExpansionEnabled(campaignId, 'absolute-bastard', absoluteBastardEnabled);
-    setExpansionEnabled(campaignId, 'ser-gallant', serGallantEnabled);
 
     // 3) go to the campaign workspace - always start with knights tab for new campaigns
     router.replace(`/campaign/${campaignId}/knights`);
