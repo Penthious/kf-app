@@ -916,12 +916,15 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               level: stageIndex, // Use calculated stage index as monster level
             };
           } else {
-            // If we don't have enough monsters, use the first available monster
-            const selectedMonster = shuffledMonsters[0];
+            // If we don't have enough monsters, leave the district unassigned
+            // This should not happen as we should always have enough monsters
+            console.warn(
+              `Not enough unique monsters for district ${districtName}. Available: ${shuffledMonsters.length}, Needed: ${kingdomCatalog.districts.length}`
+            );
             return {
               districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
-              monsterId: selectedMonster.id,
-              level: stageIndex, // Use calculated stage index as monster level
+              monsterId: '', // Leave unassigned
+              level: stageIndex,
             };
           }
         });
