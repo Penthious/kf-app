@@ -1874,6 +1874,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             [campaignId]: {
               ...c,
               expedition: undefined, // Remove all expedition data
+              selectedKingdomId: undefined, // Clear kingdom selection
               updatedAt: Date.now(),
             },
           },
