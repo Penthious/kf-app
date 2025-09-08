@@ -290,7 +290,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
                 const clueTypeColors: Record<string, string> = {
                   swords: 'Red',
-                  faces: 'Teal',
+                  faces: 'Green',
                   eye: 'Blue',
                   book: 'Yellow',
                 };

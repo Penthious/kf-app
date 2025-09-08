@@ -890,10 +890,9 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         });
 
         // Create random monster assignments for each district (no duplicates)
-        // Filter to only kingdom monsters that have valid stage values for the current stage
+        // Filter to monsters that have valid stage values for the current stage
+        // Both kingdom and wandering monsters can be used in the district wheel
         const availableMonsters = bestiary.monsters.filter(m => {
-          if (m.type !== 'kingdom') return false;
-
           // Check if the stage index is within bounds
           if (stageIndex < 0 || stageIndex >= bestiary.stages.length) {
             return false;
@@ -906,9 +905,10 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
 
         const shuffledMonsters = [...availableMonsters].sort(() => Math.random() - 0.5);
 
+        // Create unique monster assignments for each district
         const assignments = kingdomCatalog.districts.map((districtName, index) => {
-          // Only assign monsters if we have enough unique monsters
           if (index < shuffledMonsters.length) {
+            // We have enough unique monsters
             const selectedMonster = shuffledMonsters[index];
             return {
               districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
@@ -916,14 +916,18 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               level: stageIndex, // Use calculated stage index as monster level
             };
           } else {
-            // If we don't have enough monsters, leave the district unassigned
-            // This should not happen as we should always have enough monsters
+            // If we don't have enough unique monsters, we need to add more monsters
+            // This should not happen in normal gameplay, but let's handle it gracefully
             console.warn(
-              `Not enough unique monsters for district ${districtName}. Available: ${shuffledMonsters.length}, Needed: ${kingdomCatalog.districts.length}`
+              `Not enough unique monsters for district ${districtName}. Available: ${shuffledMonsters.length}, Needed: ${kingdomCatalog.districts.length}. This suggests an issue with monster availability.`
             );
+
+            // For now, let's use the first available monster as a fallback
+            // In a real scenario, we should investigate why we don't have enough monsters
+            const fallbackMonster = shuffledMonsters[0];
             return {
               districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
-              monsterId: '', // Leave unassigned
+              monsterId: fallbackMonster?.id || '', // Use fallback or empty string
               level: stageIndex,
             };
           }
@@ -1011,10 +1015,9 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           partyLeaderCompletedInvestigations
         );
 
-        // Filter to only kingdom monsters that have valid stage values for the current stage
+        // Filter to monsters that have valid stage values for the current stage
+        // Both kingdom and wandering monsters can be used in the district wheel
         const availableMonsters = bestiary.monsters.filter(m => {
-          if (m.type !== 'kingdom') return false;
-
           // Check if the stage index is within bounds
           if (stageIndex < 0 || stageIndex >= bestiary.stages.length) {
             return false;

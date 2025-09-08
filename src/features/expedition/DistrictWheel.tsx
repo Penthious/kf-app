@@ -54,10 +54,9 @@ export default function DistrictWheel({
     partyLeaderCompletedInvestigations
   );
 
-  // Filter to only kingdom monsters that have valid stage values for the current stage
+  // Filter to monsters that have valid stage values for the current stage
+  // Both kingdom and wandering monsters can be used in the district wheel
   const availableMonsters = bestiary.monsters.filter((m: KingdomMonster) => {
-    if (m.type !== 'kingdom') return false;
-
     // Check if the stage index is within bounds
     if (stageIndex < 0 || stageIndex >= bestiary.stages.length) {
       return false;
