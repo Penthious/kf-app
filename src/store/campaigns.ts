@@ -87,6 +87,11 @@ export type CampaignsActions = {
     kingdomId: string,
     partyLeaderKnight?: Knight
   ) => void;
+  updateDistrictWheelForCurrentStage: (
+    campaignId: string,
+    kingdomId: string,
+    partyLeaderKnight?: Knight
+  ) => void;
   rotateDistrictWheel: (campaignId: string) => void;
   replaceDistrictMonster: (
     campaignId: string,
@@ -848,10 +853,14 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
       }),
 
     // District wheel actions
-    initializeDistrictWheel: (campaignId, kingdomId, partyLeaderKnight) =>
+    updateDistrictWheelForCurrentStage: (
+      campaignId: string,
+      kingdomId: string,
+      partyLeaderKnight?: Knight
+    ) =>
       set(s => {
         const c = s.campaigns[campaignId];
-        if (!c || !c.expedition) return s;
+        if (!c || !c.expedition || !c.expedition.districtWheel) return s;
 
         // Get available monsters for the kingdom
         const kingdomCatalog = allKingdomsCatalog.find(k => k.id === kingdomId);
@@ -861,8 +870,8 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         if (!bestiary) return s;
 
         // Get party leader's current progress to determine monster level
-        const currentKingdom = c.kingdoms.find(k => k.kingdomId === kingdomId);
-        const currentChapter = currentKingdom?.chapter || 1; // Default to chapter 1 if not found
+        // Use the party leader's actual current chapter, not the kingdom's stored chapter
+        const currentChapter = partyLeaderKnight?.sheet.chapter || 1;
 
         // Get party leader's expedition choice and completed investigations
         const partyLeaderChoice = c.expedition?.knightChoices.find(
@@ -880,14 +889,105 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           partyLeaderCompletedInvestigations
         );
 
-        console.log('District Wheel Stage Debug:', {
-          kingdomId,
-          currentChapter,
-          partyLeaderChoice: partyLeaderChoice?.choice,
-          partyLeaderCompletedInvestigations,
-          calculatedStageIndex: stageIndex,
-          bestiaryStagesLength: bestiary.stages.length,
+        // Filter to monsters that have valid stage values for the current stage
+        const availableMonsters = bestiary.monsters.filter(m => {
+          if (stageIndex < 0 || stageIndex >= bestiary.stages.length) {
+            return false;
+          }
+          const stageValue = bestiary.stages[stageIndex]?.[m.id];
+          return stageValue !== null && stageValue !== undefined;
         });
+
+        // Check if we need to update the district wheel
+        const currentAssignments = c.expedition.districtWheel.assignments;
+        const currentMonsterIds = currentAssignments.map(a => a.monsterId);
+        const availableMonsterIds = availableMonsters.map(m => m.id);
+
+        // If any current monsters are not available at the new stage, reinitialize
+        const needsUpdate = currentMonsterIds.some(id => !availableMonsterIds.includes(id));
+
+        if (needsUpdate) {
+          console.log('District wheel stage changed, reinitializing with new monsters:', {
+            oldStage: c.expedition.districtWheel.currentRotation,
+            newStage: stageIndex,
+            availableMonsters: availableMonsterIds,
+            currentMonsters: currentMonsterIds,
+          });
+
+          const shuffledMonsters = [...availableMonsters].sort(() => Math.random() - 0.5);
+          const assignments = kingdomCatalog.districts.map((districtName, index) => {
+            if (index < shuffledMonsters.length) {
+              const selectedMonster = shuffledMonsters[index];
+              return {
+                districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
+                monsterId: selectedMonster.id,
+              };
+            } else {
+              const fallbackMonster = shuffledMonsters[0];
+              return {
+                districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
+                monsterId: fallbackMonster?.id || '',
+              };
+            }
+          });
+
+          const districtWheel = createDistrictWheel(
+            kingdomId,
+            kingdomCatalog.districts,
+            assignments
+          );
+
+          const newState = {
+            campaigns: {
+              ...s.campaigns,
+              [campaignId]: {
+                ...c,
+                expedition: {
+                  ...c.expedition,
+                  districtWheel,
+                },
+                updatedAt: Date.now(),
+              },
+            },
+          };
+          saveToStorage(newState);
+          return newState;
+        }
+
+        return s;
+      }),
+
+    initializeDistrictWheel: (campaignId, kingdomId, partyLeaderKnight) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c || !c.expedition) return s;
+
+        // Get available monsters for the kingdom
+        const kingdomCatalog = allKingdomsCatalog.find(k => k.id === kingdomId);
+        if (!kingdomCatalog || !kingdomCatalog.districts) return s;
+
+        const bestiary = getBestiaryWithExpansions(kingdomCatalog, c.settings.expansions);
+        if (!bestiary) return s;
+
+        // Get party leader's current progress to determine monster level
+        // Use the party leader's actual current chapter, not the kingdom's stored chapter
+        const currentChapter = partyLeaderKnight?.sheet.chapter || 1;
+
+        // Get party leader's expedition choice and completed investigations
+        const partyLeaderChoice = c.expedition?.knightChoices.find(
+          choice => choice.knightUID === c.partyLeaderUID
+        );
+        const partyLeaderCompletedInvestigations = partyLeaderKnight
+          ? countCompletedInvestigations(ensureChapter(partyLeaderKnight.sheet, currentChapter))
+          : 0;
+
+        // Calculate the correct stage index based on expedition choices
+        const stageIndex = calculateExpeditionMonsterStage(
+          partyLeaderChoice,
+          currentChapter,
+          c.expedition?.knightChoices || [],
+          partyLeaderCompletedInvestigations
+        );
 
         // Create random monster assignments for each district (no duplicates)
         // Filter to monsters that have valid stage values for the current stage
@@ -913,7 +1013,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             return {
               districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
               monsterId: selectedMonster.id,
-              level: stageIndex, // Use calculated stage index as monster level
             };
           } else {
             // If we don't have enough unique monsters, we need to add more monsters
@@ -928,7 +1027,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             return {
               districtId: `${kingdomId}-${districtName.toLowerCase().replace(/\s+/g, '-')}`,
               monsterId: fallbackMonster?.id || '', // Use fallback or empty string
-              level: stageIndex,
             };
           }
         });
@@ -996,8 +1094,8 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         if (!bestiary) return s;
 
         // Get current progress for monster level
-        const currentKingdom = c.kingdoms.find(k => k.kingdomId === currentWheel.kingdomId);
-        const currentChapter = currentKingdom?.chapter || 1;
+        // Use the party leader's actual current chapter, not the kingdom's stored chapter
+        const currentChapter = partyLeaderKnight?.sheet.chapter || 1;
 
         // Get party leader's expedition choice and completed investigations
         const partyLeaderChoice = c.expedition?.knightChoices.find(
@@ -1037,7 +1135,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             return {
               ...assignment,
               monsterId: newMonsterId,
-              level: stageIndex,
             };
           } else if (assignment.monsterId === newMonsterId) {
             // Remove the new monster from its current district (if any)
@@ -1055,7 +1152,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               return {
                 ...assignment,
                 monsterId: replacementMonster.id,
-                level: currentChapter,
               };
             }
           }

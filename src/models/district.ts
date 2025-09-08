@@ -15,7 +15,6 @@ export type District = {
 export type DistrictAssignment = {
   districtId: string;
   monsterId: string;
-  level: number; // Monster level based on party leader's current chapter/progress
 };
 
 export type DistrictWheel = {

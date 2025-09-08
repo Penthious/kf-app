@@ -194,6 +194,7 @@ describe('CampaignGear', () => {
         endExpedition: jest.fn(),
         setExpansionEnabled: jest.fn(),
         initializeDistrictWheel: jest.fn(),
+        updateDistrictWheelForCurrentStage: jest.fn(),
         rotateDistrictWheel: jest.fn(),
         replaceDistrictMonster: jest.fn(),
       };

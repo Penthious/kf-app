@@ -1,5 +1,8 @@
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
+import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
 import { DistrictWheel } from '@/models/district';
-import { KingdomMonster } from '@/models/kingdom';
+import { KingdomMonster, getBestiaryWithExpansions } from '@/models/kingdom';
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -11,6 +14,12 @@ interface MonsterSelectionModalProps {
   districtWheel: DistrictWheel;
   availableMonsters: KingdomMonster[];
   currentMonsterId?: string;
+  // Props needed for monster level calculation
+  partyLeaderChoice?: KnightExpeditionChoice;
+  currentChapter: number;
+  allKnightChoices: KnightExpeditionChoice[];
+  partyLeaderCompletedInvestigations: number;
+  campaignExpansions?: CampaignSettings['expansions'];
 }
 
 function MonsterSelectionModal({
@@ -20,9 +29,28 @@ function MonsterSelectionModal({
   districtWheel,
   availableMonsters,
   currentMonsterId,
+  partyLeaderChoice,
+  currentChapter,
+  allKnightChoices,
+  partyLeaderCompletedInvestigations,
+  campaignExpansions,
 }: MonsterSelectionModalProps) {
   const { tokens } = useThemeTokens();
   const monstersState = useMonsters();
+
+  // Get the kingdom catalog and bestiary for monster level calculation
+  const kingdomCatalog = allKingdomsCatalog.find(k => k.id === districtWheel.kingdomId);
+  const bestiary = kingdomCatalog
+    ? getBestiaryWithExpansions(kingdomCatalog, campaignExpansions)
+    : { monsters: [], stages: [] };
+
+  // Calculate the correct stage index based on expedition choices
+  const stageIndex = calculateExpeditionMonsterStage(
+    partyLeaderChoice,
+    currentChapter,
+    allKnightChoices,
+    partyLeaderCompletedInvestigations
+  );
 
   // Show all available monsters - the user can choose any monster
   // The replaceDistrictMonster function will handle swapping monsters between districts
@@ -113,7 +141,8 @@ function MonsterSelectionModal({
                       color: tokens.textPrimary,
                     }}
                   >
-                    {selectMonsterName(monster.id)(monstersState)}
+                    {selectMonsterName(monster.id)(monstersState)} (Level{' '}
+                    {bestiary.stages[stageIndex]?.[monster.id] || 'Unknown'})
                   </Text>
                 </TouchableOpacity>
               ))}

@@ -89,11 +89,8 @@ describe('District Wheel System', () => {
 
       // Check that monster IDs and stages are preserved
       expect(rotatedWheel.assignments[0].monsterId).toBe('monster-1');
-      expect(rotatedWheel.assignments[0].level).toBe(5);
       expect(rotatedWheel.assignments[1].monsterId).toBe('monster-2');
-      expect(rotatedWheel.assignments[1].level).toBe(10);
       expect(rotatedWheel.assignments[2].monsterId).toBe('monster-3');
-      expect(rotatedWheel.assignments[2].level).toBe(15);
     });
 
     it('should increment rotation counter on each rotation', () => {

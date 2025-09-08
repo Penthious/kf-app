@@ -38,9 +38,9 @@ describe('District Wheel Integration', () => {
       const districtNames = ['Drowned District', 'Marsh District', 'Mud District'];
 
       const assignments = [
-        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1', level: 1 },
-        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2', level: 1 },
-        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3', level: 1 },
+        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1' },
+        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2' },
+        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3' },
       ];
 
       const wheel = createDistrictWheel(kingdomId, districtNames, assignments);
@@ -59,7 +59,6 @@ describe('District Wheel Integration', () => {
       // Check assignments
       expect(wheel.assignments[0].districtId).toBe('sunken-kingdom-drowned-district');
       expect(wheel.assignments[0].monsterId).toBe('monster-1');
-      expect(wheel.assignments[0].level).toBe(1);
     });
 
     it('should rotate district wheel correctly', () => {
@@ -67,9 +66,9 @@ describe('District Wheel Integration', () => {
       const districtNames = ['Drowned District', 'Marsh District', 'Mud District'];
 
       const assignments = [
-        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1', level: 1 },
-        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2', level: 1 },
-        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3', level: 1 },
+        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1' },
+        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2' },
+        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3' },
       ];
 
       const wheel = createDistrictWheel(kingdomId, districtNames, assignments);
@@ -95,9 +94,9 @@ describe('District Wheel Integration', () => {
       const districtNames = ['Drowned District', 'Marsh District', 'Mud District'];
 
       const assignments = [
-        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1', level: 1 },
-        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2', level: 1 },
-        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3', level: 1 },
+        { districtId: 'sunken-kingdom-drowned-district', monsterId: 'monster-1' },
+        { districtId: 'sunken-kingdom-marsh-district', monsterId: 'monster-2' },
+        { districtId: 'sunken-kingdom-mud-district', monsterId: 'monster-3' },
       ];
 
       let wheel = createDistrictWheel(kingdomId, districtNames, assignments);
@@ -108,7 +107,7 @@ describe('District Wheel Integration', () => {
 
       expect(wheel.currentRotation).toBe(2);
 
-      // After 2 rotations, monsters should be back to original positions
+      // After 2 rotationsmonsters should be back to original positions
       expect(wheel.assignments[0].monsterId).toBe('monster-1');
       expect(wheel.assignments[1].monsterId).toBe('monster-2');
       expect(wheel.assignments[2].monsterId).toBe('monster-3');
@@ -119,14 +118,13 @@ describe('District Wheel Integration', () => {
       const districtNames = ['Noble', 'Craftsman', 'Port', 'Merchant'];
 
       const assignments = [
-        { districtId: 'principality-of-stone-noble', monsterId: 'monster-1', level: 2 },
+        { districtId: 'principality-of-stone-noble', monsterId: 'monster-1' },
         {
           districtId: 'principality-of-stone-craftsman',
           monsterId: 'monster-2',
-          level: 2,
         },
-        { districtId: 'principality-of-stone-port', monsterId: 'monster-3', level: 2 },
-        { districtId: 'principality-of-stone-merchant', monsterId: 'monster-4', level: 2 },
+        { districtId: 'principality-of-stone-port', monsterId: 'monster-3' },
+        { districtId: 'principality-of-stone-merchant', monsterId: 'monster-4' },
       ];
 
       const wheel = createDistrictWheel(kingdomId, districtNames, assignments);
