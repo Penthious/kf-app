@@ -1205,7 +1205,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                     maxPosition: 9,
                   },
                   timeTrack: {
-                    currentPosition: 1,
+                    currentPosition: 0,
                     maxPosition: 16,
                   },
                   curseTracker: {
@@ -1550,7 +1550,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         if (!c?.expedition?.delveProgress) return s;
 
         const maxPos = c.expedition.delveProgress.timeTrack.maxPosition;
-        const newPosition = Math.max(1, Math.min(position, maxPos));
+        const newPosition = Math.max(0, Math.min(position, maxPos));
 
         const newState = {
           campaigns: {
