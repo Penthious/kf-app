@@ -114,6 +114,8 @@ export type CampaignsActions = {
   advanceTimeTrack: (campaignId: string, amount?: number) => void;
   setThreatTrackPosition: (campaignId: string, position: number) => void;
   setTimeTrackPosition: (campaignId: string, position: number) => void;
+  advanceCurseTracker: (campaignId: string, amount?: number) => void;
+  setCurseTrackerPosition: (campaignId: string, position: number) => void;
 
   // Clash phase actions
   startClash: (campaignId: string, type: 'exhibition' | 'full') => void;
@@ -1206,6 +1208,10 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                     currentPosition: 1,
                     maxPosition: 16,
                   },
+                  curseTracker: {
+                    currentPosition: 0,
+                    maxPosition: 4,
+                  },
                 },
               },
               updatedAt: Date.now(),
@@ -1557,6 +1563,69 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                   ...c.expedition.delveProgress,
                   timeTrack: {
                     ...c.expedition.delveProgress.timeTrack,
+                    currentPosition: newPosition,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    advanceCurseTracker: (campaignId, amount = 1) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const currentPos = c.expedition.delveProgress.curseTracker.currentPosition;
+        const maxPos = c.expedition.delveProgress.curseTracker.maxPosition;
+        const newPosition = Math.min(currentPos + amount, maxPos);
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  curseTracker: {
+                    ...c.expedition.delveProgress.curseTracker,
+                    currentPosition: newPosition,
+                  },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setCurseTrackerPosition: (campaignId, position) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition?.delveProgress) return s;
+
+        const maxPos = c.expedition.delveProgress.curseTracker.maxPosition;
+        const newPosition = Math.max(0, Math.min(position, maxPos));
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                delveProgress: {
+                  ...c.expedition.delveProgress,
+                  curseTracker: {
+                    ...c.expedition.delveProgress.curseTracker,
                     currentPosition: newPosition,
                   },
                 },

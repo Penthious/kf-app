@@ -197,6 +197,8 @@ describe('CampaignGear', () => {
         updateDistrictWheelForCurrentStage: jest.fn(),
         rotateDistrictWheel: jest.fn(),
         replaceDistrictMonster: jest.fn(),
+        advanceCurseTracker: jest.fn(),
+        setCurseTrackerPosition: jest.fn(),
       };
 
       if (typeof selector === 'function') {

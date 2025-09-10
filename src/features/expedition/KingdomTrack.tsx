@@ -16,7 +16,7 @@ interface KingdomTrackProps {
   segments: TrackSegment[];
   currentPosition: number;
   icon?: string;
-  style?: 'threat' | 'time' | 'short';
+  style?: 'threat' | 'time' | 'short' | 'curse';
   onSegmentPress?: (segmentNumber: number) => void;
 }
 
@@ -54,6 +54,14 @@ export default function KingdomTrack({
           current: '#666666',
           text: '#ffd700',
         };
+      case 'curse':
+        return {
+          background: '#2a0a1a',
+          segment: '#5f1a3a',
+          special: '#ff6b6b',
+          current: '#666666',
+          text: '#ff6b6b',
+        };
       default:
         return {
           background: '#0a0a0a',
@@ -90,6 +98,7 @@ export default function KingdomTrack({
       campfire: '🔥',
       flower: '❀',
       star: '⭐',
+      curse: '💀',
     };
 
     return <Text style={[styles.icon, { color: colors.text }]}>{iconMap[iconType] || '●'}</Text>;

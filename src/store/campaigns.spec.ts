@@ -494,6 +494,10 @@ describe('campaigns store', () => {
           currentPosition: 1,
           maxPosition: 16,
         },
+        curseTracker: {
+          currentPosition: 0,
+          maxPosition: 4,
+        },
       });
       expect(campaign.updatedAt).toBe(now);
     });

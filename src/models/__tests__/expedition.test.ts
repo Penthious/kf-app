@@ -338,6 +338,10 @@ describe('Expedition Types', () => {
             currentPosition: 1,
             maxPosition: 16,
           },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
+          },
         };
 
         expect(delveProgress.clues).toHaveLength(1);
@@ -360,6 +364,10 @@ describe('Expedition Types', () => {
           timeTrack: {
             currentPosition: 1,
             maxPosition: 16,
+          },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
           },
         };
 
@@ -394,6 +402,10 @@ describe('Expedition Types', () => {
           timeTrack: {
             currentPosition: 1,
             maxPosition: 16,
+          },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
           },
         },
       };

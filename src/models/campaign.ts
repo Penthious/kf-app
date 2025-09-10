@@ -75,6 +75,10 @@ export type DelveProgress = {
     currentPosition: number;
     maxPosition: number;
   };
+  curseTracker: {
+    currentPosition: number;
+    maxPosition: number;
+  };
 };
 
 export type ClashResult = {
