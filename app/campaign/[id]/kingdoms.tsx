@@ -102,16 +102,6 @@ export default function CampaignKingdoms() {
           );
           const allKnightChoices = c.expedition.knightChoices || [];
 
-          console.log('🔍 Kingdom Stage Debug:', {
-            hasExpedition: !!c.expedition,
-            hasPartyLeaderChoice: !!partyLeaderChoice,
-            knightChoicesLength: allKnightChoices.length,
-            chapter,
-            questDone,
-            completedInvs,
-            leaderUID,
-          });
-
           // Only use expedition-aware logic if we have an actual knight choice
           // Otherwise, fall back to traditional calculation to maintain correct stage
           if (partyLeaderChoice) {
@@ -129,7 +119,6 @@ export default function CampaignKingdoms() {
               completedInvs
             );
 
-            console.log('🔍 Using expedition stage calculation:', expeditionStageInfo);
             return expeditionStageInfo.row;
           }
         }
@@ -147,12 +136,6 @@ export default function CampaignKingdoms() {
           questDone,
           completedInvs
         );
-        console.log('🔍 Using traditional stage calculation:', {
-          chapter,
-          questDone,
-          completedInvs,
-          result: traditionalResult,
-        });
         return traditionalResult.row;
       })()
     : {};
