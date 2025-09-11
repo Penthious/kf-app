@@ -63,8 +63,8 @@ jest.mock('@/models/knight', () => ({
 }));
 
 import {
-    resolveExpeditionStagesForBestiary,
-    resolveStagesForBestiary,
+  resolveExpeditionStagesForBestiary,
+  resolveStagesForBestiary,
 } from '@/features/kingdoms/utils';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
