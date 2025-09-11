@@ -491,8 +491,12 @@ describe('campaigns store', () => {
           maxPosition: 9,
         },
         timeTrack: {
-          currentPosition: 1,
+          currentPosition: 0,
           maxPosition: 16,
+        },
+        curseTracker: {
+          currentPosition: 0,
+          maxPosition: 4,
         },
       });
       expect(campaign.updatedAt).toBe(now);
@@ -721,7 +725,7 @@ describe('campaigns store', () => {
 
       const campaign = useCampaigns.getState().campaigns['delve-13'];
       const timeTrack = campaign.expedition?.delveProgress?.timeTrack;
-      expect(timeTrack?.currentPosition).toBe(4); // Started at 1, advanced by 3
+      expect(timeTrack?.currentPosition).toBe(3); // Started at 0, advanced by 3
     });
 
     it('advanceTimeTrack respects max position', () => {

@@ -335,8 +335,12 @@ describe('Expedition Types', () => {
             maxPosition: 9,
           },
           timeTrack: {
-            currentPosition: 1,
+            currentPosition: 0,
             maxPosition: 16,
+          },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
           },
         };
 
@@ -358,8 +362,12 @@ describe('Expedition Types', () => {
             maxPosition: 9,
           },
           timeTrack: {
-            currentPosition: 1,
+            currentPosition: 0,
             maxPosition: 16,
+          },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
           },
         };
 
@@ -370,7 +378,7 @@ describe('Expedition Types', () => {
         expect(delveProgress.currentLocation).toBeUndefined();
         expect(delveProgress.threatTrack.currentPosition).toBe(0);
         expect(delveProgress.threatTrack.maxPosition).toBe(9);
-        expect(delveProgress.timeTrack.currentPosition).toBe(1);
+        expect(delveProgress.timeTrack.currentPosition).toBe(0);
         expect(delveProgress.timeTrack.maxPosition).toBe(16);
       });
     });
@@ -392,8 +400,12 @@ describe('Expedition Types', () => {
             maxPosition: 9,
           },
           timeTrack: {
-            currentPosition: 1,
+            currentPosition: 0,
             maxPosition: 16,
+          },
+          curseTracker: {
+            currentPosition: 0,
+            maxPosition: 4,
           },
         },
       };

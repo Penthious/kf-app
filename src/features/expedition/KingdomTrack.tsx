@@ -16,8 +16,9 @@ interface KingdomTrackProps {
   segments: TrackSegment[];
   currentPosition: number;
   icon?: string;
-  style?: 'threat' | 'time' | 'short';
+  style?: 'threat' | 'time' | 'short' | 'curse';
   onSegmentPress?: (segmentNumber: number) => void;
+  showZeroButton?: boolean;
 }
 
 export default function KingdomTrack({
@@ -27,6 +28,7 @@ export default function KingdomTrack({
   icon,
   style = 'time',
   onSegmentPress,
+  showZeroButton = false,
 }: KingdomTrackProps) {
   const getTrackColors = () => {
     switch (style) {
@@ -53,6 +55,14 @@ export default function KingdomTrack({
           special: '#ffd700',
           current: '#666666',
           text: '#ffd700',
+        };
+      case 'curse':
+        return {
+          background: '#2a0a1a',
+          segment: '#5f1a3a',
+          special: '#ff6b6b',
+          current: '#666666',
+          text: '#ff6b6b',
         };
       default:
         return {
@@ -90,6 +100,7 @@ export default function KingdomTrack({
       campfire: '🔥',
       flower: '❀',
       star: '⭐',
+      curse: '💀',
     };
 
     return <Text style={[styles.icon, { color: colors.text }]}>{iconMap[iconType] || '●'}</Text>;
@@ -101,6 +112,35 @@ export default function KingdomTrack({
       <View style={styles.header}>
         {renderIcon(icon)}
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        {showZeroButton && (
+          <Pressable
+            onPress={() => onSegmentPress?.(0)}
+            style={({ pressed }) => [
+              {
+                backgroundColor: currentPosition === 0 ? colors.special : colors.background,
+                borderColor: colors.special,
+                borderWidth: 2,
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                minWidth: 40,
+                alignItems: 'center',
+                marginLeft: 8,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                color: currentPosition === 0 ? '#000000' : colors.special,
+                fontSize: 16,
+                fontWeight: 'bold',
+              }}
+            >
+              0
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Track segments */}

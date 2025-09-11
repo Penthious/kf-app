@@ -35,6 +35,8 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     advanceTimeTrack,
     setThreatTrackPosition,
     setTimeTrackPosition,
+    advanceCurseTracker,
+    setCurseTrackerPosition,
     rotateDistrictWheel,
     replaceDistrictMonster,
     updateDistrictWheelForCurrentStage,
@@ -295,6 +297,10 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setTimeTrackPosition(campaignId, segmentNumber);
   };
 
+  const handleCurseTrackerPress = (segmentNumber: number) => {
+    setCurseTrackerPosition(campaignId, segmentNumber);
+  };
+
   return (
     <ScrollView>
       <Card style={{ marginBottom: 16 }}>
@@ -432,11 +438,12 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
           {/* Time Track */}
           <KingdomTrack
-            title='Time Track'
+            title='♔ Time Track'
             icon='crown'
             style='time'
             currentPosition={delveProgress.timeTrack.currentPosition}
             onSegmentPress={handleTimeTrackPress}
+            showZeroButton={true}
             segments={[
               { id: 'time-1', number: 1 },
               { id: 'time-2', number: 2 },
@@ -456,6 +463,24 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
               { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
             ]}
           />
+
+          {/* Curse Tracker */}
+          {delveProgress.curseTracker && (
+            <KingdomTrack
+              title='Curse Tracker'
+              icon='curse'
+              style='curse'
+              currentPosition={delveProgress.curseTracker.currentPosition}
+              onSegmentPress={handleCurseTrackerPress}
+              segments={[
+                { id: 'curse-0', number: 0 },
+                { id: 'curse-1', number: 1 },
+                { id: 'curse-2', number: 2 },
+                { id: 'curse-3', number: 3 },
+                { id: 'curse-4', number: 4 },
+              ]}
+            />
+          )}
         </View>
       )}
 
@@ -467,6 +492,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           <Button label='Add Sample Contract' onPress={handleAddContract} />
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />
+          <Button label='Advance Curse Tracker' onPress={() => advanceCurseTracker(campaignId)} />
         </View>
       </Card>
 
