@@ -454,7 +454,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
             {/* Time Track */}
             <KingdomTrack
-              title='♔ Time Track'
+              title='Time Track'
               icon='crown'
               style='time'
               currentPosition={delveProgress.timeTrack.currentPosition}
