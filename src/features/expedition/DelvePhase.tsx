@@ -337,9 +337,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
                 ));
               })()}
             </View>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Active Objectives: 0</Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Available Contracts: 0</Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Locations Explored: 0</Text>
           </View>
         )}
       </CollapsibleCard>
