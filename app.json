@@ -48,7 +48,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "sdkVersion": "53.0.0",
+    "sdkVersion": "54.0.0",
     "extra": {
       "router": {},
       "eas": {
