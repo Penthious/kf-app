@@ -18,6 +18,7 @@ import BenchedList from '@/features/knights/ui/BenchedList';
 import QuickCreateKnight from '@/features/knights/ui/QuickCreateKnight';
 
 import { KNIGHT_CATALOG } from '@/catalogs/knights';
+import { isPartyLeaderLocked } from '@/features/expedition/utils';
 import { getMemberSets } from '@/features/knights/selectors';
 import { KnightsById } from '@/features/knights/types';
 import uuid from 'react-native-uuid';
@@ -47,6 +48,9 @@ export default function CampaignKnightsPage() {
     () => getMemberSets(campaign, knightsById),
     [campaign, knightsById]
   );
+
+  // ---- Check if party leader changes should be disabled ----
+  const isLeaderDisabled = isPartyLeaderLocked(campaign);
 
   // ---- Handlers: Active lineup ----
   const handleSetLeader = useCallback(
@@ -207,6 +211,7 @@ export default function CampaignKnightsPage() {
             onSetLeader={handleSetLeader}
             onBench={handleBench}
             onEdit={handleEdit}
+            isLeaderDisabled={isLeaderDisabled}
           />
         </Card>
 

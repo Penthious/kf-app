@@ -1,7 +1,6 @@
 // src/features/knights/ui/ActiveLineup.tsx
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { Pressable, Text, View } from 'react-native';
 import type { ActiveLineupProps } from '../types';
 
 export default function ActiveLineup({
@@ -10,6 +9,7 @@ export default function ActiveLineup({
   onSetLeader,
   onBench,
   onEdit,
+  isLeaderDisabled = false,
 }: ActiveLineupProps) {
   const { tokens } = useThemeTokens();
 
@@ -46,7 +46,8 @@ export default function ActiveLineup({
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {/* Leader toggle */}
               <Pressable
-                onPress={() => onSetLeader(item.knightUID)}
+                onPress={() => !isLeaderDisabled && onSetLeader(item.knightUID)}
+                disabled={isLeaderDisabled}
                 style={{
                   paddingHorizontal: 12,
                   height: 32,
@@ -56,6 +57,7 @@ export default function ActiveLineup({
                   backgroundColor: isLeader ? tokens.accent : tokens.surface,
                   borderWidth: 1,
                   borderColor: '#0006',
+                  opacity: isLeaderDisabled ? 0.5 : 1,
                 }}
               >
                 <Text

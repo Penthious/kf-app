@@ -25,6 +25,7 @@ import {
 } from '@/features/kingdoms/utils';
 import type { KingdomCatalog } from '@/models/kingdom';
 
+import { isPartyLeaderLocked } from '@/features/expedition/utils';
 import { getMemberSets } from '@/features/knights/selectors';
 import { KnightsById } from '@/features/knights/types';
 
@@ -47,6 +48,9 @@ export default function CampaignKingdoms() {
   // ----- Derive lineup sets for the ActiveLineup card -----
   const { active } = useMemo(() => getMemberSets(c, knightsById), [c, knightsById]);
   const activeSlots = c?.settings?.fivePlayerMode ? 5 : 4;
+
+  // ----- Check if party leader changes should be disabled -----
+  const isLeaderDisabled = isPartyLeaderLocked(c);
 
   // handlers for ActiveLineup
   const onSetLeader = useCallback(
@@ -91,14 +95,25 @@ export default function CampaignKingdoms() {
   // ----- Stage row for current leader + kingdom -----
   const stageRow = leader
     ? (() => {
-        // If we're in an expedition and have knight choices, use expedition-aware monster stage calculation
+        // If we're in an expedition, use expedition-aware monster stage calculation
         if (c?.expedition) {
           const partyLeaderChoice = c.expedition.knightChoices.find(
             choice => choice.knightUID === leaderUID
           );
           const allKnightChoices = c.expedition.knightChoices || [];
 
-          // Only use expedition-aware logic if we have a knight choice
+          console.log('🔍 Kingdom Stage Debug:', {
+            hasExpedition: !!c.expedition,
+            hasPartyLeaderChoice: !!partyLeaderChoice,
+            knightChoicesLength: allKnightChoices.length,
+            chapter,
+            questDone,
+            completedInvs,
+            leaderUID,
+          });
+
+          // Only use expedition-aware logic if we have an actual knight choice
+          // Otherwise, fall back to traditional calculation to maintain correct stage
           if (partyLeaderChoice) {
             // Use the expanded kingdom view to include TTSF monsters in expedition stage calculation
             const expandedKingdom =
@@ -114,6 +129,7 @@ export default function CampaignKingdoms() {
               completedInvs
             );
 
+            console.log('🔍 Using expedition stage calculation:', expeditionStageInfo);
             return expeditionStageInfo.row;
           }
         }
@@ -124,7 +140,20 @@ export default function CampaignKingdoms() {
           kv && activeKingdom && kv.bestiary
             ? { ...activeKingdom, bestiary: kv.bestiary }
             : activeKingdom;
-        return resolveStagesForBestiary(expandedKingdom, chapter, questDone, completedInvs).row;
+
+        const traditionalResult = resolveStagesForBestiary(
+          expandedKingdom,
+          chapter,
+          questDone,
+          completedInvs
+        );
+        console.log('🔍 Using traditional stage calculation:', {
+          chapter,
+          questDone,
+          completedInvs,
+          result: traditionalResult,
+        });
+        return traditionalResult.row;
       })()
     : {};
 
@@ -161,6 +190,7 @@ export default function CampaignKingdoms() {
             onSetLeader={onSetLeader}
             onBench={onBench}
             onEdit={onEditKnight}
+            isLeaderDisabled={isLeaderDisabled}
           />
         </Card>
 

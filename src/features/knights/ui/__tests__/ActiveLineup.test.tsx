@@ -365,4 +365,160 @@ describe('ActiveLineup', () => {
       fontWeight: '800',
     });
   });
+
+  describe('disabled state', () => {
+    it('disables leader buttons when isLeaderDisabled is true', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={true}
+        />
+      );
+
+      const leaderButtons = getAllByText('Leader');
+
+      // All leader buttons should be disabled
+      leaderButtons.forEach(button => {
+        const pressable = button.parent;
+        expect(pressable?.props.disabled).toBe(true);
+        expect(pressable?.props.style.opacity).toBe(0.5);
+      });
+    });
+
+    it('enables leader buttons when isLeaderDisabled is false', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={false}
+        />
+      );
+
+      const leaderButtons = getAllByText('Leader');
+
+      // All leader buttons should be enabled
+      leaderButtons.forEach(button => {
+        const pressable = button.parent;
+        expect(pressable?.props.disabled).toBe(false);
+        expect(pressable?.props.style.opacity).toBe(1);
+      });
+    });
+
+    it('enables leader buttons when isLeaderDisabled is undefined', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+        />
+      );
+
+      const leaderButtons = getAllByText('Leader');
+
+      // All leader buttons should be enabled (default behavior)
+      leaderButtons.forEach(button => {
+        const pressable = button.parent;
+        expect(pressable?.props.disabled).toBe(false);
+        expect(pressable?.props.style.opacity).toBe(1);
+      });
+    });
+
+    it('does not call onSetLeader when leader button is disabled and pressed', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={true}
+        />
+      );
+
+      const leaderButtons = getAllByText('Leader');
+      fireEvent.press(leaderButtons[1]); // Try to press Sir Lancelot's leader button
+
+      expect(mockOnSetLeader).not.toHaveBeenCalled();
+    });
+
+    it('calls onSetLeader when leader button is enabled and pressed', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={false}
+        />
+      );
+
+      const leaderButtons = getAllByText('Leader');
+      fireEvent.press(leaderButtons[1]); // Press Sir Lancelot's leader button
+
+      expect(mockOnSetLeader).toHaveBeenCalledWith('knight-2');
+    });
+
+    it('does not affect edit and bench buttons when leader is disabled', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={true}
+        />
+      );
+
+      const editButtons = getAllByText('Edit');
+      const benchButtons = getAllByText('Bench');
+
+      // Edit and bench buttons should still be enabled
+      editButtons.forEach(button => {
+        const pressable = button.parent;
+        expect(pressable?.props.disabled).toBeFalsy();
+        // Edit and bench buttons don't have opacity style, so they should be undefined
+        expect(pressable?.props.style.opacity).toBeUndefined();
+      });
+
+      benchButtons.forEach(button => {
+        const pressable = button.parent;
+        expect(pressable?.props.disabled).toBeFalsy();
+        // Edit and bench buttons don't have opacity style, so they should be undefined
+        expect(pressable?.props.style.opacity).toBeUndefined();
+      });
+    });
+
+    it('still allows edit and bench actions when leader is disabled', () => {
+      const { getAllByText } = render(
+        <ActiveLineup
+          list={mockList}
+          maxSlots={5}
+          onSetLeader={mockOnSetLeader}
+          onBench={mockOnBench}
+          onEdit={mockOnEdit}
+          isLeaderDisabled={true}
+        />
+      );
+
+      const editButtons = getAllByText('Edit');
+      const benchButtons = getAllByText('Bench');
+
+      fireEvent.press(editButtons[0]); // Press Sir Galahad's edit button
+      fireEvent.press(benchButtons[2]); // Press Sir Gawain's bench button
+
+      expect(mockOnEdit).toHaveBeenCalledWith('knight-1');
+      expect(mockOnBench).toHaveBeenCalledWith('knight-3');
+    });
+  });
 });
