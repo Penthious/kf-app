@@ -81,12 +81,7 @@ export default function DistrictWheel({
   };
 
   return (
-    <Card>
-      <Text
-        style={{ fontSize: 18, fontWeight: '600', color: tokens.textPrimary, marginBottom: 12 }}
-      >
-        District Wheel
-      </Text>
+    <View>
       <View style={{ gap: 12 }}>
         {districtsWithMonsters.map(({ district, assignment }) => (
           <TouchableOpacity
@@ -150,6 +145,6 @@ export default function DistrictWheel({
         partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
         campaignExpansions={campaignExpansions}
       />
-    </Card>
+    </View>
   );
 }

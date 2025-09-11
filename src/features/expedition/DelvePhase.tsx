@@ -1,6 +1,7 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import type { ClueType } from '@/models/campaign';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
@@ -22,6 +23,8 @@ interface DelvePhaseProps {
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
   const [showClueSelection, setShowClueSelection] = useState(false);
+  const [isDelvePhaseExpanded, setIsDelvePhaseExpanded] = useState(true);
+  const [isDistrictWheelExpanded, setIsDistrictWheelExpanded] = useState(true);
   const {
     campaigns,
     setExpeditionPhase,
@@ -303,10 +306,11 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
   return (
     <ScrollView>
-      <Card style={{ marginBottom: 16 }}>
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 12 }}>
-          {phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}
-        </Text>
+      <CollapsibleCard
+        title={phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}
+        isExpanded={isDelvePhaseExpanded}
+        onToggle={() => setIsDelvePhaseExpanded(!isDelvePhaseExpanded)}
+      >
         <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
           Explore the Kingdom map, collecting Clues and fulfilling objectives and Contracts.
         </Text>
@@ -387,23 +391,29 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
             </Text>
           </View>
         )}
-      </Card>
+      </CollapsibleCard>
 
       {/* Kingdom Tracks */}
       {/* District Wheel */}
       {campaign?.expedition?.districtWheel && (
-        <DistrictWheel
-          districtWheel={campaign.expedition.districtWheel}
-          onRotate={() => rotateDistrictWheel(campaignId)}
-          onReplaceMonster={(districtId, monsterId) =>
-            replaceDistrictMonster(campaignId, districtId, monsterId, partyLeaderKnight)
-          }
-          campaignExpansions={campaign.settings.expansions}
-          currentChapter={partyLeaderChapter}
-          partyLeaderChoice={partyLeaderChoice}
-          allKnightChoices={allKnightChoices}
-          partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
-        />
+        <CollapsibleCard
+          title='District Wheel'
+          isExpanded={isDistrictWheelExpanded}
+          onToggle={() => setIsDistrictWheelExpanded(!isDistrictWheelExpanded)}
+        >
+          <DistrictWheel
+            districtWheel={campaign.expedition.districtWheel}
+            onRotate={() => rotateDistrictWheel(campaignId)}
+            onReplaceMonster={(districtId, monsterId) =>
+              replaceDistrictMonster(campaignId, districtId, monsterId, partyLeaderKnight)
+            }
+            campaignExpansions={campaign.settings.expansions}
+            currentChapter={partyLeaderChapter}
+            partyLeaderChoice={partyLeaderChoice}
+            allKnightChoices={allKnightChoices}
+            partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
+          />
+        </CollapsibleCard>
       )}
 
       {delveProgress && (
