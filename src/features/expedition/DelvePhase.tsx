@@ -31,8 +31,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setExpeditionPhase,
     initializeDelveProgress,
     addClue,
-    exploreLocation,
-    setCurrentLocation,
     advanceThreatTrack,
     advanceTimeTrack,
     setThreatTrackPosition,
@@ -180,20 +178,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
         partyLeaderCompletedInvestigations
       )
     : { row: {}, hasChapter: false, stageIndex: 0 };
-
-  const handleExploreLocation = () => {
-    if (!selectedKingdomData) {
-      Alert.alert('Error', 'No kingdom selected for exploration');
-      return;
-    }
-
-    // For now, we'll create a simple location exploration
-    const locationId = `location-${Date.now()}`;
-    exploreLocation(campaignId, locationId);
-    setCurrentLocation(campaignId, locationId);
-
-    Alert.alert('Location Explored', `You have explored a new area in ${selectedKingdomData.name}`);
-  };
 
   const handleCollectClue = () => {
     if (!partyLeader) {
@@ -477,7 +461,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
       <Card style={{ marginBottom: 16 }}>
         <View style={{ marginTop: 16, gap: 8 }}>
-          <Button label='Explore Location' onPress={handleExploreLocation} />
           <Button label='Collect Clue' onPress={handleCollectClue} />
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />

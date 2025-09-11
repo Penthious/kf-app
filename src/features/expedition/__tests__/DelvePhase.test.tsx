@@ -181,20 +181,6 @@ describe('DelvePhase', () => {
     });
   });
 
-  describe('Location Section', () => {
-    it('renders location section', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Explore Location')).toBeTruthy();
-    });
-
-    it('shows explore location button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Explore Location')).toBeTruthy();
-    });
-  });
-
   describe('Error Handling', () => {
     it('handles missing campaign gracefully', () => {
       mockUseCampaigns.mockReturnValue({
