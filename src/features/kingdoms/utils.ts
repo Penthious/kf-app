@@ -54,8 +54,15 @@ export function calculateExpeditionMonsterStage(
   allKnightChoices: KnightExpeditionChoice[],
   partyLeaderCompletedInvestigations: number = 0
 ): number {
-  if (!partyLeaderChoice || partyLeaderChoice.choice === 'free-roam') {
-    return 0; // Default to first stage for free-roam
+  if (!partyLeaderChoice) {
+    return 0; // Default to first stage when no choice exists
+  }
+
+  // For free-roam, use the leader's current progress (same as quest)
+  if (partyLeaderChoice.choice === 'free-roam') {
+    const chapterBaseIndex = (partyLeaderChapter - 1) * 4;
+    const stageWithinChapter = partyLeaderCompletedInvestigations;
+    return chapterBaseIndex + stageWithinChapter;
   }
 
   // Calculate the base stage index for the current chapter

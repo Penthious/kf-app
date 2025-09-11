@@ -22,6 +22,7 @@ export type ActiveLineupProps = {
   onSetLeader: (knightUID: string) => void;
   onBench: (knightUID: string) => void;
   onEdit: (knightUID: string) => void;
+  isLeaderDisabled?: boolean;
 };
 
 // ---- shared types for UI lists ----
