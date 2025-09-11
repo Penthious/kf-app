@@ -415,7 +415,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
                 { id: 'time-5', number: 5 },
                 { id: 'time-6', number: 6 },
                 { id: 'time-7', number: 7 },
-                { id: 'time-8', number: 8, isSpecial: true, label: 'EXHIBITION CLASH' },
+                { id: 'time-8', number: 8, isSpecial: true },
                 { id: 'time-9', number: 9 },
                 { id: 'time-10', number: 10 },
                 { id: 'time-11', number: 11 },
@@ -423,7 +423,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
                 { id: 'time-13', number: 13 },
                 { id: 'time-14', number: 14 },
                 { id: 'time-15', number: 15 },
-                { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
+                { id: 'time-16', number: 16, isSpecial: true },
               ]}
             />
 
