@@ -41,32 +41,8 @@ export type Clue = {
   discoveredBy: string; // knightUID
 };
 
-export type Objective = {
-  id: string;
-  name: string;
-  description: string;
-  status: 'active' | 'completed';
-  completedAt?: number;
-  completedBy?: string; // knightUID
-};
-
-export type Contract = {
-  id: string;
-  name: string;
-  description: string;
-  status: 'available' | 'accepted' | 'completed';
-  acceptedAt?: number;
-  acceptedBy?: string; // knightUID
-  completedAt?: number;
-  completedBy?: string; // knightUID
-};
-
 export type DelveProgress = {
   clues: Clue[];
-  objectives: Objective[];
-  contracts: Contract[];
-  exploredLocations: string[]; // location IDs
-  currentLocation?: string; // current location ID
   threatTrack: {
     currentPosition: number;
     maxPosition: number;

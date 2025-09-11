@@ -1,6 +1,5 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
-import Card from '@/components/Card';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
 import type { DistrictWheel as DistrictWheelType } from '@/models/district';
@@ -81,12 +80,7 @@ export default function DistrictWheel({
   };
 
   return (
-    <Card>
-      <Text
-        style={{ fontSize: 18, fontWeight: '600', color: tokens.textPrimary, marginBottom: 12 }}
-      >
-        District Wheel
-      </Text>
+    <View>
       <View style={{ gap: 12 }}>
         {districtsWithMonsters.map(({ district, assignment }) => (
           <TouchableOpacity
@@ -150,6 +144,6 @@ export default function DistrictWheel({
         partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
         campaignExpansions={campaignExpansions}
       />
-    </Card>
+    </View>
   );
 }

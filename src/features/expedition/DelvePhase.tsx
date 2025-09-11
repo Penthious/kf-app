@@ -1,6 +1,7 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import type { ClueType } from '@/models/campaign';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
@@ -22,15 +23,14 @@ interface DelvePhaseProps {
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
   const [showClueSelection, setShowClueSelection] = useState(false);
+  const [isDelvePhaseExpanded, setIsDelvePhaseExpanded] = useState(true);
+  const [isDistrictWheelExpanded, setIsDistrictWheelExpanded] = useState(true);
+  const [isKingdomTrackerExpanded, setIsKingdomTrackerExpanded] = useState(true);
   const {
     campaigns,
     setExpeditionPhase,
     initializeDelveProgress,
     addClue,
-    addObjective,
-    addContract,
-    exploreLocation,
-    setCurrentLocation,
     advanceThreatTrack,
     advanceTimeTrack,
     setThreatTrackPosition,
@@ -179,20 +179,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       )
     : { row: {}, hasChapter: false, stageIndex: 0 };
 
-  const handleExploreLocation = () => {
-    if (!selectedKingdomData) {
-      Alert.alert('Error', 'No kingdom selected for exploration');
-      return;
-    }
-
-    // For now, we'll create a simple location exploration
-    const locationId = `location-${Date.now()}`;
-    exploreLocation(campaignId, locationId);
-    setCurrentLocation(campaignId, locationId);
-
-    Alert.alert('Location Explored', `You have explored a new area in ${selectedKingdomData.name}`);
-  };
-
   const handleCollectClue = () => {
     if (!partyLeader) {
       Alert.alert('Error', 'No party leader selected');
@@ -229,30 +215,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       'Clues Discovered',
       `${partyLeader.displayName} has discovered ${totalClues} clue${totalClues > 1 ? 's' : ''}: ${clueTypesText}!`
     );
-  };
-
-  const handleAddObjective = () => {
-    const objectiveId = `objective-${Date.now()}`;
-    addObjective(campaignId, {
-      id: objectiveId,
-      name: 'Sample Objective',
-      description: 'Complete this objective to progress in your expedition.',
-      status: 'active',
-    });
-
-    Alert.alert('Objective Added', 'A new objective has been added to your expedition.');
-  };
-
-  const handleAddContract = () => {
-    const contractId = `contract-${Date.now()}`;
-    addContract(campaignId, {
-      id: contractId,
-      name: 'Sample Contract',
-      description: 'Accept this contract to earn rewards.',
-      status: 'available',
-    });
-
-    Alert.alert('Contract Available', 'A new contract is now available for your party.');
   };
 
   const handleAdvanceThreat = () => {
@@ -303,10 +265,11 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
 
   return (
     <ScrollView>
-      <Card style={{ marginBottom: 16 }}>
-        <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 12 }}>
-          {phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}
-        </Text>
+      <CollapsibleCard
+        title={phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}
+        isExpanded={isDelvePhaseExpanded}
+        onToggle={() => setIsDelvePhaseExpanded(!isDelvePhaseExpanded)}
+      >
         <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
           Explore the Kingdom map, collecting Clues and fulfilling objectives and Contracts.
         </Text>
@@ -374,122 +337,120 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
                 ));
               })()}
             </View>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Active Objectives:{' '}
-              {delveProgress.objectives.filter(o => o.status === 'active').length}
-            </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Available Contracts:{' '}
-              {delveProgress.contracts.filter(c => c.status === 'available').length}
-            </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Locations Explored: {delveProgress.exploredLocations.length}
-            </Text>
           </View>
         )}
-      </Card>
+      </CollapsibleCard>
 
       {/* Kingdom Tracks */}
       {/* District Wheel */}
       {campaign?.expedition?.districtWheel && (
-        <DistrictWheel
-          districtWheel={campaign.expedition.districtWheel}
-          onRotate={() => rotateDistrictWheel(campaignId)}
-          onReplaceMonster={(districtId, monsterId) =>
-            replaceDistrictMonster(campaignId, districtId, monsterId, partyLeaderKnight)
-          }
-          campaignExpansions={campaign.settings.expansions}
-          currentChapter={partyLeaderChapter}
-          partyLeaderChoice={partyLeaderChoice}
-          allKnightChoices={allKnightChoices}
-          partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
-        />
+        <CollapsibleCard
+          title='District Wheel'
+          isExpanded={isDistrictWheelExpanded}
+          onToggle={() => setIsDistrictWheelExpanded(!isDistrictWheelExpanded)}
+        >
+          <DistrictWheel
+            districtWheel={campaign.expedition.districtWheel}
+            onRotate={() => rotateDistrictWheel(campaignId)}
+            onReplaceMonster={(districtId, monsterId) =>
+              replaceDistrictMonster(campaignId, districtId, monsterId, partyLeaderKnight)
+            }
+            campaignExpansions={campaign.settings.expansions}
+            currentChapter={partyLeaderChapter}
+            partyLeaderChoice={partyLeaderChoice}
+            allKnightChoices={allKnightChoices}
+            partyLeaderCompletedInvestigations={partyLeaderCompletedInvestigations}
+          />
+        </CollapsibleCard>
       )}
 
       {delveProgress && (
-        <View style={{ marginBottom: 16 }}>
-          {/* Threat Track */}
-          <KingdomTrack
-            title='Threat Track'
-            icon='skull'
-            style='threat'
-            currentPosition={delveProgress.threatTrack.currentPosition}
-            onSegmentPress={handleThreatTrackPress}
-            segments={[
-              { id: 'threat-0', number: 0 },
-              { id: 'threat-1', number: 1 },
-              { id: 'threat-2', number: 2 },
-              { id: 'threat-3', number: 3, isHuntSpace: true, huntSpaceType: 'single' },
-              { id: 'threat-4', number: 4 },
-              { id: 'threat-5', number: 5, isHuntSpace: true, huntSpaceType: 'double' },
-              { id: 'threat-6', number: 6 },
-              { id: 'threat-7', number: 7, isHuntSpace: true, huntSpaceType: 'single' },
-              { id: 'threat-8', number: 8, isHuntSpace: true, huntSpaceType: 'single' },
-              {
-                id: 'threat-9',
-                number: 9,
-                isSpecial: true,
-                isHuntSpace: true,
-                huntSpaceType: 'double',
-                label: '6666',
-              },
-            ]}
-          />
-
-          {/* Time Track */}
-          <KingdomTrack
-            title='♔ Time Track'
-            icon='crown'
-            style='time'
-            currentPosition={delveProgress.timeTrack.currentPosition}
-            onSegmentPress={handleTimeTrackPress}
-            showZeroButton={true}
-            segments={[
-              { id: 'time-1', number: 1 },
-              { id: 'time-2', number: 2 },
-              { id: 'time-3', number: 3 },
-              { id: 'time-4', number: 4 },
-              { id: 'time-5', number: 5 },
-              { id: 'time-6', number: 6 },
-              { id: 'time-7', number: 7 },
-              { id: 'time-8', number: 8, isSpecial: true, label: 'EXHIBITION CLASH' },
-              { id: 'time-9', number: 9 },
-              { id: 'time-10', number: 10 },
-              { id: 'time-11', number: 11 },
-              { id: 'time-12', number: 12 },
-              { id: 'time-13', number: 13 },
-              { id: 'time-14', number: 14 },
-              { id: 'time-15', number: 15 },
-              { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
-            ]}
-          />
-
-          {/* Curse Tracker */}
-          {delveProgress.curseTracker && (
+        <CollapsibleCard
+          title='Kingdom Tracker'
+          isExpanded={isKingdomTrackerExpanded}
+          onToggle={() => setIsKingdomTrackerExpanded(!isKingdomTrackerExpanded)}
+        >
+          <View style={{ gap: 16 }}>
+            {/* Threat Track */}
             <KingdomTrack
-              title='Curse Tracker'
-              icon='curse'
-              style='curse'
-              currentPosition={delveProgress.curseTracker.currentPosition}
-              onSegmentPress={handleCurseTrackerPress}
+              title='Threat Track'
+              icon='skull'
+              style='threat'
+              currentPosition={delveProgress.threatTrack.currentPosition}
+              onSegmentPress={handleThreatTrackPress}
               segments={[
-                { id: 'curse-0', number: 0 },
-                { id: 'curse-1', number: 1 },
-                { id: 'curse-2', number: 2 },
-                { id: 'curse-3', number: 3 },
-                { id: 'curse-4', number: 4 },
+                { id: 'threat-0', number: 0 },
+                { id: 'threat-1', number: 1 },
+                { id: 'threat-2', number: 2 },
+                { id: 'threat-3', number: 3, isHuntSpace: true, huntSpaceType: 'single' },
+                { id: 'threat-4', number: 4 },
+                { id: 'threat-5', number: 5, isHuntSpace: true, huntSpaceType: 'double' },
+                { id: 'threat-6', number: 6 },
+                { id: 'threat-7', number: 7, isHuntSpace: true, huntSpaceType: 'single' },
+                { id: 'threat-8', number: 8, isHuntSpace: true, huntSpaceType: 'single' },
+                {
+                  id: 'threat-9',
+                  number: 9,
+                  isSpecial: true,
+                  isHuntSpace: true,
+                  huntSpaceType: 'double',
+                  label: '6666',
+                },
               ]}
             />
-          )}
-        </View>
+
+            {/* Time Track */}
+            <KingdomTrack
+              title='Time Track'
+              icon='crown'
+              style='time'
+              currentPosition={delveProgress.timeTrack.currentPosition}
+              onSegmentPress={handleTimeTrackPress}
+              showZeroButton={true}
+              segments={[
+                { id: 'time-1', number: 1 },
+                { id: 'time-2', number: 2 },
+                { id: 'time-3', number: 3 },
+                { id: 'time-4', number: 4 },
+                { id: 'time-5', number: 5 },
+                { id: 'time-6', number: 6 },
+                { id: 'time-7', number: 7 },
+                { id: 'time-8', number: 8, isSpecial: true },
+                { id: 'time-9', number: 9 },
+                { id: 'time-10', number: 10 },
+                { id: 'time-11', number: 11 },
+                { id: 'time-12', number: 12 },
+                { id: 'time-13', number: 13 },
+                { id: 'time-14', number: 14 },
+                { id: 'time-15', number: 15 },
+                { id: 'time-16', number: 16, isSpecial: true },
+              ]}
+            />
+
+            {/* Curse Tracker */}
+            {delveProgress.curseTracker && (
+              <KingdomTrack
+                title='Curse Tracker'
+                icon='curse'
+                style='curse'
+                currentPosition={delveProgress.curseTracker.currentPosition}
+                onSegmentPress={handleCurseTrackerPress}
+                segments={[
+                  { id: 'curse-0', number: 0 },
+                  { id: 'curse-1', number: 1 },
+                  { id: 'curse-2', number: 2 },
+                  { id: 'curse-3', number: 3 },
+                  { id: 'curse-4', number: 4 },
+                ]}
+              />
+            )}
+          </View>
+        </CollapsibleCard>
       )}
 
       <Card style={{ marginBottom: 16 }}>
         <View style={{ marginTop: 16, gap: 8 }}>
-          <Button label='Explore Location' onPress={handleExploreLocation} />
           <Button label='Collect Clue' onPress={handleCollectClue} />
-          <Button label='Add Sample Objective' onPress={handleAddObjective} />
-          <Button label='Add Sample Contract' onPress={handleAddContract} />
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />
           <Button label='Advance Curse Tracker' onPress={() => advanceCurseTracker(campaignId)} />

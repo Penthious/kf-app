@@ -169,7 +169,7 @@ describe('DelvePhase', () => {
 
       // KingdomTrack components should be rendered (threat and time tracks)
       expect(screen.getByText('Threat Track')).toBeTruthy();
-      expect(screen.getByText('♔ Time Track')).toBeTruthy();
+      expect(screen.getByText('Time Track')).toBeTruthy();
     });
   });
 
@@ -178,36 +178,6 @@ describe('DelvePhase', () => {
       render(<DelvePhase campaignId={mockCampaignId} />);
 
       expect(screen.getByText('Collect Clue')).toBeTruthy();
-    });
-  });
-
-  describe('Objectives Section', () => {
-    it('shows add objective button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Add Sample Objective')).toBeTruthy();
-    });
-  });
-
-  describe('Contracts Section', () => {
-    it('shows add contract button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Add Sample Contract')).toBeTruthy();
-    });
-  });
-
-  describe('Location Section', () => {
-    it('renders location section', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Explore Location')).toBeTruthy();
-    });
-
-    it('shows explore location button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Explore Location')).toBeTruthy();
     });
   });
 
