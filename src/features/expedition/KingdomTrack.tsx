@@ -18,6 +18,7 @@ interface KingdomTrackProps {
   icon?: string;
   style?: 'threat' | 'time' | 'short' | 'curse';
   onSegmentPress?: (segmentNumber: number) => void;
+  showZeroButton?: boolean;
 }
 
 export default function KingdomTrack({
@@ -27,6 +28,7 @@ export default function KingdomTrack({
   icon,
   style = 'time',
   onSegmentPress,
+  showZeroButton = false,
 }: KingdomTrackProps) {
   const getTrackColors = () => {
     switch (style) {
@@ -110,6 +112,35 @@ export default function KingdomTrack({
       <View style={styles.header}>
         {renderIcon(icon)}
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        {showZeroButton && (
+          <Pressable
+            onPress={() => onSegmentPress?.(0)}
+            style={({ pressed }) => [
+              {
+                backgroundColor: currentPosition === 0 ? colors.special : colors.background,
+                borderColor: colors.special,
+                borderWidth: 2,
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                minWidth: 40,
+                alignItems: 'center',
+                marginLeft: 8,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                color: currentPosition === 0 ? '#000000' : colors.special,
+                fontSize: 16,
+                fontWeight: 'bold',
+              }}
+            >
+              0
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Track segments */}

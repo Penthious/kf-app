@@ -9,7 +9,7 @@ import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import ClueSelectionModal from './ClueSelectionModal';
 import DistrictWheel from './DistrictWheel';
 import KingdomTrack from './KingdomTrack';
@@ -437,69 +437,32 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
           />
 
           {/* Time Track */}
-          <View style={{ marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <Text
-                style={{
-                  color: tokens.textPrimary,
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  marginRight: 8,
-                }}
-              >
-                ♔ Time Track
-              </Text>
-              <Pressable
-                onPress={() => handleTimeTrackPress(0)}
-                style={{
-                  backgroundColor:
-                    delveProgress.timeTrack.currentPosition === 0 ? '#FFD700' : '#1a1a2e',
-                  borderColor: '#FFD700',
-                  borderWidth: 2,
-                  borderRadius: 8,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  minWidth: 40,
-                  alignItems: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    color: delveProgress.timeTrack.currentPosition === 0 ? '#000' : '#FFD700',
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  0
-                </Text>
-              </Pressable>
-            </View>
-            <KingdomTrack
-              title=''
-              icon=''
-              style='time'
-              currentPosition={delveProgress.timeTrack.currentPosition}
-              onSegmentPress={handleTimeTrackPress}
-              segments={[
-                { id: 'time-1', number: 1 },
-                { id: 'time-2', number: 2 },
-                { id: 'time-3', number: 3 },
-                { id: 'time-4', number: 4 },
-                { id: 'time-5', number: 5 },
-                { id: 'time-6', number: 6 },
-                { id: 'time-7', number: 7 },
-                { id: 'time-8', number: 8, isSpecial: true, label: 'EXHIBITION CLASH' },
-                { id: 'time-9', number: 9 },
-                { id: 'time-10', number: 10 },
-                { id: 'time-11', number: 11 },
-                { id: 'time-12', number: 12 },
-                { id: 'time-13', number: 13 },
-                { id: 'time-14', number: 14 },
-                { id: 'time-15', number: 15 },
-                { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
-              ]}
-            />
-          </View>
+          <KingdomTrack
+            title='♔ Time Track'
+            icon='crown'
+            style='time'
+            currentPosition={delveProgress.timeTrack.currentPosition}
+            onSegmentPress={handleTimeTrackPress}
+            showZeroButton={true}
+            segments={[
+              { id: 'time-1', number: 1 },
+              { id: 'time-2', number: 2 },
+              { id: 'time-3', number: 3 },
+              { id: 'time-4', number: 4 },
+              { id: 'time-5', number: 5 },
+              { id: 'time-6', number: 6 },
+              { id: 'time-7', number: 7 },
+              { id: 'time-8', number: 8, isSpecial: true, label: 'EXHIBITION CLASH' },
+              { id: 'time-9', number: 9 },
+              { id: 'time-10', number: 10 },
+              { id: 'time-11', number: 11 },
+              { id: 'time-12', number: 12 },
+              { id: 'time-13', number: 13 },
+              { id: 'time-14', number: 14 },
+              { id: 'time-15', number: 15 },
+              { id: 'time-16', number: 16, isSpecial: true, label: 'FULL CLASH' },
+            ]}
+          />
 
           {/* Curse Tracker */}
           {delveProgress.curseTracker && (
