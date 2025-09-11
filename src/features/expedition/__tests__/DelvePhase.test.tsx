@@ -169,7 +169,7 @@ describe('DelvePhase', () => {
 
       // KingdomTrack components should be rendered (threat and time tracks)
       expect(screen.getByText('Threat Track')).toBeTruthy();
-      expect(screen.getByText('♔ Time Track')).toBeTruthy();
+      expect(screen.getByText('Time Track')).toBeTruthy();
     });
   });
 

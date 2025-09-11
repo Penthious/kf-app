@@ -150,8 +150,8 @@ export default function KingdomTrack({
           const isSpecial = segment.isSpecial;
 
           let segmentColor = colors.segment;
-          if (isCurrent) segmentColor = colors.current;
           if (isSpecial) segmentColor = colors.special;
+          if (isCurrent) segmentColor = colors.current;
 
           return (
             <View key={segment.id} style={styles.segmentContainer}>
