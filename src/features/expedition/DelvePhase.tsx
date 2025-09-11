@@ -337,17 +337,9 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
                 ));
               })()}
             </View>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Active Objectives:{' '}
-              {delveProgress.objectives.filter(o => o.status === 'active').length}
-            </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Available Contracts:{' '}
-              {delveProgress.contracts.filter(c => c.status === 'available').length}
-            </Text>
-            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>
-              Locations Explored: {delveProgress.exploredLocations.length}
-            </Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Active Objectives: 0</Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Available Contracts: 0</Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 4 }}>Locations Explored: 0</Text>
           </View>
         )}
       </CollapsibleCard>

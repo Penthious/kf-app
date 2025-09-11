@@ -1,6 +1,5 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
-import Card from '@/components/Card';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
 import type { DistrictWheel as DistrictWheelType } from '@/models/district';
