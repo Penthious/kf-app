@@ -181,22 +181,6 @@ describe('DelvePhase', () => {
     });
   });
 
-  describe('Objectives Section', () => {
-    it('shows add objective button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Add Sample Objective')).toBeTruthy();
-    });
-  });
-
-  describe('Contracts Section', () => {
-    it('shows add contract button', () => {
-      render(<DelvePhase campaignId={mockCampaignId} />);
-
-      expect(screen.getByText('Add Sample Contract')).toBeTruthy();
-    });
-  });
-
   describe('Location Section', () => {
     it('renders location section', () => {
       render(<DelvePhase campaignId={mockCampaignId} />);

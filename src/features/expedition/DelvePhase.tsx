@@ -31,8 +31,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     setExpeditionPhase,
     initializeDelveProgress,
     addClue,
-    addObjective,
-    addContract,
     exploreLocation,
     setCurrentLocation,
     advanceThreatTrack,
@@ -233,30 +231,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       'Clues Discovered',
       `${partyLeader.displayName} has discovered ${totalClues} clue${totalClues > 1 ? 's' : ''}: ${clueTypesText}!`
     );
-  };
-
-  const handleAddObjective = () => {
-    const objectiveId = `objective-${Date.now()}`;
-    addObjective(campaignId, {
-      id: objectiveId,
-      name: 'Sample Objective',
-      description: 'Complete this objective to progress in your expedition.',
-      status: 'active',
-    });
-
-    Alert.alert('Objective Added', 'A new objective has been added to your expedition.');
-  };
-
-  const handleAddContract = () => {
-    const contractId = `contract-${Date.now()}`;
-    addContract(campaignId, {
-      id: contractId,
-      name: 'Sample Contract',
-      description: 'Accept this contract to earn rewards.',
-      status: 'available',
-    });
-
-    Alert.alert('Contract Available', 'A new contract is now available for your party.');
   };
 
   const handleAdvanceThreat = () => {
@@ -505,8 +479,6 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
         <View style={{ marginTop: 16, gap: 8 }}>
           <Button label='Explore Location' onPress={handleExploreLocation} />
           <Button label='Collect Clue' onPress={handleCollectClue} />
-          <Button label='Add Sample Objective' onPress={handleAddObjective} />
-          <Button label='Add Sample Contract' onPress={handleAddContract} />
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />
           <Button label='Advance Curse Tracker' onPress={() => advanceCurseTracker(campaignId)} />
