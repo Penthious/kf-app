@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { useThemeTokens } from '@/theme/ThemeProvider';
 import { AddExistingKnightsProps } from '@/features/knights/types';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 export default function AddExistingKnights({
   list,
@@ -53,39 +53,41 @@ export default function AddExistingKnights({
             </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Pressable
-              onPress={() => onAddActive(k.knightUID)}
-              style={{
-                paddingHorizontal: 12,
-                height: 32,
-                borderRadius: 16,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: tokens.accent,
-                borderWidth: 1,
-                borderColor: '#0006',
-              }}
-            >
-              <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>Add Active</Text>
-            </Pressable>
+          <React.Fragment key={`buttons-${k.knightUID}`}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Pressable
+                onPress={() => onAddActive(k.knightUID)}
+                style={{
+                  paddingHorizontal: 12,
+                  height: 32,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: tokens.accent,
+                  borderWidth: 1,
+                  borderColor: '#0006',
+                }}
+              >
+                <Text style={{ color: '#0B0B0B', fontWeight: '800' }}>Add Active</Text>
+              </Pressable>
 
-            <Pressable
-              onPress={() => onBench(k.knightUID)}
-              style={{
-                paddingHorizontal: 12,
-                height: 32,
-                borderRadius: 16,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: tokens.surface,
-                borderWidth: 1,
-                borderColor: '#0006',
-              }}
-            >
-              <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Bench</Text>
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={() => onBench(k.knightUID)}
+                style={{
+                  paddingHorizontal: 12,
+                  height: 32,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: tokens.surface,
+                  borderWidth: 1,
+                  borderColor: '#0006',
+                }}
+              >
+                <Text style={{ color: tokens.textPrimary, fontWeight: '800' }}>Bench</Text>
+              </Pressable>
+            </View>
+          </React.Fragment>
         </View>
       ))}
     </View>

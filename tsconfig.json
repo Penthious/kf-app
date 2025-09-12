@@ -21,4 +21,5 @@
       "@/utils/*": ["src/utils/*"]
     }
   },
+  "extends": "expo/tsconfig.base"
 }

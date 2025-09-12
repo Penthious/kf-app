@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import FileSystem, { Paths } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
@@ -174,7 +174,7 @@ export class ImageHandler {
    */
   static async saveImageToDocuments(uri: string, fileName: string): Promise<string> {
     try {
-      const documentsDir = FileSystem.documentDirectory;
+      const documentsDir = Paths.document.uri;
       if (!documentsDir) {
         throw new Error('Documents directory not available');
       }
@@ -197,7 +197,7 @@ export class ImageHandler {
    */
   static async deleteImage(fileName: string): Promise<void> {
     try {
-      const documentsDir = FileSystem.documentDirectory;
+      const documentsDir = Paths.document.uri;
       if (!documentsDir) {
         throw new Error('Documents directory not available');
       }
@@ -254,7 +254,7 @@ export class ImageHandler {
    */
   static async imageExists(fileName: string): Promise<boolean> {
     try {
-      const documentsDir = FileSystem.documentDirectory;
+      const documentsDir = Paths.document.uri;
       if (!documentsDir) return false;
 
       const fileUri = `${documentsDir}${fileName}`;
