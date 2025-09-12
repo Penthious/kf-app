@@ -20,7 +20,9 @@
           "photosPermission": "Allow KF app to access your photos to select gear images",
           "cameraPermission": "Allow KF app to access your camera to take gear photos"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "ios": {
       "infoPlist": {
@@ -46,7 +48,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "sdkVersion": "53.0.0",
+    "sdkVersion": "54.0.0",
     "extra": {
       "router": {},
       "eas": {
