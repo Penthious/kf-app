@@ -8,10 +8,18 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
+  },
+  {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/array-type': 'off',
       'import/no-named-as-default': 'off',
+      '@typescript-eslint/no-deprecated': 'error',
       // Enforce consistent import paths
       'no-restricted-imports': [
         'error',

@@ -1670,7 +1670,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         if (!c?.expedition?.spoilsProgress) return s;
 
         const lootCard: LootCard = {
-          id: `loot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `loot-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           type,
           source,
           obtainedAt: Date.now(),

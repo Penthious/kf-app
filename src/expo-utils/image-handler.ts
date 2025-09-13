@@ -1,5 +1,5 @@
 import { File, Paths } from 'expo-file-system';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 import { Alert } from 'react-native';
@@ -140,21 +140,17 @@ export class ImageHandler {
    */
   static async compressImage(uri: string): Promise<ImageResult> {
     try {
-      const result = await manipulateAsync(
-        uri,
-        [
-          {
-            resize: {
-              width: this.MAX_WIDTH,
-              height: this.MAX_HEIGHT,
-            },
-          },
-        ],
-        {
-          compress: this.COMPRESSION_QUALITY,
-          format: SaveFormat.JPEG,
-        }
-      );
+      const imageRef = await ImageManipulator.manipulate(uri)
+        .resize({
+          width: this.MAX_WIDTH,
+          height: this.MAX_HEIGHT,
+        })
+        .renderAsync();
+
+      const result = await imageRef.saveAsync({
+        compress: this.COMPRESSION_QUALITY,
+        format: SaveFormat.JPEG,
+      });
 
       return {
         uri: result.uri,
