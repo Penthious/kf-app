@@ -1,5 +1,5 @@
-import FileSystem, { Paths } from 'expo-file-system';
-import * as ImageManipulator from 'expo-image-manipulator';
+import { File, Paths } from 'expo-file-system';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 import { Alert } from 'react-native';
@@ -140,21 +140,17 @@ export class ImageHandler {
    */
   static async compressImage(uri: string): Promise<ImageResult> {
     try {
-      const result = await ImageManipulator.manipulateAsync(
-        uri,
-        [
-          {
-            resize: {
-              width: this.MAX_WIDTH,
-              height: this.MAX_HEIGHT,
-            },
-          },
-        ],
-        {
-          compress: this.COMPRESSION_QUALITY,
-          format: ImageManipulator.SaveFormat.JPEG,
-        }
-      );
+      const imageRef = await ImageManipulator.manipulate(uri)
+        .resize({
+          width: this.MAX_WIDTH,
+          height: this.MAX_HEIGHT,
+        })
+        .renderAsync();
+
+      const result = await imageRef.saveAsync({
+        compress: this.COMPRESSION_QUALITY,
+        format: SaveFormat.JPEG,
+      });
 
       return {
         uri: result.uri,
@@ -174,18 +170,14 @@ export class ImageHandler {
    */
   static async saveImageToDocuments(uri: string, fileName: string): Promise<string> {
     try {
-      const documentsDir = Paths.document.uri;
-      if (!documentsDir) {
-        throw new Error('Documents directory not available');
-      }
+      const documentsDir = Paths.document;
+      const targetFile = new File(documentsDir, fileName);
 
-      const fileUri = `${documentsDir}${fileName}`;
-      await FileSystem.copyAsync({
-        from: uri,
-        to: fileUri,
-      });
+      // Copy the source file to the target location
+      const sourceFile = new File(uri);
+      await sourceFile.copy(targetFile);
 
-      return fileUri;
+      return targetFile.uri;
     } catch (error) {
       console.error('Error saving image:', error);
       throw error;
@@ -197,16 +189,13 @@ export class ImageHandler {
    */
   static async deleteImage(fileName: string): Promise<void> {
     try {
-      const documentsDir = Paths.document.uri;
-      if (!documentsDir) {
-        throw new Error('Documents directory not available');
-      }
+      const documentsDir = Paths.document;
+      const file = new File(documentsDir, fileName);
 
-      const fileUri = `${documentsDir}${fileName}`;
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-
+      // Check if file exists and delete it
+      const fileInfo = await file.info();
       if (fileInfo.exists) {
-        await FileSystem.deleteAsync(fileUri);
+        await file.delete();
       }
     } catch (error) {
       console.error('Error deleting image:', error);
@@ -238,8 +227,9 @@ export class ImageHandler {
    */
   static async getFileSize(uri: string): Promise<number> {
     try {
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-      if (fileInfo.exists && 'size' in fileInfo) {
+      const file = new File(uri);
+      const fileInfo = await file.info();
+      if (fileInfo.exists && 'size' in fileInfo && fileInfo.size !== undefined) {
         return fileInfo.size / (1024 * 1024);
       }
       return 0;
@@ -254,11 +244,9 @@ export class ImageHandler {
    */
   static async imageExists(fileName: string): Promise<boolean> {
     try {
-      const documentsDir = Paths.document.uri;
-      if (!documentsDir) return false;
-
-      const fileUri = `${documentsDir}${fileName}`;
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      const documentsDir = Paths.document;
+      const file = new File(documentsDir, fileName);
+      const fileInfo = await file.info();
       return fileInfo.exists;
     } catch (error) {
       console.error('Error checking image existence:', error);

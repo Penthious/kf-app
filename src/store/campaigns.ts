@@ -1,13 +1,13 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type {
-  Campaign,
-  CampaignsState,
-  ClashResult,
-  Clue,
-  ExpeditionPhase,
-  KnightExpeditionChoice,
-  LootCard,
+    Campaign,
+    CampaignsState,
+    ClashResult,
+    Clue,
+    ExpeditionPhase,
+    KnightExpeditionChoice,
+    LootCard,
 } from '@/models/campaign';
 import { createDistrictWheel, rotateDistrictWheel } from '@/models/district';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
@@ -1670,7 +1670,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         if (!c?.expedition?.spoilsProgress) return s;
 
         const lootCard: LootCard = {
-          id: `loot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `loot-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           type,
           source,
           obtainedAt: Date.now(),

@@ -1,7 +1,7 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Card from '@/components/Card';
-import { GearCard } from '@/features/gear/ui/GearCard';
 import { useGearImageHandling } from '@/features/gear/hooks/useGearImageHandling';
+import { GearCard } from '@/features/gear/ui/GearCard';
 import type { Gear } from '@/models/gear';
 import { useGear } from '@/store/gear';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -154,7 +154,7 @@ export default function GearScreen() {
                 placeholderTextColor={tokens.textMuted}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                blurOnSubmit={false}
+                submitBehavior='blurAndSubmit'
                 returnKeyType='done'
               />
             </View>

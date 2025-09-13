@@ -398,7 +398,7 @@ export const useGear = create<GearStore>((set, get) => {
         if (availableQuantity <= 0) return state;
 
         // Create a unique instance ID for this gear
-        const instanceId = `${gearId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const instanceId = `${gearId}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
         // Create a copy of the gear for this instance
         const gearInstance: Gear = {
@@ -589,7 +589,7 @@ export const useGear = create<GearStore>((set, get) => {
         }
 
         // Create a unique upgrade instance
-        const upgradeInstanceId = `${upgradeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const upgradeInstanceId = `${upgradeId}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
         const upgradeInstance: Gear = {
           ...upgrade,
           id: upgradeInstanceId,
