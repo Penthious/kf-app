@@ -2,14 +2,14 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
-import type { DistrictWheel as DistrictWheelType } from '@/models/district';
+import type { DistrictAssignment, DistrictWheel as DistrictWheelType } from '@/models/district';
 import { getDistrictsWithMonsters } from '@/models/district';
 import { getBestiaryWithExpansions, type KingdomMonster } from '@/models/kingdom';
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import MonsterSelectionModal from './MonsterSelectionModal';
 
 interface DistrictWheelProps {
@@ -105,6 +105,17 @@ export default function DistrictWheel({
     setSelectedDistrictId(null);
   };
 
+  const showDevourStatus = (assignment: DistrictAssignment | undefined, districtName: string) => {
+    if (assignment?.specialCard) {
+      const monsterName = selectMonsterName(assignment.monsterId)(monstersState);
+      Alert.alert(
+        '🐉 Devour Dragons Card',
+        `The ${monsterName} in ${districtName} has the Devour Dragons card assigned!\n\nThis monster will have special rules applied during combat.`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   return (
     <View>
       <View style={{ gap: 12 }}>
@@ -131,13 +142,19 @@ export default function DistrictWheel({
                   {district.name}
                 </Text>
                 {assignment && (
-                  <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
-                    {assignment.specialCard && (
-                      <Text style={{ color: tokens.accent, fontWeight: '600' }}>🐉 </Text>
-                    )}
-                    {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
-                    {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
-                  </Text>
+                  <TouchableOpacity
+                    onPress={() => showDevourStatus(assignment, district.name)}
+                    style={{ marginTop: 4 }}
+                    activeOpacity={assignment.specialCard ? 0.7 : 1}
+                  >
+                    <Text style={{ fontSize: 14, color: tokens.textMuted }}>
+                      {assignment.specialCard && (
+                        <Text style={{ color: tokens.accent, fontWeight: '600' }}>🐉 </Text>
+                      )}
+                      {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
+                      {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+                    </Text>
+                  </TouchableOpacity>
                 )}
               </View>
               <View style={{ flexDirection: 'row', gap: 8, marginLeft: 12 }}>
