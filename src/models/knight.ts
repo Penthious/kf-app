@@ -64,6 +64,7 @@ export type KnightSheet = {
   // misc / meta
   firstDeath: boolean;
   choiceMatrix: Record<string, boolean>; // '1'..'30', 'E1'..'E10' => true
+  choiceMatrixNotes: Record<string, string>; // '1'..'30', 'E1'..'E10' => note text
   saints: string[]; // catalog ids
   mercenaries: string[]; // catalog ids
   armory: string[]; // gear ids (for now)
@@ -111,6 +112,7 @@ export function defaultSheet(): KnightSheet {
     postgameDone: false,
     firstDeath: false,
     choiceMatrix: {},
+    choiceMatrixNotes: {},
     saints: [],
     mercenaries: [],
     armory: [],
@@ -174,6 +176,7 @@ export function ensureSheet(s: Partial<KnightSheet> | undefined): KnightSheet {
     clues: s?.clues ?? base.clues,
     chapters: { ...base.chapters, ...(s?.chapters ?? {}) },
     choiceMatrix: { ...base.choiceMatrix, ...(s?.choiceMatrix ?? {}) },
+    choiceMatrixNotes: { ...base.choiceMatrixNotes, ...(s?.choiceMatrixNotes ?? {}) },
     saints: s?.saints ?? [],
     mercenaries: s?.mercenaries ?? [],
     armory: s?.armory ?? [],
