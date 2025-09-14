@@ -48,7 +48,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return 'Unknown';
 
     const chapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[String(chapter)];
+    const chapterProgress = ensureChapter(knight.sheet, chapter);
 
     if (!chapterProgress) return `Chapter ${chapter} - Q`;
 
@@ -183,7 +183,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       const knight = knightsById[knightUID];
       if (knight) {
         const currentChapter = knight.sheet.chapter;
-        const chapterProgress = knight.sheet.chapters[String(currentChapter)];
+        const chapterProgress = ensureChapter(knight.sheet, currentChapter);
 
         if (chapterProgress?.quest.completed) {
           Alert.alert(
@@ -232,7 +232,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return false;
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[String(currentChapter)];
+    const chapterProgress = ensureChapter(knight.sheet, currentChapter);
 
     return chapterProgress?.quest.completed || false;
   };
@@ -240,20 +240,10 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   // Get available investigations for a knight based on their current chapter and completed investigations
   const getAvailableInvestigations = (knightUID: string): string[] => {
     const knight = knightsById[knightUID];
-    if (!knight) {
-      console.log('🔍 getAvailableInvestigations: knight not found for UID:', knightUID);
-      return [];
-    }
+    if (!knight) return [];
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[String(currentChapter)];
-
-    console.log('🔍 getAvailableInvestigations for knight:', knight.name, 'chapter:', currentChapter, 'progress:', chapterProgress);
-
-    if (!chapterProgress) {
-      console.log('🔍 No chapter progress found for chapter:', currentChapter);
-      return [];
-    }
+    const chapterProgress = ensureChapter(knight.sheet, currentChapter);
 
     // Allow all investigations (1-5) - all investigations are treated equally
     const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
@@ -266,8 +256,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     const availableInvestigations = allInvestigations.filter(
       investigation => !unavailableInvestigations.includes(investigation)
     );
-
-    console.log('🔍 Available investigations:', availableInvestigations.length, availableInvestigations);
 
     return availableInvestigations;
   };

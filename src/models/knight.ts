@@ -133,7 +133,6 @@ export function createSheetWithStartingVirtues(
 
   // Initialize chapter 1 with default progress data
   sheet.chapters['1'] = defaultChapterProgress();
-  console.log('🎯 Knight created with chapter 1 data:', sheet.chapters['1']);
 
   return sheet;
 }
