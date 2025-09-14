@@ -316,6 +316,7 @@ describe('VisionPhase', () => {
 
       fireEvent.press(screen.getByText('Start Expedition'));
 
+      // setPartyLeader is now called when party leader is selected, not when expedition starts
       expect(mockStoreActions.setPartyLeader).toHaveBeenCalledWith('test-campaign-1', 'knight-1');
       expect(mockStoreActions.startExpedition).toHaveBeenCalledWith('test-campaign-1');
     });
