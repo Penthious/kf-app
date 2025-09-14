@@ -27,7 +27,7 @@ export default function ChoiceMatrixNoteModal({
     if (visible) {
       setNoteText(getNote(code));
     }
-  }, [visible, code, getNote]);
+  }, [visible, code]);
 
   const handleSave = () => {
     setNote(code, noteText);
