@@ -39,10 +39,6 @@ export default function DistrictWheel({
   const [showMonsterModal, setShowMonsterModal] = useState(false);
 
   const districtsWithMonsters = getDistrictsWithMonsters(districtWheel);
-  
-  // Debug: Log the district wheel assignments
-  console.log('DistrictWheel assignments:', districtWheel.assignments);
-  console.log('districtsWithMonsters:', districtsWithMonsters);
 
   // Get available monsters for the kingdom
   const kingdomCatalog = allKingdomsCatalog.find(k => k.id === districtWheel.kingdomId);
@@ -110,22 +106,11 @@ export default function DistrictWheel({
   };
 
   const showDevourStatus = (assignment: DistrictAssignment | undefined, districtName: string) => {
-    console.log('showDevourStatus called:', { assignment, districtName });
-    console.log('assignment?.specialCard:', assignment?.specialCard);
-    
     if (assignment?.specialCard) {
       const monsterName = selectMonsterName(assignment.monsterId)(monstersState);
       Alert.alert(
         '🐉 Devour Dragons Card',
         `The ${monsterName} in ${districtName} has the Devour Dragons card assigned!\n\nThis monster will have special rules applied during combat.`,
-        [{ text: 'OK' }]
-      );
-    } else {
-      // Debug: show what we have even if no special card
-      const monsterName = assignment ? selectMonsterName(assignment.monsterId)(monstersState) : 'No monster';
-      Alert.alert(
-        'Debug Info',
-        `Monster: ${monsterName}\nDistrict: ${districtName}\nSpecial Card: ${assignment?.specialCard || 'None'}`,
         [{ text: 'OK' }]
       );
     }

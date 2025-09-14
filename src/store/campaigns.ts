@@ -1085,9 +1085,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           const devourCardAssignments = finalAssignments.filter(a => a.monsterId === DEVOUR_DRAGONS_CARD.id);
           
           if (devourCardAssignments.length > 0) {
-            console.log('Devour Dragons card was randomly selected during initialization!');
-            console.log('Devour card assignments:', devourCardAssignments);
-            
             // For each Devour Dragons card assignment, replace it with a random available monster
             devourCardAssignments.forEach(devourAssignment => {
               // Get remaining available monsters (excluding already assigned ones)
@@ -1107,8 +1104,6 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                   }
                   return assignment;
                 });
-                
-                console.log('Replaced Devour Dragons card with:', randomMonster);
               }
             });
             
@@ -1127,11 +1122,8 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               );
             });
             
-            console.log('Eligible assignments for Devour Dragons:', eligibleAssignments);
-            
             if (eligibleAssignments.length > 0) {
               const randomEligibleAssignment = eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
-              console.log('Selected eligible assignment:', randomEligibleAssignment);
               
               finalAssignments = finalAssignments.map(assignment => {
                 if (assignment.districtId === randomEligibleAssignment.districtId) {
@@ -1242,18 +1234,10 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         });
         // Handle special card selection (like Devour Dragons)
         if (newMonsterId === DEVOUR_DRAGONS_CARD.id) {
-          console.log('Devour Dragons card selected!');
-          console.log('Available monsters:', availableMonsters);
-          
           // Replace the special card with a random available monster
           const randomMonster =
             availableMonsters[Math.floor(Math.random() * availableMonsters.length)];
-          if (!randomMonster) {
-            console.log('No random monster found, returning early');
-            return s;
-          }
-          
-          console.log('Selected random monster:', randomMonster);
+          if (!randomMonster) return s;
 
           // Update the assignment with the random monster
           const newAssignments = currentWheel.assignments.map(assignment => {
@@ -1282,12 +1266,9 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             );
           });
 
-          console.log('Eligible assignments for Devour Dragons:', eligibleAssignments);
-          
           if (eligibleAssignments.length > 0) {
             const randomEligibleAssignment =
               eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
-            console.log('Selected eligible assignment:', randomEligibleAssignment);
             
             const finalAssignments = newAssignments.map(assignment => {
               if (assignment.districtId === randomEligibleAssignment.districtId) {
