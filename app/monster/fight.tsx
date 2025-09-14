@@ -11,6 +11,7 @@ import {
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MonsterFightScreen() {
   const { tokens } = useThemeTokens();
@@ -22,24 +23,25 @@ export default function MonsterFightScreen() {
 
   if (monsterCatalog.length === 0) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: tokens.bg,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Card>
-          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-            Monster Not Found
-          </Text>
-          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
-            The monster you&apos;re looking for doesn&apos;t exist.
-          </Text>
-          <Button label='Go Back' onPress={() => router.back()} tone='default' />
-        </Card>
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Card>
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+              Monster Not Found
+            </Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+              The monster you&apos;re looking for doesn&apos;t exist.
+            </Text>
+            <Button label='Go Back' onPress={() => router.back()} tone='default' />
+          </Card>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -48,29 +50,30 @@ export default function MonsterFightScreen() {
 
   if (!monsterStats) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: tokens.bg,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Card>
-          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-            Level Not Found
-          </Text>
-          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
-            Level {monsterLevel} for {monsterCatalog[0]?.name} is not available.
-          </Text>
-          <Button label='Go Back' onPress={() => router.back()} tone='default' />
-        </Card>
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Card>
+            <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+              Level Not Found
+            </Text>
+            <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+              Level {monsterLevel} for {monsterCatalog[0]?.name} is not available.
+            </Text>
+            <Button label='Go Back' onPress={() => router.back()} tone='default' />
+          </Card>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: tokens.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Card>
           <Text
@@ -287,6 +290,6 @@ export default function MonsterFightScreen() {
           <Button label='Go Back' onPress={() => router.back()} tone='default' />
         </Card>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
