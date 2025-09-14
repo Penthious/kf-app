@@ -160,6 +160,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   const handlePartyLeaderChange = (newLeaderUID: string) => {
     setSelectedPartyLeader(newLeaderUID);
 
+    // Immediately update the campaign's party leader so other views can access it
+    setPartyLeader(campaignId, newLeaderUID);
+
     // Clear quest choices from all knights except the new leader
     activeKnights.forEach(member => {
       if (member.knightUID !== newLeaderUID) {
@@ -189,7 +192,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       return;
     }
 
-    // Set the party leader first
+    // Ensure party leader is set (this will be a no-op if already set)
     setPartyLeader(campaignId, selectedPartyLeader);
 
     // If expedition doesn't exist yet, start it
