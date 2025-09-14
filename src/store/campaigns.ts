@@ -1078,7 +1078,75 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           }
         });
 
-        const districtWheel = createDistrictWheel(kingdomId, kingdomCatalog.districts, assignments);
+        // Handle any Devour Dragons cards that were randomly selected during initialization
+        let finalAssignments = [...assignments];
+        if (devourDragonsEnabled) {
+          // Check if any assignments have the Devour Dragons card
+          const devourCardAssignments = finalAssignments.filter(a => a.monsterId === DEVOUR_DRAGONS_CARD.id);
+          
+          if (devourCardAssignments.length > 0) {
+            console.log('Devour Dragons card was randomly selected during initialization!');
+            console.log('Devour card assignments:', devourCardAssignments);
+            
+            // For each Devour Dragons card assignment, replace it with a random available monster
+            devourCardAssignments.forEach(devourAssignment => {
+              // Get remaining available monsters (excluding already assigned ones)
+              const assignedMonsterIds = finalAssignments.map(a => a.monsterId);
+              const remainingMonsters = availableMonsters.filter(m => !assignedMonsterIds.includes(m.id));
+              
+              if (remainingMonsters.length > 0) {
+                const randomMonster = remainingMonsters[Math.floor(Math.random() * remainingMonsters.length)];
+                
+                // Replace the Devour Dragons card with the random monster
+                finalAssignments = finalAssignments.map(assignment => {
+                  if (assignment.districtId === devourAssignment.districtId) {
+                    return {
+                      ...assignment,
+                      monsterId: randomMonster.id,
+                    };
+                  }
+                  return assignment;
+                });
+                
+                console.log('Replaced Devour Dragons card with:', randomMonster);
+              }
+            });
+            
+            // Now assign the Devour Dragons card to an eligible monster
+            const monstersState = useMonsters.getState();
+            const eligibleAssignments = finalAssignments.filter(assignment => {
+              const monsterStats = monstersState.byId[assignment.monsterId];
+              if (!monsterStats) return false;
+              
+              // If monster has no tier defined, it's eligible
+              if (!monsterStats.tier) return true;
+              
+              // If monster has a tier, check if it's excluded
+              return !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
+                monsterStats.tier as Tier
+              );
+            });
+            
+            console.log('Eligible assignments for Devour Dragons:', eligibleAssignments);
+            
+            if (eligibleAssignments.length > 0) {
+              const randomEligibleAssignment = eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
+              console.log('Selected eligible assignment:', randomEligibleAssignment);
+              
+              finalAssignments = finalAssignments.map(assignment => {
+                if (assignment.districtId === randomEligibleAssignment.districtId) {
+                  return {
+                    ...assignment,
+                    specialCard: DEVOUR_DRAGONS_CARD.id,
+                  };
+                }
+                return assignment;
+              });
+            }
+          }
+        }
+
+        const districtWheel = createDistrictWheel(kingdomId, kingdomCatalog.districts, finalAssignments);
 
         const newState = {
           campaigns: {
