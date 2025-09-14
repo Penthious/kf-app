@@ -2,7 +2,11 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
-import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
+import {
+  countCompletedInvestigations,
+  defaultChapterProgress,
+  ensureChapter,
+} from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -24,9 +28,35 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     setExpeditionPhase,
     initializeDistrictWheel,
   } = useCampaigns();
-  const { knightsById } = useKnights();
+  const { knightsById, updateKnightSheet } = useKnights();
 
   const campaign = campaigns[campaignId];
+
+  // Helper function to ensure chapter data exists and update store if needed
+  const ensureChapterAndUpdate = (knightUID: string, chapter: number) => {
+    const knight = knightsById[knightUID];
+    if (!knight) return null;
+
+    const chapterKey = String(chapter);
+    const existingChapter = knight.sheet.chapters[chapterKey];
+
+    if (existingChapter) {
+      return existingChapter;
+    }
+
+    // Chapter doesn't exist, create it and update the store
+    const newChapter = defaultChapterProgress();
+    const updatedSheet = {
+      ...knight.sheet,
+      chapters: {
+        ...knight.sheet.chapters,
+        [chapterKey]: newChapter,
+      },
+    };
+
+    updateKnightSheet(knightUID, updatedSheet);
+    return newChapter;
+  };
   const expedition = campaign?.expedition;
 
   const [selectedPartyLeader, setSelectedPartyLeader] = useState<string | null>(
@@ -48,7 +78,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return 'Unknown';
 
     const chapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[chapter];
+    const chapterProgress = ensureChapterAndUpdate(knightUID, chapter);
 
     if (!chapterProgress) return `Chapter ${chapter} - Q`;
 
@@ -183,7 +213,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       const knight = knightsById[knightUID];
       if (knight) {
         const currentChapter = knight.sheet.chapter;
-        const chapterProgress = knight.sheet.chapters[currentChapter];
+        const chapterProgress = ensureChapterAndUpdate(knightUID, currentChapter);
 
         if (chapterProgress?.quest.completed) {
           Alert.alert(
@@ -232,7 +262,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return false;
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[currentChapter];
+    const chapterProgress = ensureChapterAndUpdate(knightUID, currentChapter);
 
     return chapterProgress?.quest.completed || false;
   };
@@ -243,7 +273,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return [];
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[currentChapter];
+    const chapterProgress = ensureChapterAndUpdate(knightUID, currentChapter);
 
     if (!chapterProgress) return [];
 
