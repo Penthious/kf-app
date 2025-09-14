@@ -132,11 +132,11 @@ export default function DistrictWheel({
                 </Text>
                 {assignment && (
                   <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
+                    {assignment.specialCard && (
+                      <Text style={{ color: tokens.accent, fontWeight: '600' }}>🐉 </Text>
+                    )}
                     {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
                     {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
-                    {assignment.specialCard && (
-                      <Text style={{ color: tokens.accent, fontWeight: '600' }}> 🐉</Text>
-                    )}
                   </Text>
                 )}
               </View>
