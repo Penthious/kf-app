@@ -35,7 +35,9 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     if (!knight) return 'Unknown';
 
     const chapter = knight.sheet.chapter;
-    const chapterProgress = ensureChapter(knight.sheet, chapter);
+    const chapterProgress = knight.sheet.chapters[chapter];
+
+    if (!chapterProgress) return `Chapter ${chapter} - Q`;
 
     const questCompleted = chapterProgress.quest.completed;
     const investigationsDone = countCompletedInvestigations(chapterProgress);
@@ -299,7 +301,9 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     if (!knight) return;
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = ensureChapter(knight.sheet, currentChapter);
+    const chapterProgress = knight.sheet.chapters[currentChapter];
+
+    if (!chapterProgress) return;
 
     let updatedChapterProgress = { ...chapterProgress };
 

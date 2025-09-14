@@ -131,6 +131,9 @@ export function createSheetWithStartingVirtues(
     sheet.virtues = { ...sheet.virtues, ...catalogEntry.startingVirtues };
   }
 
+  // Initialize chapter 1 with default progress data
+  sheet.chapters['1'] = defaultChapterProgress();
+
   return sheet;
 }
 

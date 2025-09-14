@@ -48,7 +48,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return 'Unknown';
 
     const chapter = knight.sheet.chapter;
-    const chapterProgress = ensureChapter(knight.sheet, chapter);
+    const chapterProgress = knight.sheet.chapters[chapter];
+
+    if (!chapterProgress) return `Chapter ${chapter} - Q`;
 
     const questCompleted = chapterProgress.quest.completed;
     const investigationsDone = countCompletedInvestigations(chapterProgress);
@@ -181,9 +183,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       const knight = knightsById[knightUID];
       if (knight) {
         const currentChapter = knight.sheet.chapter;
-        const chapterProgress = ensureChapter(knight.sheet, currentChapter);
+        const chapterProgress = knight.sheet.chapters[currentChapter];
 
-        if (chapterProgress.quest.completed) {
+        if (chapterProgress?.quest.completed) {
           Alert.alert(
             'Quest Already Completed',
             'This knight has already completed their quest for the current chapter.'
@@ -230,9 +232,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return false;
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = ensureChapter(knight.sheet, currentChapter);
+    const chapterProgress = knight.sheet.chapters[currentChapter];
 
-    return chapterProgress.quest.completed;
+    return chapterProgress?.quest.completed || false;
   };
 
   // Get available investigations for a knight based on their current chapter and completed investigations
@@ -241,7 +243,9 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return [];
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = ensureChapter(knight.sheet, currentChapter);
+    const chapterProgress = knight.sheet.chapters[currentChapter];
+
+    if (!chapterProgress) return [];
 
     // Allow all investigations (1-5) - all investigations are treated equally
     const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
