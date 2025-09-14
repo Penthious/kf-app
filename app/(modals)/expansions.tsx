@@ -9,10 +9,11 @@ import { getExpansionDescription, getExpansionDisplayName } from '../../src/util
 export default function ExpansionsScreen() {
   const { tokens } = useThemeTokens();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { campaigns, setExpansionEnabled } = useCampaigns();
+  const { campaigns, setExpansionEnabled, setDevourDragonsEnabled } = useCampaigns();
 
   const campaign = id ? campaigns[id] : null;
   const ttsfEnabled = campaign?.settings.expansions?.ttsf?.enabled ?? false;
+  const devourDragonsEnabled = campaign?.settings.expansions?.ttsf?.devourDragons ?? false;
   const tbbhEnabled = campaign?.settings.expansions?.tbbh?.enabled ?? false;
   const trkoeEnabled = campaign?.settings.expansions?.trkoe?.enabled ?? false;
   const absoluteBastardEnabled =
@@ -25,6 +26,16 @@ export default function ExpansionsScreen() {
   ) => {
     if (id) {
       setExpansionEnabled(id, expansion, enabled);
+      // If TTSF is being disabled, also disable Devour Dragons
+      if (expansion === 'ttsf' && !enabled) {
+        setDevourDragonsEnabled(id, false);
+      }
+    }
+  };
+
+  const handleDevourDragonsToggle = (enabled: boolean) => {
+    if (id) {
+      setDevourDragonsEnabled(id, enabled);
     }
   };
 
@@ -54,6 +65,17 @@ export default function ExpansionsScreen() {
             onValueChange={enabled => handleExpansionToggle('ttsf', enabled)}
             description={getExpansionDescription('ttsf')}
           />
+
+          {ttsfEnabled && (
+            <View style={{ marginLeft: 20, marginTop: 8 }}>
+              <SwitchRow
+                label='Here be Devour Dragons'
+                value={devourDragonsEnabled}
+                onValueChange={handleDevourDragonsToggle}
+                description='Adds the special Devour Dragons card to monster encounters. This card can be assigned to monsters (excluding Kings and Dragons) and modifies their behavior with special rules.'
+              />
+            </View>
+          )}
 
           <SwitchRow
             label={getExpansionDisplayName('tbbh')}

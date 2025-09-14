@@ -15,6 +15,7 @@ export type District = {
 export type DistrictAssignment = {
   districtId: string;
   monsterId: string;
+  specialCard?: string; // ID of special card assigned to this monster
 };
 
 export type DistrictWheel = {

@@ -1,8 +1,8 @@
 export enum Tier {
   mob = 'mob',
   vassal = 'vassal',
-  king = 'king',
   devil = 'devil',
+  king = 'king',
   dragon = 'dragon',
   legendary = 'legendary',
 }

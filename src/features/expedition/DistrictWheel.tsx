@@ -95,6 +95,16 @@ export default function DistrictWheel({
     setSelectedDistrictId(null);
   };
 
+  const handleSpecialCardSelect = (cardId: string) => {
+    if (selectedDistrictId) {
+      // For now, we'll handle the Devour Dragons card selection
+      // This will be replaced with a random monster and then assigned to an eligible monster
+      onReplaceMonster(selectedDistrictId, cardId);
+    }
+    setShowMonsterModal(false);
+    setSelectedDistrictId(null);
+  };
+
   return (
     <View>
       <View style={{ gap: 12 }}>
@@ -124,6 +134,9 @@ export default function DistrictWheel({
                   <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
                     {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
                     {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+                    {assignment.specialCard && (
+                      <Text style={{ color: tokens.accent, fontWeight: '600' }}> 🐉</Text>
+                    )}
                   </Text>
                 )}
               </View>
@@ -161,6 +174,7 @@ export default function DistrictWheel({
           setSelectedDistrictId(null);
         }}
         onSelectMonster={handleMonsterSelect}
+        onSelectSpecialCard={handleSpecialCardSelect}
         districtWheel={districtWheel}
         availableMonsters={availableMonsters}
         currentMonsterId={

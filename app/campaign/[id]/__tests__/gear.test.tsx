@@ -192,6 +192,7 @@ describe('CampaignGear', () => {
         replaceDistrictMonster: jest.fn(),
         advanceCurseTracker: jest.fn(),
         setCurseTrackerPosition: jest.fn(),
+        setDevourDragonsEnabled: jest.fn(),
       };
 
       if (typeof selector === 'function') {

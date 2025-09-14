@@ -12,6 +12,9 @@ import type {
 import { createDistrictWheel, rotateDistrictWheel } from '@/models/district';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
 import { countCompletedInvestigations, ensureChapter, type Knight } from '@/models/knight';
+import { DEVOUR_DRAGONS_CARD } from '@/models/special-cards';
+import { useMonsters } from './monsters';
+import { Tier } from '@/catalogs/tier';
 import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from './storage';
 
@@ -32,6 +35,7 @@ export type CampaignsActions = {
     expansion: 'ttsf' | 'tbbh' | 'trkoe' | 'absolute-bastard' | 'ser-gallant',
     enabled: boolean
   ) => void;
+  setDevourDragonsEnabled: (campaignId: string, enabled: boolean) => void;
   openCampaign: (campaignId: string) => void;
   closeCampaign: () => void;
 
@@ -302,6 +306,36 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 },
               },
               updatedAt: Date.now(),
+            },
+          },
+        };
+
+        // Save to AsyncStorage
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    setDevourDragonsEnabled: (campaignId, enabled) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              settings: {
+                ...c.settings,
+                expansions: {
+                  ...c.settings.expansions,
+                  ttsf: {
+                    ...c.settings.expansions?.ttsf,
+                    enabled: c.settings.expansions?.ttsf?.enabled ?? false,
+                    devourDragons: enabled,
+                  },
+                },
+              },
             },
           },
         };
@@ -907,7 +941,17 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             currentMonsters: currentMonsterIds,
           });
 
-          const shuffledMonsters = [...availableMonsters].sort(() => Math.random() - 0.5);
+          // Check if Devour Dragons is enabled
+          const devourDragonsEnabled = c.settings.expansions?.ttsf?.devourDragons ?? false;
+
+          // Create monster pool - include Devour Dragons card if enabled
+          let monsterPool = [...availableMonsters];
+          if (devourDragonsEnabled) {
+            // Add a special marker for the Devour Dragons card
+            monsterPool.push({ id: DEVOUR_DRAGONS_CARD.id, type: 'kingdom' as const });
+          }
+
+          const shuffledMonsters = [...monsterPool].sort(() => Math.random() - 0.5);
           const assignments = kingdomCatalog.districts.map((districtName, index) => {
             if (index < shuffledMonsters.length) {
               const selectedMonster = shuffledMonsters[index];
@@ -996,7 +1040,17 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           return stageValue !== null && stageValue !== undefined;
         });
 
-        const shuffledMonsters = [...availableMonsters].sort(() => Math.random() - 0.5);
+        // Check if Devour Dragons is enabled
+        const devourDragonsEnabled = c.settings.expansions?.ttsf?.devourDragons ?? false;
+
+        // Create monster pool - include Devour Dragons card if enabled
+        let monsterPool = [...availableMonsters];
+        if (devourDragonsEnabled) {
+          // Add a special marker for the Devour Dragons card
+          monsterPool.push({ id: DEVOUR_DRAGONS_CARD.id, type: 'kingdom' as const });
+        }
+
+        const shuffledMonsters = [...monsterPool].sort(() => Math.random() - 0.5);
 
         // Create unique monster assignments for each district
         const assignments = kingdomCatalog.districts.map((districtName, index) => {
@@ -1118,6 +1172,98 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           const stageValue = bestiary.stages[stageIndex]?.[m.id];
           return stageValue !== null && stageValue !== undefined;
         });
+        // Handle special card selection (like Devour Dragons)
+        if (newMonsterId === DEVOUR_DRAGONS_CARD.id) {
+          // Replace the special card with a random available monster
+          const randomMonster =
+            availableMonsters[Math.floor(Math.random() * availableMonsters.length)];
+          if (!randomMonster) return s;
+
+          // Update the assignment with the random monster
+          const newAssignments = currentWheel.assignments.map(assignment => {
+            if (assignment.districtId === districtId) {
+              return {
+                ...assignment,
+                monsterId: randomMonster.id,
+              };
+            }
+            return assignment;
+          });
+
+          // Now randomly assign the Devour Dragons card to an eligible monster
+          // Find monsters that are not King or Dragon tier
+          const monstersState = useMonsters.getState();
+          const eligibleAssignments = newAssignments.filter(assignment => {
+            const monsterStats = monstersState.byId[assignment.monsterId];
+            return (
+              monsterStats &&
+              monsterStats.tier &&
+              !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
+                monsterStats.tier as Tier
+              )
+            );
+          });
+
+          if (eligibleAssignments.length > 0) {
+            const randomEligibleAssignment =
+              eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
+            const finalAssignments = newAssignments.map(assignment => {
+              if (assignment.districtId === randomEligibleAssignment.districtId) {
+                return {
+                  ...assignment,
+                  specialCard: DEVOUR_DRAGONS_CARD.id,
+                };
+              }
+              return assignment;
+            });
+
+            const updatedWheel = {
+              ...currentWheel,
+              assignments: finalAssignments,
+            };
+
+            const newState = {
+              campaigns: {
+                ...s.campaigns,
+                [campaignId]: {
+                  ...c,
+                  expedition: {
+                    ...c.expedition,
+                    districtWheel: updatedWheel,
+                  },
+                  updatedAt: Date.now(),
+                },
+              },
+            };
+
+            saveToStorage(newState);
+            return newState;
+          }
+
+          // If no eligible monsters, just replace with random monster without special card
+          const updatedWheel = {
+            ...currentWheel,
+            assignments: newAssignments,
+          };
+
+          const newState = {
+            campaigns: {
+              ...s.campaigns,
+              [campaignId]: {
+                ...c,
+                expedition: {
+                  ...c.expedition,
+                  districtWheel: updatedWheel,
+                },
+                updatedAt: Date.now(),
+              },
+            },
+          };
+
+          saveToStorage(newState);
+          return newState;
+        }
+
         const newMonster = availableMonsters.find(m => m.id === newMonsterId);
         if (!newMonster) return s;
 

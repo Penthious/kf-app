@@ -117,6 +117,7 @@ export type CampaignSettings = {
   expansions?: {
     ttsf?: {
       enabled: boolean;
+      devourDragons?: boolean;
     };
     tbbh?: {
       enabled: boolean;

@@ -3,6 +3,7 @@ import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
 import { DistrictWheel } from '@/models/district';
 import { KingdomMonster, getBestiaryWithExpansions } from '@/models/kingdom';
+import { DEVOUR_DRAGONS_CARD } from '@/models/special-cards';
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -11,6 +12,7 @@ interface MonsterSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   onSelectMonster: (monsterId: string) => void;
+  onSelectSpecialCard: (cardId: string) => void; // New prop for special card selection
   districtWheel: DistrictWheel;
   availableMonsters: KingdomMonster[];
   currentMonsterId?: string;
@@ -26,6 +28,7 @@ function MonsterSelectionModal({
   visible,
   onClose,
   onSelectMonster,
+  onSelectSpecialCard,
   districtWheel,
   availableMonsters,
   currentMonsterId,
@@ -51,6 +54,9 @@ function MonsterSelectionModal({
     allKnightChoices,
     partyLeaderCompletedInvestigations
   );
+
+  // Check if Devour Dragons is enabled
+  const devourDragonsEnabled = campaignExpansions?.ttsf?.devourDragons ?? false;
 
   // Show all available monsters - the user can choose any monster
   // The replaceDistrictMonster function will handle swapping monsters between districts
@@ -119,6 +125,44 @@ function MonsterSelectionModal({
             </View>
           ) : (
             <View style={{ gap: 12 }}>
+              {/* Show Devour Dragons card if enabled */}
+              {devourDragonsEnabled && (
+                <TouchableOpacity
+                  onPress={() => {
+                    onSelectSpecialCard(DEVOUR_DRAGONS_CARD.id);
+                    onClose();
+                  }}
+                  style={{
+                    padding: 16,
+                    backgroundColor: tokens.surface,
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    borderColor: tokens.accent,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: tokens.accent,
+                    }}
+                  >
+                    🐉 {DEVOUR_DRAGONS_CARD.name}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: tokens.textMuted,
+                      marginTop: 4,
+                    }}
+                  >
+                    Special Card - Will be replaced with random monster and assigned to eligible
+                    monster
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Show regular monsters */}
               {selectableMonsters.map(monster => (
                 <TouchableOpacity
                   key={monster.id}
