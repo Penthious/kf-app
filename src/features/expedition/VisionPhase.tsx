@@ -2,7 +2,11 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
-import { countCompletedInvestigations, defaultChapterProgress, ensureChapter } from '@/models/knight';
+import {
+  countCompletedInvestigations,
+  defaultChapterProgress,
+  ensureChapter,
+} from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -31,23 +35,16 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   // Helper function to ensure chapter data exists and update store if needed
   const ensureChapterAndUpdate = (knightUID: string, chapter: number) => {
     const knight = knightsById[knightUID];
-    if (!knight) {
-      console.log('🚨 ensureChapterAndUpdate: knight not found for UID:', knightUID);
-      return null;
-    }
+    if (!knight) return null;
 
     const chapterKey = String(chapter);
     const existingChapter = knight.sheet.chapters[chapterKey];
-    
-    console.log('🚨 ensureChapterAndUpdate: checking chapter', chapterKey, 'existing:', !!existingChapter);
-    
+
     if (existingChapter) {
-      console.log('🚨 ensureChapterAndUpdate: returning existing chapter:', existingChapter);
       return existingChapter;
     }
 
     // Chapter doesn't exist, create it and update the store
-    console.log('🚨 ensureChapterAndUpdate: creating new chapter for', chapterKey);
     const newChapter = defaultChapterProgress();
     const updatedSheet = {
       ...knight.sheet,
@@ -57,9 +54,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       },
     };
 
-    console.log('🚨 ensureChapterAndUpdate: updating store with sheet:', updatedSheet);
-    const result = updateKnightSheet(knightUID, updatedSheet);
-    console.log('🚨 ensureChapterAndUpdate: updateKnightSheet result:', result);
+    updateKnightSheet(knightUID, updatedSheet);
     return newChapter;
   };
   const expedition = campaign?.expedition;
@@ -275,20 +270,12 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   // Get available investigations for a knight based on their current chapter and completed investigations
   const getAvailableInvestigations = (knightUID: string): string[] => {
     const knight = knightsById[knightUID];
-    if (!knight) {
-      console.log('🚨 getAvailableInvestigations: knight not found for UID:', knightUID);
-      console.log('🚨 Available knights:', Object.keys(knightsById));
-      return [];
-    }
+    if (!knight) return [];
 
     const currentChapter = knight.sheet.chapter;
-    console.log('🚨 getAvailableInvestigations for knight:', knight.name, 'chapter:', currentChapter);
-    console.log('🚨 Knight sheet chapters before ensureChapterAndUpdate:', knight.sheet.chapters);
-    
     const chapterProgress = ensureChapterAndUpdate(knightUID, currentChapter);
-    
-    console.log('🚨 Chapter progress after ensureChapterAndUpdate:', chapterProgress);
-    console.log('🚨 Knight sheet chapters after ensureChapterAndUpdate:', knight.sheet.chapters);
+
+    if (!chapterProgress) return [];
 
     // Allow all investigations (1-5) - all investigations are treated equally
     const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
