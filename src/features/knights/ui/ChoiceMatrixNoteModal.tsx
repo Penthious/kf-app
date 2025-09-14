@@ -21,16 +21,24 @@ export default function ChoiceMatrixNoteModal({
   const { tokens } = useThemeTokens();
   const { getNote, setNote, hasNote } = useChoiceMatrixNotes(knightUID);
   const [noteText, setNoteText] = useState('');
-  const initialNoteRef = useRef<string>('');
+  const hasInitialized = useRef(false);
 
   // Load existing note when modal opens
   useEffect(() => {
-    if (visible) {
+    if (visible && !hasInitialized.current) {
       const existingNote = getNote(code);
-      initialNoteRef.current = existingNote;
       setNoteText(existingNote);
+      hasInitialized.current = true;
     }
-  }, [visible, code, getNote]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, code]); // Intentionally omitting getNote to prevent infinite re-renders
+
+  // Reset initialization flag when modal closes
+  useEffect(() => {
+    if (!visible) {
+      hasInitialized.current = false;
+    }
+  }, [visible]);
 
   const handleSave = () => {
     setNote(code, noteText);
