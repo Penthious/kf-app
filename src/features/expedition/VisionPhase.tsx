@@ -48,7 +48,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return 'Unknown';
 
     const chapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[chapter];
+    const chapterProgress = knight.sheet.chapters[String(chapter)];
 
     if (!chapterProgress) return `Chapter ${chapter} - Q`;
 
@@ -183,7 +183,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
       const knight = knightsById[knightUID];
       if (knight) {
         const currentChapter = knight.sheet.chapter;
-        const chapterProgress = knight.sheet.chapters[currentChapter];
+        const chapterProgress = knight.sheet.chapters[String(currentChapter)];
 
         if (chapterProgress?.quest.completed) {
           Alert.alert(
@@ -232,7 +232,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!knight) return false;
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[currentChapter];
+    const chapterProgress = knight.sheet.chapters[String(currentChapter)];
 
     return chapterProgress?.quest.completed || false;
   };
@@ -246,7 +246,7 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     }
 
     const currentChapter = knight.sheet.chapter;
-    const chapterProgress = knight.sheet.chapters[currentChapter];
+    const chapterProgress = knight.sheet.chapters[String(currentChapter)];
 
     console.log('🔍 getAvailableInvestigations for knight:', knight.name, 'chapter:', currentChapter, 'progress:', chapterProgress);
 
