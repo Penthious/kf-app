@@ -1,9 +1,8 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import MonsterFightScreen from '../fight';
 import { MONSTERS } from '@/catalogs/monsters';
 import { MonsterStats } from '@/models/monster';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import MonsterFightScreen from '../fight';
 
 // Mock expo-router
 jest.mock('expo-router', () => ({

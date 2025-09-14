@@ -2,15 +2,15 @@ import { MONSTERS } from '@/catalogs/monsters';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import {
-  MonsterStats,
   ActivationCounter,
+  MonsterStats,
   MonsterTrait,
-  TraitActivation,
   TraitAbility,
+  TraitActivation,
 } from '@/models/monster';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Text, View, ScrollView } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MonsterFightScreen() {
