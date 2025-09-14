@@ -1174,10 +1174,18 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         });
         // Handle special card selection (like Devour Dragons)
         if (newMonsterId === DEVOUR_DRAGONS_CARD.id) {
+          console.log('Devour Dragons card selected!');
+          console.log('Available monsters:', availableMonsters);
+          
           // Replace the special card with a random available monster
           const randomMonster =
             availableMonsters[Math.floor(Math.random() * availableMonsters.length)];
-          if (!randomMonster) return s;
+          if (!randomMonster) {
+            console.log('No random monster found, returning early');
+            return s;
+          }
+          
+          console.log('Selected random monster:', randomMonster);
 
           // Update the assignment with the random monster
           const newAssignments = currentWheel.assignments.map(assignment => {
@@ -1191,22 +1199,28 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           });
 
           // Now randomly assign the Devour Dragons card to an eligible monster
-          // Find monsters that are not King or Dragon tier
+          // Find monsters that are not King or Dragon tier (or have no tier defined)
           const monstersState = useMonsters.getState();
           const eligibleAssignments = newAssignments.filter(assignment => {
             const monsterStats = monstersState.byId[assignment.monsterId];
-            return (
-              monsterStats &&
-              monsterStats.tier &&
-              !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
-                monsterStats.tier as Tier
-              )
+            if (!monsterStats) return false;
+            
+            // If monster has no tier defined, it's eligible
+            if (!monsterStats.tier) return true;
+            
+            // If monster has a tier, check if it's excluded
+            return !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
+              monsterStats.tier as Tier
             );
           });
 
+          console.log('Eligible assignments for Devour Dragons:', eligibleAssignments);
+          
           if (eligibleAssignments.length > 0) {
             const randomEligibleAssignment =
               eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
+            console.log('Selected eligible assignment:', randomEligibleAssignment);
+            
             const finalAssignments = newAssignments.map(assignment => {
               if (assignment.districtId === randomEligibleAssignment.districtId) {
                 return {
