@@ -1,7 +1,7 @@
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal, Text, TextInput, View } from 'react-native';
 import { useChoiceMatrixNotes } from './useChoiceMatrixNotes';
 
@@ -22,12 +22,15 @@ export default function ChoiceMatrixNoteModal({
   const { getNote, setNote, hasNote } = useChoiceMatrixNotes(knightUID);
   const [noteText, setNoteText] = useState('');
 
+  // Memoize getNote to prevent infinite re-renders
+  const memoizedGetNote = useCallback((noteCode: string) => getNote(noteCode), [getNote]);
+
   // Load existing note when modal opens
   useEffect(() => {
     if (visible) {
-      setNoteText(getNote(code));
+      setNoteText(memoizedGetNote(code));
     }
-  }, [visible, code]);
+  }, [visible, code, memoizedGetNote]);
 
   const handleSave = () => {
     setNote(code, noteText);
