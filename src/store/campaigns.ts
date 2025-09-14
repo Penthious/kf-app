@@ -1,13 +1,13 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type {
-    Campaign,
-    CampaignsState,
-    ClashResult,
-    Clue,
-    ExpeditionPhase,
-    KnightExpeditionChoice,
-    LootCard,
+  Campaign,
+  CampaignsState,
+  ClashResult,
+  Clue,
+  ExpeditionPhase,
+  KnightExpeditionChoice,
+  LootCard,
 } from '@/models/campaign';
 import { createDistrictWheel, rotateDistrictWheel } from '@/models/district';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
