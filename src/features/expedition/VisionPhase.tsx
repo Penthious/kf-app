@@ -240,12 +240,20 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
   // Get available investigations for a knight based on their current chapter and completed investigations
   const getAvailableInvestigations = (knightUID: string): string[] => {
     const knight = knightsById[knightUID];
-    if (!knight) return [];
+    if (!knight) {
+      console.log('🔍 getAvailableInvestigations: knight not found for UID:', knightUID);
+      return [];
+    }
 
     const currentChapter = knight.sheet.chapter;
     const chapterProgress = knight.sheet.chapters[currentChapter];
 
-    if (!chapterProgress) return [];
+    console.log('🔍 getAvailableInvestigations for knight:', knight.name, 'chapter:', currentChapter, 'progress:', chapterProgress);
+
+    if (!chapterProgress) {
+      console.log('🔍 No chapter progress found for chapter:', currentChapter);
+      return [];
+    }
 
     // Allow all investigations (1-5) - all investigations are treated equally
     const allInvestigations = [1, 2, 3, 4, 5].map(i => `I${currentChapter}-${i}`);
@@ -258,6 +266,8 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     const availableInvestigations = allInvestigations.filter(
       investigation => !unavailableInvestigations.includes(investigation)
     );
+
+    console.log('🔍 Available investigations:', availableInvestigations.length, availableInvestigations);
 
     return availableInvestigations;
   };
