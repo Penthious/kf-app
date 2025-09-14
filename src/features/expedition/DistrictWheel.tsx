@@ -7,9 +7,9 @@ import { getDistrictsWithMonsters } from '@/models/district';
 import { getBestiaryWithExpansions, type KingdomMonster } from '@/models/kingdom';
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { router } from 'expo-router';
 import MonsterSelectionModal from './MonsterSelectionModal';
 
 interface DistrictWheelProps {
@@ -109,30 +109,38 @@ export default function DistrictWheel({
               borderColor: tokens.textMuted + '20',
             }}
           >
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}>
-                {district.name}
-              </Text>
-              {assignment && (
-                <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
-                  {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
-                  {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}>
+                  {district.name}
                 </Text>
-              )}
-            </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Button
-                label='Change'
-                onPress={() => handleChangeMonster(district.id)}
-                tone='default'
-              />
-              {assignment && (
+                {assignment && (
+                  <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
+                    {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
+                    {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+                  </Text>
+                )}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 8, marginLeft: 12 }}>
                 <Button
-                  label='Fight'
-                  onPress={() => handleFightMonster(district.id)}
-                  tone='accent'
+                  label='Change'
+                  onPress={() => handleChangeMonster(district.id)}
+                  tone='default'
                 />
-              )}
+                {assignment && (
+                  <Button
+                    label='Fight'
+                    onPress={() => handleFightMonster(district.id)}
+                    tone='accent'
+                  />
+                )}
+              </View>
             </View>
           </View>
         ))}
