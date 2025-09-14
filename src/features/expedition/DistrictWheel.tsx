@@ -8,7 +8,8 @@ import { getBestiaryWithExpansions, type KingdomMonster } from '@/models/kingdom
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { router } from 'expo-router';
 import MonsterSelectionModal from './MonsterSelectionModal';
 
 interface DistrictWheelProps {
@@ -66,9 +67,24 @@ export default function DistrictWheel({
     return stageValue !== null && stageValue !== undefined;
   });
 
-  const handleDistrictPress = (districtId: string) => {
+  const handleChangeMonster = (districtId: string) => {
     setSelectedDistrictId(districtId);
     setShowMonsterModal(true);
+  };
+
+  const handleFightMonster = (districtId: string) => {
+    const district = districtsWithMonsters.find(d => d.district.id === districtId);
+    if (district?.assignment?.monsterId) {
+      // Navigate to monster fight screen with monster ID and level
+      const monsterLevel = bestiary.stages[stageIndex]?.[district.assignment.monsterId] || 1;
+      router.push({
+        pathname: '/monster/fight',
+        params: {
+          monsterId: district.assignment.monsterId,
+          level: monsterLevel.toString(),
+        },
+      });
+    }
   };
 
   const handleMonsterSelect = (monsterId: string) => {
@@ -83,13 +99,9 @@ export default function DistrictWheel({
     <View>
       <View style={{ gap: 12 }}>
         {districtsWithMonsters.map(({ district, assignment }) => (
-          <TouchableOpacity
+          <View
             key={district.id}
-            onPress={() => handleDistrictPress(district.id)}
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               padding: 12,
               backgroundColor: tokens.surface,
               borderRadius: 8,
@@ -97,7 +109,7 @@ export default function DistrictWheel({
               borderColor: tokens.textMuted + '20',
             }}
           >
-            <View style={{ flex: 1 }}>
+            <View style={{ marginBottom: 12 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}>
                 {district.name}
               </Text>
@@ -108,10 +120,21 @@ export default function DistrictWheel({
                 </Text>
               )}
             </View>
-            <Text style={{ fontSize: 12, color: tokens.accent, fontWeight: '500' }}>
-              Tap to change
-            </Text>
-          </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Button
+                label='Change'
+                onPress={() => handleChangeMonster(district.id)}
+                tone='default'
+              />
+              {assignment && (
+                <Button
+                  label='Fight'
+                  onPress={() => handleFightMonster(district.id)}
+                  tone='accent'
+                />
+              )}
+            </View>
+          </View>
         ))}
 
         <View style={{ marginTop: 8 }}>

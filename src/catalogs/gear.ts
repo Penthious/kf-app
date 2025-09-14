@@ -1,14 +1,7 @@
 import { POS_ID } from './kingdoms/principality-of-stone';
 import { SUNKEN_ID } from './kingdoms/sunken-kingdom';
 import { RATWOLVES_ID, WINGED_NIGHTMARE_ID } from './monsters';
-
-enum Tier {
-  mob = 'mob',
-  vassal = 'vassal',
-  king = 'king',
-  dragon = 'dragon',
-  legendary = 'legendary',
-}
+import { Tier } from './tier';
 
 enum Ability {
   deadly = 'deadly',

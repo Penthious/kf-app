@@ -1,0 +1,292 @@
+import { MONSTERS } from '@/catalogs/monsters';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
+import {
+  MonsterStats,
+  ActivationCounter,
+  MonsterTrait,
+  TraitActivation,
+  TraitAbility,
+} from '@/models/monster';
+import { useThemeTokens } from '@/theme/ThemeProvider';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Text, View, ScrollView } from 'react-native';
+
+export default function MonsterFightScreen() {
+  const { tokens } = useThemeTokens();
+  const { monsterId, level } = useLocalSearchParams<{ monsterId: string; level: string }>();
+
+  // Get monster data
+  const monsterCatalog = MONSTERS.filter((m: MonsterStats) => m.id === monsterId);
+  const monsterLevel = parseInt(level || '1', 10);
+
+  if (monsterCatalog.length === 0) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: tokens.bg,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Card>
+          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+            Monster Not Found
+          </Text>
+          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+            The monster you&apos;re looking for doesn&apos;t exist.
+          </Text>
+          <Button label='Go Back' onPress={() => router.back()} tone='default' />
+        </Card>
+      </View>
+    );
+  }
+
+  // Find the monster stats for the specified level
+  const monsterStats = monsterCatalog.find((stats: MonsterStats) => stats.level === monsterLevel);
+
+  if (!monsterStats) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: tokens.bg,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Card>
+          <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
+            Level Not Found
+          </Text>
+          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+            Level {monsterLevel} for {monsterCatalog[0]?.name} is not available.
+          </Text>
+          <Button label='Go Back' onPress={() => router.back()} tone='default' />
+        </Card>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <Card>
+          <Text
+            style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 24, marginBottom: 8 }}
+          >
+            {monsterStats.name}
+          </Text>
+          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
+            Level {monsterStats.level}
+          </Text>
+
+          {/* Basic Stats */}
+          <View style={{ marginBottom: 20 }}>
+            <Text
+              style={{
+                color: tokens.textPrimary,
+                fontWeight: '700',
+                fontSize: 18,
+                marginBottom: 12,
+              }}
+            >
+              Stats
+            </Text>
+            <View style={{ gap: 8 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ color: tokens.textMuted }}>To Hit:</Text>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                  {monsterStats.toHit}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ color: tokens.textMuted }}>Wounds:</Text>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                  {monsterStats.wounds}
+                </Text>
+              </View>
+              {monsterStats.atBonus && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ color: tokens.textMuted }}>AT Bonus:</Text>
+                  <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                    +{monsterStats.atBonus}
+                  </Text>
+                </View>
+              )}
+              {monsterStats.vigorLossBonus && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ color: tokens.textMuted }}>Vigor Loss Bonus:</Text>
+                  <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                    +{monsterStats.vigorLossBonus}
+                  </Text>
+                </View>
+              )}
+              {monsterStats.evasionDiceBonus && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ color: tokens.textMuted }}>Evasion Dice Bonus:</Text>
+                  <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                    +{monsterStats.evasionDiceBonus}
+                  </Text>
+                </View>
+              )}
+              {monsterStats.escalations && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ color: tokens.textMuted }}>Escalations:</Text>
+                  <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                    {monsterStats.escalations}
+                  </Text>
+                </View>
+              )}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ color: tokens.textMuted }}>Exhibition Starting Wounds:</Text>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                  {monsterStats.exhibitionStartingWounds}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* AI Activations */}
+          {monsterStats.aiActivation && monsterStats.aiActivation.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  color: tokens.textPrimary,
+                  fontWeight: '700',
+                  fontSize: 18,
+                  marginBottom: 12,
+                }}
+              >
+                AI Activations
+              </Text>
+              <View style={{ gap: 8 }}>
+                {monsterStats.aiActivation.map((activation: ActivationCounter, index: number) => (
+                  <View
+                    key={index}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+                  >
+                    <Text style={{ color: tokens.textMuted }}>{activation.type}:</Text>
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                      {activation.count}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Signature Activations */}
+          {monsterStats.signatureActivation && monsterStats.signatureActivation.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  color: tokens.textPrimary,
+                  fontWeight: '700',
+                  fontSize: 18,
+                  marginBottom: 12,
+                }}
+              >
+                Signature Activations
+              </Text>
+              <View style={{ gap: 8 }}>
+                {monsterStats.signatureActivation.map(
+                  (activation: ActivationCounter, index: number) => (
+                    <View
+                      key={index}
+                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+                    >
+                      <Text style={{ color: tokens.textMuted }}>{activation.type}:</Text>
+                      <Text style={{ color: tokens.textPrimary, fontWeight: '600' }}>
+                        {activation.count}
+                      </Text>
+                    </View>
+                  )
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Traits */}
+          {monsterStats.traits && monsterStats.traits.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  color: tokens.textPrimary,
+                  fontWeight: '700',
+                  fontSize: 18,
+                  marginBottom: 12,
+                }}
+              >
+                Traits
+              </Text>
+              <View style={{ gap: 12 }}>
+                {monsterStats.traits.map((trait: MonsterTrait, index: number) => (
+                  <View
+                    key={trait.id || index}
+                    style={{ backgroundColor: tokens.surface, padding: 12, borderRadius: 8 }}
+                  >
+                    <Text style={{ color: tokens.textPrimary, fontWeight: '600', marginBottom: 4 }}>
+                      {trait.name}
+                    </Text>
+                    {trait.details && (
+                      <Text style={{ color: tokens.textMuted, marginBottom: 8, lineHeight: 20 }}>
+                        {trait.details}
+                      </Text>
+                    )}
+                    {trait.additionalSetup && (
+                      <Text
+                        style={{
+                          color: tokens.textMuted,
+                          marginBottom: 8,
+                          lineHeight: 20,
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        Setup: {trait.additionalSetup}
+                      </Text>
+                    )}
+                    {trait.activations && trait.activations.length > 0 && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text
+                          style={{ color: tokens.textPrimary, fontWeight: '500', marginBottom: 4 }}
+                        >
+                          Activations:
+                        </Text>
+                        {trait.activations.map((activation: TraitActivation, actIndex: number) => (
+                          <Text key={actIndex} style={{ color: tokens.textMuted, lineHeight: 18 }}>
+                            • {activation.name}: {activation.detail}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                    {trait.abilities && trait.abilities.length > 0 && (
+                      <View>
+                        <Text
+                          style={{ color: tokens.textPrimary, fontWeight: '500', marginBottom: 4 }}
+                        >
+                          Abilities:
+                        </Text>
+                        {trait.abilities.map((ability: TraitAbility, abilityIndex: number) => (
+                          <Text
+                            key={abilityIndex}
+                            style={{ color: tokens.textMuted, lineHeight: 18 }}
+                          >
+                            • {ability.name}: {ability.details}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          <Button label='Go Back' onPress={() => router.back()} tone='default' />
+        </Card>
+      </ScrollView>
+    </View>
+  );
+}
