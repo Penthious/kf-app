@@ -28,6 +28,7 @@ import {
 } from '@/catalogs/monsters/young-devourer-dragon';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
+import { PRINCIPALITY_OF_STONE_CONTRACTS } from '@/catalogs/contracts/principality-of-stone-contracts';
 
 export const POS_ID = 'principality-of-stone';
 export const SCHWARZREICH_ID = 'schwarzreich';
@@ -143,9 +144,7 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     { name: 'Eaves-drip Kindness', roll: { min: 93, max: 95 }, singleAttempt: true },
     { name: 'The Devil You Know', roll: { min: 96, max: 100 }, singleAttempt: false },
   ],
-  contracts: [
-    // Principality of Stone contracts can be added here when provided
-  ],
+  contracts: PRINCIPALITY_OF_STONE_CONTRACTS,
   subKingdoms: [SCHWARZREICH],
   expansions: {
     ttsf: {
