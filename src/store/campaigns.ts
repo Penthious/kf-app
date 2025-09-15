@@ -1,4 +1,9 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+import {
+  getAvailableScavengeTypes,
+  SCAVENGE_DECK,
+  type ScavengeCard,
+} from '@/catalogs/scavenge-deck';
 import { Tier } from '@/catalogs/tier';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type {
@@ -148,6 +153,18 @@ export type CampaignsActions = {
     rapportBonus: number,
     result: string
   ) => void;
+
+  // Scavenge actions
+  scavengeCards: (
+    campaignId: string,
+    cards: LootCard[],
+    scavengeCardIds: string[],
+    obtainedBy: string
+  ) => void;
+  getAvailableScavengeCards: (
+    campaignId: string,
+    phase: 'delve' | 'exhibition-clash' | 'full-clash'
+  ) => ScavengeCard[];
 
   // Spoils phase actions
   startSpoilsPhase: (campaignId: string) => void;
@@ -1974,6 +1991,74 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         saveToStorage(newState);
         return newState;
       }),
+
+    // ---- Scavenge actions ----
+    scavengeCards: (campaignId, cards, scavengeCardIds, obtainedBy) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        // Initialize spoilsProgress if it doesn't exist
+        if (!c.expedition.spoilsProgress) {
+          c.expedition.spoilsProgress = {
+            lootDeck: [],
+            goldEarned: 0,
+            gearAcquired: [],
+            questCompletions: [],
+          };
+        }
+
+        // Initialize scavengedCards if it doesn't exist
+        if (!c.expedition.scavengedCards) {
+          c.expedition.scavengedCards = [];
+        }
+
+        // Add obtainedBy to each card
+        const cardsWithObtainer = cards.map(card => ({
+          ...card,
+          obtainedBy,
+        }));
+
+        // Track the scavenge card IDs that were taken
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                scavengedCards: [...c.expedition.scavengedCards, ...scavengeCardIds],
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  lootDeck: [...c.expedition.spoilsProgress.lootDeck, ...cardsWithObtainer],
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    getAvailableScavengeCards: (campaignId, phase) => {
+      const state = get();
+      const campaign = state.campaigns[campaignId];
+      if (!campaign?.expedition) return [];
+
+      // Get available card types for this phase
+      const availableTypes = getAvailableScavengeTypes(phase);
+
+      // Filter cards by available types
+      let availableCards = SCAVENGE_DECK.filter(card => availableTypes.includes(card.type));
+
+      // Filter out cards that have already been scavenged
+      const scavengedCardIds = campaign.expedition.scavengedCards || [];
+      availableCards = availableCards.filter(card => !scavengedCardIds.includes(card.id));
+
+      return availableCards;
+    },
 
     // Spoils phase actions
     startSpoilsPhase: campaignId =>
