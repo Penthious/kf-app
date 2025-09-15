@@ -199,6 +199,12 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     if (!expedition) {
       startExpedition(campaignId);
     }
+
+    // Initialize district wheel after expedition is started and party leader is set
+    const partyLeaderKnight = knightsById[selectedPartyLeader];
+    if (partyLeaderKnight && campaign.selectedKingdomId) {
+      initializeDistrictWheel(campaignId, campaign.selectedKingdomId, partyLeaderKnight);
+    }
   };
 
   const handleKnightChoice = (
@@ -487,11 +493,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
                   label={kingdom.name}
                   onPress={() => {
                     setSelectedKingdom(campaignId, kingdom.id);
-                    // Initialize district wheel when kingdom is selected
-                    if (expedition && campaign.partyLeaderUID) {
-                      const partyLeaderKnight = knightsById[campaign.partyLeaderUID];
-                      initializeDistrictWheel(campaignId, kingdom.id, partyLeaderKnight);
-                    }
                   }}
                   tone={isSelected ? 'accent' : 'default'}
                 />
