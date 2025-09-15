@@ -47,7 +47,7 @@ export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
         initializeDistrictWheel(campaignId, campaign.selectedKingdomId, partyLeaderKnight);
       }
     }
-    
+
     setExpeditionPhase(campaignId, 'delve');
   };
 
