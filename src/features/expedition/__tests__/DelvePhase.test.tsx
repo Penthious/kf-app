@@ -16,6 +16,8 @@ const mockAcceptContract = jest.fn();
 const mockCompleteContract = jest.fn();
 const mockExploreLocation = jest.fn();
 const mockSetCurrentLocation = jest.fn();
+const mockScavengeCards = jest.fn();
+const mockGetAvailableScavengeCards = jest.fn();
 
 jest.mock('@/store/campaigns', () => ({
   useCampaigns: jest.fn(),
@@ -97,6 +99,8 @@ describe('DelvePhase', () => {
       isInitialized: true,
     });
 
+    mockGetAvailableScavengeCards.mockReturnValue([]);
+
     mockUseCampaigns.mockReturnValue({
       campaigns: {
         [mockCampaignId]: mockCampaign,
@@ -114,6 +118,8 @@ describe('DelvePhase', () => {
       completeContract: mockCompleteContract,
       exploreLocation: mockExploreLocation,
       setCurrentLocation: mockSetCurrentLocation,
+      scavengeCards: mockScavengeCards,
+      getAvailableScavengeCards: mockGetAvailableScavengeCards,
     });
   });
 
