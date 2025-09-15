@@ -91,7 +91,9 @@ export default function MonsterFightScreen() {
           </Text>
 
           {/* Devour Dragons Special Rules */}
-          {specialCard === DEVOUR_DRAGONS_CARD.id && (
+          {specialCard === DEVOUR_DRAGONS_CARD.id && 
+           DEVOUR_DRAGONS_CARD.monsterModifiers && 
+           DEVOUR_DRAGONS_CARD.monsterModifiers.find(mod => mod.monsterId === monsterId) && (
             <View style={{ marginBottom: 20 }}>
               <View
                 style={{
@@ -108,72 +110,39 @@ export default function MonsterFightScreen() {
                     color: tokens.accent,
                     fontWeight: '700',
                     fontSize: 18,
-                    marginBottom: 8,
+                    marginBottom: 12,
                   }}
                 >
-                  🐉 {DEVOUR_DRAGONS_CARD.name}
-                </Text>
-                <Text
-                  style={{
-                    color: tokens.textPrimary,
-                    fontWeight: '600',
-                    marginBottom: 8,
-                  }}
-                >
-                  Special Rules:
-                </Text>
-                <Text
-                  style={{
-                    color: tokens.textMuted,
-                    lineHeight: 20,
-                    marginBottom: 8,
-                  }}
-                >
-                  {DEVOUR_DRAGONS_CARD.rules}
+                  🐉 Devour Dragons Special Rules
                 </Text>
                 
-                {/* Show monster-specific modifiers if they exist */}
-                {DEVOUR_DRAGONS_CARD.monsterModifiers && 
-                 DEVOUR_DRAGONS_CARD.monsterModifiers.find(mod => mod.monsterId === monsterId) && (
-                  <View style={{ marginTop: 12 }}>
-                    <Text
-                      style={{
-                        color: tokens.textPrimary,
-                        fontWeight: '600',
-                        marginBottom: 8,
-                      }}
-                    >
-                      Monster Modifiers:
-                    </Text>
-                    {DEVOUR_DRAGONS_CARD.monsterModifiers
-                      .filter(mod => mod.monsterId === monsterId)
-                      .map((modifier, index) => (
-                        <View key={index} style={{ marginBottom: 8 }}>
-                          <Text
-                            style={{
-                              color: tokens.textMuted,
-                              lineHeight: 20,
-                              fontWeight: '500',
-                            }}
-                          >
-                            {modifier.rules}
-                          </Text>
-                          {modifier.additionalSetup && (
-                            <Text
-                              style={{
-                                color: tokens.textMuted,
-                                lineHeight: 20,
-                                fontStyle: 'italic',
-                                marginTop: 4,
-                              }}
-                            >
-                              Additional Setup: {modifier.additionalSetup}
-                            </Text>
-                          )}
-                        </View>
-                      ))}
-                  </View>
-                )}
+                {DEVOUR_DRAGONS_CARD.monsterModifiers
+                  .filter(mod => mod.monsterId === monsterId)
+                  .map((modifier, index) => (
+                    <View key={index} style={{ marginBottom: 12 }}>
+                      <Text
+                        style={{
+                          color: tokens.textMuted,
+                          lineHeight: 20,
+                          fontWeight: '500',
+                        }}
+                      >
+                        {modifier.rules}
+                      </Text>
+                      {modifier.additionalSetup && (
+                        <Text
+                          style={{
+                            color: tokens.textMuted,
+                            lineHeight: 20,
+                            fontStyle: 'italic',
+                            marginTop: 4,
+                          }}
+                        >
+                          Additional Setup: {modifier.additionalSetup}
+                        </Text>
+                      )}
+                    </View>
+                  ))}
               </View>
             </View>
           )}
