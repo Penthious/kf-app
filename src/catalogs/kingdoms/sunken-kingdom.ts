@@ -28,6 +28,7 @@ import {
   YOUNG_DEVOURER_DRAGON_ID,
   YOUNG_DEVOURER_DRAGON_STAGES,
 } from '@/catalogs/monsters/young-devourer-dragon';
+import { Tier } from '@/catalogs/tier';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
 
@@ -82,6 +83,9 @@ export const ANCESTOR_RUINS: SubKingdomCatalog = {
     { name: 'Mirewolves', roll: { min: 82, max: 88 }, singleAttempt: false },
     { name: 'Rosetta', roll: { min: 89, max: 94 }, singleAttempt: true },
     { name: 'Secret Keeper', roll: { min: 95, max: 100 }, singleAttempt: true },
+  ],
+  contracts: [
+    // Ancestor Ruins contracts can be added here if needed
   ],
 };
 
@@ -146,6 +150,80 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
     {
       name: "Idle Playthings in the Devil's Hands",
       roll: { min: 96, max: 100 },
+      singleAttempt: true,
+    },
+  ],
+  contracts: [
+    {
+      name: 'Oh, To Be Inspired',
+      objective: 'Guide the bard to a place where she can find her inspiration to create again.',
+      setup: '<to be filled in later, but about 4 paragraphs of text>',
+      reward: '<to be filled in later, about 2 paragraphs of text>',
+      tier: Tier.mob,
+      singleAttempt: true,
+    },
+    {
+      name: 'Search and Rescue',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.mob,
+      singleAttempt: false,
+    },
+    {
+      name: 'Escort Service',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.mob,
+      singleAttempt: false,
+    },
+    {
+      name: 'Resource Run',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.vassal,
+      singleAttempt: false,
+    },
+    {
+      name: 'Delivery Job',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.king,
+      singleAttempt: false,
+    },
+    {
+      name: 'Carvo a Slimy Path',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.king,
+      singleAttempt: true,
+    },
+    {
+      name: 'Extermination Efforts',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.devil,
+      singleAttempt: false,
+    },
+    {
+      name: 'Extraction Needed',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.dragon,
+      singleAttempt: false,
+    },
+    {
+      name: 'Power Struggle',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: Tier.dragon,
       singleAttempt: true,
     },
   ],

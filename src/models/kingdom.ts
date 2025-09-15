@@ -1,3 +1,5 @@
+import { Tier } from '@/catalogs/tier';
+
 export type KingdomMonster = {
   id: string;
   type: 'kingdom' | 'wandering';
@@ -25,6 +27,27 @@ export type KingdomAdventureDef = {
 };
 
 /**
+ * Contract catalog entry:
+ * - name: display name
+ * - objective: what the contract requires
+ * - setup: detailed setup text
+ * - reward: what you get for completing it
+ * - tier: difficulty tier (mob, vassal, king, devil, dragon)
+ * - singleAttempt: true if it can only be attempted once (not repeatable)
+ * - unlocked: true if this contract is available (for Jura contracts progression)
+ */
+
+export type KingdomContractDef = {
+  name: string;
+  objective: string;
+  setup: string;
+  reward: string;
+  tier: Tier;
+  singleAttempt: boolean;
+  unlocked?: boolean; // Only used for Jura contracts
+};
+
+/**
  * Inclusive roll range for an adventure (e.g., 2..5 on a d6)
  */
 export type RollRange = { min: number; max: number };
@@ -35,6 +58,7 @@ export type SubKingdomCatalog = {
   parentKingdomId: string;
   bestiary: Bestiary;
   adventures: KingdomAdventureDef[];
+  contracts?: KingdomContractDef[]; // Optional for backward compatibility
   accessCondition: 'sunken-only' | 'pos-only';
 };
 
@@ -44,6 +68,7 @@ export type KingdomCatalog = {
   type: 'main';
   bestiary: Bestiary;
   adventures: KingdomAdventureDef[];
+  contracts?: KingdomContractDef[]; // Optional for backward compatibility
   districts: string[]; // District names in order for the district wheel
   subKingdoms?: SubKingdomCatalog[];
   expansions?: {
@@ -51,6 +76,7 @@ export type KingdomCatalog = {
       enabled: boolean;
       additionalMonsters: KingdomMonster[];
       additionalAdventures?: KingdomAdventureDef[];
+      additionalContracts?: KingdomContractDef[];
     };
   };
 };
@@ -128,9 +154,11 @@ export function getBestiaryWithExpansions(
 
 // persisted in Campaign
 export type KingdomAdventureState = { id: string; completedCount: number };
+export type KingdomContractState = { id: string; completedCount: number };
 export type KingdomState = {
   kingdomId: string;
   name: string;
   chapter: number;
   adventures: KingdomAdventureState[];
+  contracts?: KingdomContractState[];
 };

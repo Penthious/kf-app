@@ -610,4 +610,87 @@ describe('campaigns store', () => {
       expect(timeTrack?.currentPosition).toBe(8);
     });
   });
+
+  describe('contract selection actions', () => {
+    it('selectContract sets a contract as selected', () => {
+      const now = 1_700_000_000_000;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('contract-1', 'Contract Campaign');
+
+      useCampaigns
+        .getState()
+        .selectContract('contract-1', 'sunken-kingdom', 'sunken-kingdom:search-and-rescue');
+
+      const campaign = useCampaigns.getState().campaigns['contract-1'];
+      expect(campaign.selectedContract).toEqual({
+        kingdomId: 'sunken-kingdom',
+        contractId: 'sunken-kingdom:search-and-rescue',
+      });
+      expect(campaign.updatedAt).toBe(now);
+    });
+
+    it('selectContract updates existing selection', () => {
+      const now = 1_700_000_000_000;
+      const later = 1_700_000_000_500;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('contract-2', 'Contract Campaign');
+      useCampaigns
+        .getState()
+        .selectContract('contract-2', 'sunken-kingdom', 'sunken-kingdom:search-and-rescue');
+
+      mockNow(later);
+      useCampaigns
+        .getState()
+        .selectContract('contract-2', 'sunken-kingdom', 'sunken-kingdom:escort-service');
+
+      const campaign = useCampaigns.getState().campaigns['contract-2'];
+      expect(campaign.selectedContract).toEqual({
+        kingdomId: 'sunken-kingdom',
+        contractId: 'sunken-kingdom:escort-service',
+      });
+      expect(campaign.updatedAt).toBe(later);
+    });
+
+    it('clearSelectedContract removes contract selection', () => {
+      const now = 1_700_000_000_000;
+      const later = 1_700_000_000_500;
+      mockNow(now);
+
+      useCampaigns.getState().addCampaign('contract-3', 'Contract Campaign');
+      useCampaigns
+        .getState()
+        .selectContract('contract-3', 'sunken-kingdom', 'sunken-kingdom:search-and-rescue');
+
+      mockNow(later);
+      useCampaigns.getState().clearSelectedContract('contract-3');
+
+      const campaign = useCampaigns.getState().campaigns['contract-3'];
+      expect(campaign.selectedContract).toBeUndefined();
+      expect(campaign.updatedAt).toBe(later);
+    });
+
+    it('selectContract does nothing for non-existent campaign', () => {
+      const state = useCampaigns.getState();
+      const campaignsBefore = { ...state.campaigns };
+
+      useCampaigns
+        .getState()
+        .selectContract('non-existent', 'sunken-kingdom', 'sunken-kingdom:search-and-rescue');
+
+      const stateAfter = useCampaigns.getState();
+      expect(stateAfter.campaigns).toEqual(campaignsBefore);
+    });
+
+    it('clearSelectedContract does nothing for non-existent campaign', () => {
+      const state = useCampaigns.getState();
+      const campaignsBefore = { ...state.campaigns };
+
+      useCampaigns.getState().clearSelectedContract('non-existent');
+
+      const stateAfter = useCampaigns.getState();
+      expect(stateAfter.campaigns).toEqual(campaignsBefore);
+    });
+  });
 });

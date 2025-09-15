@@ -74,6 +74,16 @@ export type CampaignsActions = {
     opts?: { singleAttempt?: boolean; delta?: number }
   ) => void;
 
+  // Contract actions
+  setContractProgress: (
+    campaignId: string,
+    kingdomId: string,
+    contractId: string,
+    opts?: { singleAttempt?: boolean; delta?: number }
+  ) => void;
+  selectContract: (campaignId: string, kingdomId: string, contractId: string) => void;
+  clearSelectedContract: (campaignId: string) => void;
+
   // Expedition actions
   startExpedition: (campaignId: string) => void;
   setExpeditionPhase: (campaignId: string, phase: ExpeditionPhase) => void;
@@ -717,6 +727,112 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             },
           },
         };
+      }),
+
+    // ---- Contract actions ----
+    setContractProgress: (campaignId, kingdomId, contractId, opts) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        // Find or create kingdom
+        let kingdom = c.kingdoms.find(k => k.kingdomId === kingdomId);
+        if (!kingdom) {
+          kingdom = {
+            kingdomId,
+            name: kingdomId, // Use kingdomId as name for now
+            chapter: 1, // Default to chapter 1
+            adventures: [],
+            contracts: [],
+          };
+        }
+
+        const existing = kingdom.contracts?.find(contract => contract.id === contractId);
+        const { singleAttempt = false, delta = 1 } = opts ?? {};
+
+        let newState;
+        if (singleAttempt) {
+          // Mark as completed (idempotent)
+          newState = {
+            id: contractId,
+            completedCount: 1,
+          };
+        } else if (existing) {
+          // Increment/decrement count
+          newState = {
+            ...existing,
+            completedCount: existing.completedCount + delta,
+          };
+        } else {
+          // Create new
+          newState = {
+            id: contractId,
+            completedCount: delta,
+          };
+        }
+
+        const updatedContracts = existing
+          ? kingdom.contracts?.map(contract => (contract.id === contractId ? newState : contract))
+          : [...(kingdom.contracts || []), newState];
+
+        const updatedKingdoms = c.kingdoms.find(k => k.kingdomId === kingdomId)
+          ? c.kingdoms.map(k =>
+              k.kingdomId === kingdomId ? { ...k, contracts: updatedContracts } : k
+            )
+          : [...c.kingdoms, { ...kingdom!, contracts: updatedContracts }];
+
+        return {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              kingdoms: updatedKingdoms,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+      }),
+
+    // ---- Contract selection actions ----
+    selectContract: (campaignId, kingdomId, contractId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedContract: {
+                kingdomId,
+                contractId,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    clearSelectedContract: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedContract: undefined,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
       }),
 
     // Expedition actions

@@ -80,6 +80,9 @@ export const SCHWARZREICH: SubKingdomCatalog = {
     { name: 'Escape This Cage of Flesh', roll: { min: 89, max: 94 }, singleAttempt: true },
     { name: 'Profane Terror', roll: { min: 95, max: 100 }, singleAttempt: true },
   ],
+  contracts: [
+    // Schwarzreich contracts can be added here if needed
+  ],
 };
 
 // Principality of Stone kingdom-specific stages (without wandering monsters)
@@ -140,6 +143,9 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     { name: 'Eaves-drip Kindness', roll: { min: 93, max: 95 }, singleAttempt: true },
     { name: 'The Devil You Know', roll: { min: 96, max: 100 }, singleAttempt: false },
   ],
+  contracts: [
+    // Principality of Stone contracts can be added here when provided
+  ],
   subKingdoms: [SCHWARZREICH],
   expansions: {
     ttsf: {
@@ -161,6 +167,9 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
           expansion: 'ttsf',
           stages: YOUNG_DEVOURER_DRAGON_STAGES,
         },
+      ],
+      additionalContracts: [
+        // Jura contracts will be added here when you provide them
       ],
     },
   },
