@@ -30,6 +30,7 @@ import {
 } from '@/catalogs/monsters/young-devourer-dragon';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
+import { Tier } from '@/catalogs/tier';
 
 export const SUNKEN_ID = 'sunken-kingdom';
 export const ANCESTOR_RUINS_ID = 'ancestor-ruins';
@@ -158,7 +159,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: 'Guide the bard to a place where she can find her inspiration to create again.',
       setup: '<to be filled in later, but about 4 paragraphs of text>',
       reward: '<to be filled in later, about 2 paragraphs of text>',
-      tier: 'mob',
+      tier: Tier.mob,
       singleAttempt: true,
     },
     {
@@ -166,7 +167,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'mob',
+      tier: Tier.mob,
       singleAttempt: false,
     },
     {
@@ -174,7 +175,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'mob',
+      tier: Tier.mob,
       singleAttempt: false,
     },
     {
@@ -182,7 +183,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'vassal',
+      tier: Tier.vassal,
       singleAttempt: false,
     },
     {
@@ -190,7 +191,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'king',
+      tier: Tier.king,
       singleAttempt: false,
     },
     {
@@ -198,7 +199,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'king',
+      tier: Tier.king,
       singleAttempt: true,
     },
     {
@@ -206,7 +207,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'devil',
+      tier: Tier.devil,
       singleAttempt: false,
     },
     {
@@ -214,7 +215,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'dragon',
+      tier: Tier.dragon,
       singleAttempt: false,
     },
     {
@@ -222,7 +223,7 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       objective: '<to be filled in later>',
       setup: '<to be filled in later>',
       reward: '<to be filled in later>',
-      tier: 'dragon',
+      tier: Tier.dragon,
       singleAttempt: true,
     },
   ],
