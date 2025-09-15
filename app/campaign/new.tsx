@@ -29,8 +29,11 @@ export default function NewCampaign() {
 
   const handleTTSFToggle = (enabled: boolean) => {
     setTTSFEnabled(enabled);
-    // If TTSF is being disabled, also disable Devour Dragons
-    if (!enabled) {
+    if (enabled) {
+      // When TTSF is enabled, automatically enable Devour Dragons
+      setDevourDragonsEnabled(true);
+    } else {
+      // If TTSF is being disabled, also disable Devour Dragons
       setDevourDragonsEnabled(false);
     }
   };

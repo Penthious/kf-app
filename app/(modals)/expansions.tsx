@@ -26,9 +26,14 @@ export default function ExpansionsScreen() {
   ) => {
     if (id) {
       setExpansionEnabled(id, expansion, enabled);
-      // If TTSF is being disabled, also disable Devour Dragons
-      if (expansion === 'ttsf' && !enabled) {
-        setDevourDragonsEnabled(id, false);
+      if (expansion === 'ttsf') {
+        if (enabled) {
+          // When TTSF is enabled, automatically enable Devour Dragons
+          setDevourDragonsEnabled(id, true);
+        } else {
+          // If TTSF is being disabled, also disable Devour Dragons
+          setDevourDragonsEnabled(id, false);
+        }
       }
     }
   };
