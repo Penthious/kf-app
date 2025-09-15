@@ -82,6 +82,7 @@ export default function DistrictWheel({
         params: {
           monsterId: district.assignment.monsterId,
           level: monsterLevel.toString(),
+          specialCard: district.assignment.specialCard || undefined,
         },
       });
     }

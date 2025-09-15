@@ -8,6 +8,7 @@ import {
   TraitAbility,
   TraitActivation,
 } from '@/models/monster';
+import { DEVOUR_DRAGONS_CARD } from '@/models/special-cards';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
@@ -15,7 +16,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MonsterFightScreen() {
   const { tokens } = useThemeTokens();
-  const { monsterId, level } = useLocalSearchParams<{ monsterId: string; level: string }>();
+  const { monsterId, level, specialCard } = useLocalSearchParams<{ 
+    monsterId: string; 
+    level: string; 
+    specialCard?: string; 
+  }>();
 
   // Get monster data
   const monsterCatalog = MONSTERS.filter((m: MonsterStats) => m.id === monsterId);
@@ -79,11 +84,99 @@ export default function MonsterFightScreen() {
           <Text
             style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 24, marginBottom: 8 }}
           >
-            {monsterStats.name}
+            {specialCard === DEVOUR_DRAGONS_CARD.id ? '🐉 ' : ''}{monsterStats.name}
           </Text>
           <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
             Level {monsterStats.level}
           </Text>
+
+          {/* Devour Dragons Special Rules */}
+          {specialCard === DEVOUR_DRAGONS_CARD.id && (
+            <View style={{ marginBottom: 20 }}>
+              <View
+                style={{
+                  backgroundColor: tokens.accent + '20',
+                  borderWidth: 2,
+                  borderColor: tokens.accent,
+                  padding: 16,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
+                <Text
+                  style={{
+                    color: tokens.accent,
+                    fontWeight: '700',
+                    fontSize: 18,
+                    marginBottom: 8,
+                  }}
+                >
+                  🐉 {DEVOUR_DRAGONS_CARD.name}
+                </Text>
+                <Text
+                  style={{
+                    color: tokens.textPrimary,
+                    fontWeight: '600',
+                    marginBottom: 8,
+                  }}
+                >
+                  Special Rules:
+                </Text>
+                <Text
+                  style={{
+                    color: tokens.textMuted,
+                    lineHeight: 20,
+                    marginBottom: 8,
+                  }}
+                >
+                  {DEVOUR_DRAGONS_CARD.rules}
+                </Text>
+                
+                {/* Show monster-specific modifiers if they exist */}
+                {DEVOUR_DRAGONS_CARD.monsterModifiers && 
+                 DEVOUR_DRAGONS_CARD.monsterModifiers.find(mod => mod.monsterId === monsterId) && (
+                  <View style={{ marginTop: 12 }}>
+                    <Text
+                      style={{
+                        color: tokens.textPrimary,
+                        fontWeight: '600',
+                        marginBottom: 8,
+                      }}
+                    >
+                      Monster Modifiers:
+                    </Text>
+                    {DEVOUR_DRAGONS_CARD.monsterModifiers
+                      .filter(mod => mod.monsterId === monsterId)
+                      .map((modifier, index) => (
+                        <View key={index} style={{ marginBottom: 8 }}>
+                          <Text
+                            style={{
+                              color: tokens.textMuted,
+                              lineHeight: 20,
+                              fontWeight: '500',
+                            }}
+                          >
+                            {modifier.rules}
+                          </Text>
+                          {modifier.additionalSetup && (
+                            <Text
+                              style={{
+                                color: tokens.textMuted,
+                                lineHeight: 20,
+                                fontStyle: 'italic',
+                                marginTop: 4,
+                              }}
+                            >
+                              Additional Setup: {modifier.additionalSetup}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
 
           {/* Basic Stats */}
           <View style={{ marginBottom: 20 }}>
