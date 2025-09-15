@@ -1,16 +1,3 @@
-// Temporarily disabled due to test infrastructure issues
-// This test file has React Native component mocking issues that need to be resolved separately
-// from the main ScavengeSelectionModal bug fix
-
-import { describe, expect, it } from '@jest/globals';
-
-describe('DelvePhase', () => {
-  it('should be temporarily disabled', () => {
-    expect(true).toBe(true);
-  });
-});
-
-/*
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Alert } from 'react-native';
@@ -29,53 +16,9 @@ const mockAcceptContract = jest.fn();
 const mockCompleteContract = jest.fn();
 const mockExploreLocation = jest.fn();
 const mockSetCurrentLocation = jest.fn();
-const mockInitializeDelveProgress = jest.fn();
-const mockAdvanceCurseTracker = jest.fn();
-const mockSetCurseTrackerPosition = jest.fn();
-const mockRotateDistrictWheel = jest.fn();
-const mockReplaceDistrictMonster = jest.fn();
-const mockUpdateDistrictWheelForCurrentStage = jest.fn();
 
 jest.mock('@/store/campaigns', () => ({
   useCampaigns: jest.fn(),
-}));
-
-jest.mock('@/store/knights', () => ({
-  useKnights: jest.fn(),
-}));
-
-jest.mock('@/catalogs/kingdoms', () => ({
-  allKingdomsCatalog: [],
-}));
-
-jest.mock('@/features/kingdoms/utils', () => ({
-  resolveExpeditionStagesForBestiary: jest.fn(),
-}));
-
-jest.mock('@/models/kingdom', () => ({
-  getBestiaryWithExpansions: jest.fn(),
-}));
-
-jest.mock('@/models/knight', () => ({
-  countCompletedInvestigations: jest.fn(),
-  ensureChapter: jest.fn(),
-}));
-
-jest.mock('@/store/storage', () => ({
-  saveToStorage: jest.fn(),
-  loadFromStorage: jest.fn(),
-}));
-
-// Mock React Native components
-jest.mock('react-native', () => ({
-  ...jest.requireActual('react-native'),
-  View: ({ children, ...props }: any) => children,
-  Text: ({ children, ...props }: any) => children,
-  TouchableOpacity: ({ children, onPress, ...props }: any) => (
-    <button onClick={onPress} {...props}>
-      {children}
-    </button>
-  ),
 }));
 
 // Mock theme
@@ -83,152 +26,16 @@ jest.mock('@/theme/ThemeProvider', () => ({
   useThemeTokens: jest.fn(),
 }));
 
-// Mock components
-jest.mock('@/components/Button', () => {
-  const { Text, TouchableOpacity } = require('react-native');
-  return ({ label, onPress, disabled, ...props }: any) => (
-    <TouchableOpacity onPress={onPress} disabled={disabled} {...props}>
-      <Text>{label}</Text>
-    </TouchableOpacity>
-  );
-});
-
-jest.mock('@/components/Card', () => {
-  const { View } = require('react-native');
-  return ({ children, style, ...props }: any) => (
-    <View style={style} {...props}>
-      {children}
-    </View>
-  );
-});
-
-jest.mock('@/components/ui/CollapsibleCard', () => {
-  const { View, Text } = require('react-native');
-  return ({ children, title, style, ...props }: any) => (
-    <View style={style} {...props}>
-      <Text>{title}</Text>
-      {children}
-    </View>
-  );
-});
-
-// Mock scavenge deck
-jest.mock('@/catalogs/scavenge-deck', () => ({
-  SCAVENGE_DECK: [
-    {
-      id: 'test-card-1',
-      type: 'kingdom',
-      name: 'Test Kingdom Card',
-      description: 'A test kingdom card',
-      rarity: 'common',
-    },
-    {
-      id: 'test-card-2',
-      type: 'upgrade',
-      name: 'Test Upgrade Card',
-      description: 'A test upgrade card',
-      rarity: 'uncommon',
-    },
-  ],
-  getAvailableScavengeTypes: jest.fn(() => ['kingdom', 'upgrade']),
-}));
-
-// Mock ScavengeSelectionModal
-jest.mock('@/features/expedition/ScavengeSelectionModal', () => {
-  const { View, Text } = require('react-native');
-  return ({ visible, onClose, onSelectCards, phase, availableCards }: any) => {
-    if (!visible) return null;
-    return (
-      <View testID='scavenge-selection-modal'>
-        <Text>Scavenge Selection Modal</Text>
-      </View>
-    );
-  };
-});
-
-// Mock other expedition components
-jest.mock('@/features/expedition/ClueSelectionModal', () => {
-  const { View, Text } = require('react-native');
-  return ({ visible, onClose, onSelectClues }: any) => {
-    if (!visible) return null;
-    return (
-      <View testID='clue-selection-modal'>
-        <Text>Clue Selection Modal</Text>
-      </View>
-    );
-  };
-});
-
-jest.mock('@/features/expedition/DistrictWheel', () => {
-  const { View, Text } = require('react-native');
-  return ({ onSelectDistrict }: any) => (
-    <View testID='district-wheel'>
-      <Text>District Wheel</Text>
-    </View>
-  );
-});
-
-jest.mock('@/features/expedition/KingdomTrack', () => {
-  const { View, Text } = require('react-native');
-  return ({ onAdvanceThreat, onAdvanceTime }: any) => (
-    <View testID='kingdom-track'>
-      <Text>Threat Track</Text>
-      <Text>Time Track</Text>
-    </View>
-  );
-});
-
 // Mock Alert
 jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
 // Import after mocks
+import DelvePhase from '@/features/expedition/DelvePhase';
 import { useCampaigns } from '@/store/campaigns';
-import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-
-// Mock DelvePhase component directly
-const DelvePhase = ({
-  campaignId,
-  phase = 'first',
-}: {
-  campaignId: string;
-  phase?: 'first' | 'second';
-}) => {
-  const { tokens } = useThemeTokens();
-  const { campaigns } = useCampaigns();
-
-  const campaign = campaigns[campaignId];
-
-  if (!campaign) {
-    return (
-      <View>
-        <Text>Campaign not found</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View>
-      <Text>{phase === 'second' ? 'Second Delve Phase' : 'Delve Phase'}</Text>
-      <TouchableOpacity
-        onPress={() =>
-          mockSetExpeditionPhase(campaignId, phase === 'second' ? 'second-clash' : 'clash')
-        }
-      >
-        <Text>{phase === 'second' ? 'Begin Second Clash Phase' : 'Begin Clash Phase'}</Text>
-      </TouchableOpacity>
-      <Text>Threat Track</Text>
-      <Text>Time Track</Text>
-      <TouchableOpacity>
-        <Text>Collect Clue</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 const mockUseThemeTokens = useThemeTokens as jest.MockedFunction<typeof useThemeTokens>;
 const mockUseCampaigns = useCampaigns as jest.MockedFunction<typeof useCampaigns>;
-const mockUseKnights = useKnights as jest.MockedFunction<typeof useKnights>;
 
 describe('DelvePhase', () => {
   const mockCampaignId = 'test-campaign';
@@ -295,13 +102,10 @@ describe('DelvePhase', () => {
         [mockCampaignId]: mockCampaign,
       },
       setExpeditionPhase: mockSetExpeditionPhase,
-      initializeDelveProgress: mockInitializeDelveProgress,
       advanceThreatTrack: mockAdvanceThreatTrack,
       advanceTimeTrack: mockAdvanceTimeTrack,
       setThreatTrackPosition: mockSetThreatTrackPosition,
       setTimeTrackPosition: mockSetTimeTrackPosition,
-      advanceCurseTracker: mockAdvanceCurseTracker,
-      setCurseTrackerPosition: mockSetCurseTrackerPosition,
       addClue: mockAddClue,
       addObjective: mockAddObjective,
       completeObjective: mockCompleteObjective,
@@ -310,21 +114,6 @@ describe('DelvePhase', () => {
       completeContract: mockCompleteContract,
       exploreLocation: mockExploreLocation,
       setCurrentLocation: mockSetCurrentLocation,
-      rotateDistrictWheel: mockRotateDistrictWheel,
-      replaceDistrictMonster: mockReplaceDistrictMonster,
-      updateDistrictWheelForCurrentStage: mockUpdateDistrictWheelForCurrentStage,
-      scavengeCards: jest.fn(),
-      getAvailableScavengeCards: jest.fn(),
-    });
-
-    mockUseKnights.mockReturnValue({
-      knightsById: {
-        'test-knight': {
-          knightUID: 'test-knight',
-          displayName: 'Test Knight',
-          name: 'Test Knight',
-        },
-      },
     });
   });
 
@@ -397,13 +186,10 @@ describe('DelvePhase', () => {
       mockUseCampaigns.mockReturnValue({
         campaigns: {},
         setExpeditionPhase: mockSetExpeditionPhase,
-        initializeDelveProgress: mockInitializeDelveProgress,
         advanceThreatTrack: mockAdvanceThreatTrack,
         advanceTimeTrack: mockAdvanceTimeTrack,
         setThreatTrackPosition: mockSetThreatTrackPosition,
         setTimeTrackPosition: mockSetTimeTrackPosition,
-        advanceCurseTracker: mockAdvanceCurseTracker,
-        setCurseTrackerPosition: mockSetCurseTrackerPosition,
         addClue: mockAddClue,
         addObjective: mockAddObjective,
         completeObjective: mockCompleteObjective,
@@ -412,15 +198,6 @@ describe('DelvePhase', () => {
         completeContract: mockCompleteContract,
         exploreLocation: mockExploreLocation,
         setCurrentLocation: mockSetCurrentLocation,
-        rotateDistrictWheel: mockRotateDistrictWheel,
-        replaceDistrictMonster: mockReplaceDistrictMonster,
-        updateDistrictWheelForCurrentStage: mockUpdateDistrictWheelForCurrentStage,
-        scavengeCards: jest.fn(),
-        getAvailableScavengeCards: jest.fn(),
-      });
-
-      mockUseKnights.mockReturnValue({
-        knightsById: {},
       });
 
       render(<DelvePhase campaignId='nonexistent-campaign' />);
@@ -453,4 +230,3 @@ describe('DelvePhase', () => {
     });
   });
 });
-*/
