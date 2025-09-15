@@ -1,10 +1,10 @@
 import { Tier } from '@/catalogs/tier';
 import { JURA_CONTRACTS } from '@/catalogs/contracts/jura-contracts';
+import { KingdomContractDef } from '@/models/kingdom';
 import Pill from '@/components/ui/Pill';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
-import { calculateKnightTier, getAvailableContractTiers } from '@/utils/knight-tier';
 import { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
@@ -25,18 +25,14 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
     return null;
   }
 
-  const knightTier = calculateKnightTier(partyLeader.sheet);
-  const availableTiers = getAvailableContractTiers(knightTier);
-
   // Get unlocked contracts based on campaign progress
   const unlockedContractNames = campaign?.settings?.juraContracts?.unlockedContracts || [
     'Fragments of the Past',
   ];
 
-  // Filter contracts to only show unlocked ones and those available for the knight's tier
-  const availableContracts = JURA_CONTRACTS.filter(
-    contract =>
-      unlockedContractNames.includes(contract.name) && availableTiers.includes(contract.tier)
+  // Filter contracts to only show unlocked ones (no tier restriction for Jura contracts)
+  const availableContracts = JURA_CONTRACTS.filter(contract =>
+    unlockedContractNames.includes(contract.name)
   );
 
   // Group contracts by tier
@@ -81,8 +77,7 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
 
   // Show locked contracts for context (but not selectable)
   const lockedContracts = JURA_CONTRACTS.filter(
-    contract =>
-      !unlockedContractNames.includes(contract.name) && availableTiers.includes(contract.tier)
+    contract => !unlockedContractNames.includes(contract.name)
   );
 
   const lockedContractsByTier = lockedContracts.reduce(
@@ -112,17 +107,18 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
       </Text>
 
       <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
-        Special contracts from the TTSF expansion. Current tier:{' '}
-        <Text style={{ fontWeight: '600', color: tokens.textPrimary }}>
-          {knightTier.toUpperCase()}
-        </Text>
+        Special contracts from the TTSF expansion. Available contracts are unlocked through gameplay
+        progression.
       </Text>
 
       <ScrollView style={{ maxHeight: 400 }}>
         {/* Available Contracts */}
-        {availableTiers.map(tier => {
-          const contracts = contractsByTier[tier];
-          const lockedContractsForTier = lockedContractsByTier[tier] || [];
+        {Array.from(
+          new Set([...Object.keys(contractsByTier), ...Object.keys(lockedContractsByTier)])
+        ).map(tier => {
+          const tierKey = tier as Tier;
+          const contracts = contractsByTier[tierKey];
+          const lockedContractsForTier = lockedContractsByTier[tierKey] || [];
 
           if ((!contracts || contracts.length === 0) && lockedContractsForTier.length === 0) {
             return null;
@@ -133,7 +129,7 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
           return (
             <View key={tier} style={{ marginBottom: 12 }}>
               <TouchableOpacity
-                onPress={() => toggleTierExpansion(tier)}
+                onPress={() => toggleTierExpansion(tierKey)}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -162,7 +158,7 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
               {isExpanded && (
                 <View style={{ marginTop: 8, gap: 8 }}>
                   {/* Available Contracts */}
-                  {contracts?.map(contract => (
+                  {contracts?.map((contract: KingdomContractDef) => (
                     <TouchableOpacity
                       key={contract.name}
                       onPress={() => handleContractSelect(contract.name)}
@@ -207,7 +203,7 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
                   ))}
 
                   {/* Locked Contracts */}
-                  {lockedContractsForTier.map(contract => (
+                  {lockedContractsForTier.map((contract: KingdomContractDef) => (
                     <View
                       key={contract.name}
                       style={{
