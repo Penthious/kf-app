@@ -1,5 +1,5 @@
-import type { KnightSheet } from '@/models/knight';
 import { Tier } from '@/catalogs/tier';
+import type { KnightSheet } from '@/models/knight';
 
 /**
  * Calculate a knight's tier based on their quest and investigation progress.

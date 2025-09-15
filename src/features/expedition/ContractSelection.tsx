@@ -45,19 +45,23 @@ export default function ContractSelection({ campaignId, kingdom }: ContractSelec
   );
 
   const selectedContract = campaign.selectedContract;
-  const isSelected = (contractName: string) =>
-    selectedContract?.kingdomId === kingdom.id &&
-    selectedContract?.contractId ===
-      `${kingdom.id}:${contractName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')}`;
 
-  const handleContractSelect = (contractName: string) => {
-    const contractId = `${kingdom.id}:${contractName
+  const generateContractId = (contractName: string) => {
+    return `${kingdom.id}:${contractName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')}`;
+  };
+
+  const isSelected = (contractName: string) => {
+    const contractId = generateContractId(contractName);
+    return (
+      selectedContract?.kingdomId === kingdom.id && selectedContract?.contractId === contractId
+    );
+  };
+
+  const handleContractSelect = (contractName: string) => {
+    const contractId = generateContractId(contractName);
 
     if (isSelected(contractName)) {
       clearSelectedContract(campaignId);
@@ -165,6 +169,7 @@ export default function ContractSelection({ campaignId, kingdom }: ContractSelec
                         <Pill
                           label={isSelected(contract.name) ? 'Selected' : 'Select'}
                           selected={isSelected(contract.name)}
+                          onPress={() => handleContractSelect(contract.name)}
                         />
                       </View>
                     </TouchableOpacity>
