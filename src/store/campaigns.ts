@@ -79,7 +79,7 @@ export type CampaignsActions = {
     campaignId: string,
     kingdomId: string,
     contractId: string,
-    opts?: { completed?: boolean; singleAttempt?: boolean }
+    opts?: { singleAttempt?: boolean; delta?: number }
   ) => void;
 
   // Expedition actions
@@ -746,20 +746,26 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         }
 
         const existing = kingdom.contracts?.find(contract => contract.id === contractId);
-        const { completed = false } = opts ?? {};
+        const { singleAttempt = false, delta = 1 } = opts ?? {};
 
         let newState;
-        if (existing) {
-          // Update existing contract
-          newState = {
-            ...existing,
-            completed,
-          };
-        } else {
-          // Create new contract state
+        if (singleAttempt) {
+          // Mark as completed (idempotent)
           newState = {
             id: contractId,
-            completed,
+            completedCount: 1,
+          };
+        } else if (existing) {
+          // Increment/decrement count
+          newState = {
+            ...existing,
+            completedCount: existing.completedCount + delta,
+          };
+        } else {
+          // Create new
+          newState = {
+            id: contractId,
+            completedCount: delta,
           };
         }
 

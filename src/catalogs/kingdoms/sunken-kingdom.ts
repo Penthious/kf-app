@@ -28,9 +28,9 @@ import {
   YOUNG_DEVOURER_DRAGON_ID,
   YOUNG_DEVOURER_DRAGON_STAGES,
 } from '@/catalogs/monsters/young-devourer-dragon';
+import { Tier } from '@/catalogs/tier';
 import type { KingdomCatalog, SubKingdomCatalog } from '@/models/kingdom';
 import { createStageRows, createSubKingdomStages } from '@/models/kingdom';
-import { Tier } from '@/catalogs/tier';
 
 export const SUNKEN_ID = 'sunken-kingdom';
 export const ANCESTOR_RUINS_ID = 'ancestor-ruins';

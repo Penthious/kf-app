@@ -1,4 +1,5 @@
 import Pill from '@/components/ui/Pill';
+import Stepper from '@/components/ui/Stepper';
 import { KingdomView } from '@/features/kingdoms/kingdomView';
 import { useCampaigns } from '@/store/campaigns';
 import { useThemeTokens } from '@/theme/ThemeProvider';
@@ -36,10 +37,10 @@ export default function ContractsCard({ kingdom }: ContractsCardProps) {
     return c.kingdoms?.find(k => k.kingdomId === kingdom.id);
   }, [c, kingdom]);
 
-  // Helper: read contract completion status
-  const getContractCompleted = (contractId: string): boolean => {
+  // Helper: read contract count (supports array or record storage)
+  const getContractCount = (contractId: string): number => {
     const contracts: unknown = kState?.contracts;
-    if (!contracts) return false;
+    if (!contracts) return 0;
 
     if (Array.isArray(contracts)) {
       const found = (contracts as unknown[]).find(
@@ -48,30 +49,33 @@ export default function ContractsCard({ kingdom }: ContractsCardProps) {
           typeof contract === 'object' &&
           'id' in contract &&
           (contract as { id: string }).id === contractId
-      ) as { completed?: boolean } | undefined;
-      return found ? Boolean(found.completed) : false;
+      ) as { completedCount?: number } | undefined;
+      return found ? Number(found.completedCount ?? 0) : 0;
     }
 
     if (typeof contracts === 'object') {
       const rec = contracts as Record<string, unknown>;
       const v = rec[contractId];
-      if (typeof v === 'boolean') return v;
-      if (v && typeof v === 'object' && 'completed' in v) {
-        return Boolean((v as { completed?: boolean }).completed);
+      if (typeof v === 'number') return v;
+      if (v && typeof v === 'object' && 'completedCount' in v) {
+        return Number((v as { completedCount?: number }).completedCount ?? 0);
       }
     }
 
-    return false;
+    return 0;
   };
 
-  // Handle contract completion
-  const onToggleComplete = (contractId: string, contract: { singleAttempt: boolean }) => {
+  // Handle single attempt contract completion
+  const onCompleteOnce = (contractId: string) => {
     if (!c || !kingdom) return;
-    const currentCompleted = getContractCompleted(contractId);
-    setContractProgress(c.campaignId, kingdom.id, contractId, {
-      completed: !currentCompleted,
-      singleAttempt: contract.singleAttempt,
-    });
+    setContractProgress(c.campaignId, kingdom.id, contractId, { singleAttempt: true });
+  };
+
+  // Handle stepper count changes
+  const onChangeCount = (contractId: string, next: number, current: number) => {
+    if (!c || !kingdom) return;
+    const delta = Math.max(0, Math.floor(next)) - Math.max(0, Math.floor(current));
+    if (delta !== 0) setContractProgress(c.campaignId, kingdom.id, contractId, { delta });
   };
 
   // Handle contract expansion
@@ -108,8 +112,139 @@ export default function ContractsCard({ kingdom }: ContractsCardProps) {
         <View style={{ gap: 8 }} testID='contracts-list'>
           {contracts.map(contract => {
             const contractId = createContractId(contract.name);
-            const completed = getContractCompleted(contractId);
+            const curCount = getContractCount(contractId);
             const isExpanded = expandedContract === contractId;
+
+            if (contract.singleAttempt) {
+              const completed = curCount >= 1;
+              return (
+                <View
+                  key={contractId}
+                  testID={`contract-item-${contractId}`}
+                  style={{
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#0006',
+                    backgroundColor: tokens.card,
+                    gap: 8,
+                  }}
+                >
+                  {/* Contract Header */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <View style={{ flex: 1, paddingRight: 12 }}>
+                      <Text
+                        style={{ color: tokens.textPrimary, fontWeight: '700' }}
+                        testID={`contract-name-${contractId}`}
+                      >
+                        {contract.name}
+                      </Text>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}
+                      >
+                        <Text
+                          style={{ color: tokens.textMuted, fontSize: 12 }}
+                          testID={`contract-tier-${contractId}`}
+                        >
+                          {contract.tier.toUpperCase()}
+                        </Text>
+                        <Text
+                          style={{ color: tokens.textMuted, fontSize: 12 }}
+                          testID={`contract-attempts-${contractId}`}
+                        >
+                          {contract.singleAttempt ? 'One-time' : 'Unlimited'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Pill
+                      label={completed ? 'Completed' : 'Mark Complete'}
+                      selected={completed}
+                      onPress={() => onCompleteOnce(contractId)}
+                      testID={`contract-pill-${contractId}`}
+                    />
+                  </View>
+
+                  {/* Contract Details Toggle */}
+                  <TouchableOpacity
+                    onPress={() => onToggleExpanded(contractId)}
+                    style={{
+                      paddingVertical: 4,
+                      paddingHorizontal: 8,
+                      backgroundColor: tokens.surface,
+                      borderRadius: 6,
+                      borderWidth: 1,
+                      borderColor: '#0003',
+                    }}
+                    testID={`contract-toggle-${contractId}`}
+                  >
+                    <Text style={{ color: tokens.textMuted, fontSize: 12, textAlign: 'center' }}>
+                      {isExpanded ? 'Hide Details' : 'Show Details'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Expanded Contract Details */}
+                  {isExpanded && (
+                    <View
+                      style={{ gap: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#0003' }}
+                    >
+                      <View>
+                        <Text
+                          style={{
+                            color: tokens.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 14,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Objective:
+                        </Text>
+                        <Text style={{ color: tokens.textMuted, fontSize: 13, lineHeight: 18 }}>
+                          {contract.objective}
+                        </Text>
+                      </View>
+
+                      <View>
+                        <Text
+                          style={{
+                            color: tokens.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 14,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Setup:
+                        </Text>
+                        <Text style={{ color: tokens.textMuted, fontSize: 13, lineHeight: 18 }}>
+                          {contract.setup}
+                        </Text>
+                      </View>
+
+                      <View>
+                        <Text
+                          style={{
+                            color: tokens.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 14,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Reward:
+                        </Text>
+                        <Text style={{ color: tokens.textMuted, fontSize: 13, lineHeight: 18 }}>
+                          {contract.reward}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              );
+            }
 
             return (
               <View
@@ -156,11 +291,13 @@ export default function ContractsCard({ kingdom }: ContractsCardProps) {
                       </Text>
                     </View>
                   </View>
-                  <Pill
-                    label={completed ? 'Completed' : 'Mark Complete'}
-                    selected={completed}
-                    onPress={() => onToggleComplete(contractId, contract)}
-                    testID={`contract-pill-${contractId}`}
+                  <Stepper
+                    value={curCount}
+                    min={0}
+                    step={1}
+                    editable
+                    onChange={next => onChangeCount(contractId, next, curCount)}
+                    testID={`contract-stepper-${contractId}`}
                   />
                 </View>
 

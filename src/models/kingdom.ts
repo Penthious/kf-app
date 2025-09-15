@@ -153,7 +153,7 @@ export function getBestiaryWithExpansions(
 
 // persisted in Campaign
 export type KingdomAdventureState = { id: string; completedCount: number };
-export type KingdomContractState = { id: string; completed: boolean };
+export type KingdomContractState = { id: string; completedCount: number };
 export type KingdomState = {
   kingdomId: string;
   name: string;
