@@ -21,10 +21,22 @@ export default function NewCampaign() {
   const [fivePlayerMode, setFive] = useState(false);
   const [notes, setNotesText] = useState('');
   const [ttsfEnabled, setTTSFEnabled] = useState(false);
+  const [devourDragonsEnabled, setDevourDragonsEnabled] = useState(false);
   const [tbbhEnabled, setTBBHEnabled] = useState(false);
   const [trkoeEnabled, setTRKOEEnabled] = useState(false);
   const [absoluteBastardEnabled, setAbsoluteBastardEnabled] = useState(false);
   const [serGallantEnabled, setSerGallantEnabled] = useState(false);
+
+  const handleTTSFToggle = (enabled: boolean) => {
+    setTTSFEnabled(enabled);
+    if (enabled) {
+      // When TTSF is enabled, automatically enable Devour Dragons
+      setDevourDragonsEnabled(true);
+    } else {
+      // If TTSF is being disabled, also disable Devour Dragons
+      setDevourDragonsEnabled(false);
+    }
+  };
 
   const onSave = () => {
     const title = name.trim() || 'New Campaign';
@@ -32,7 +44,7 @@ export default function NewCampaign() {
 
     // 1) create campaign with expansion settings applied immediately
     const expansionSettings = {
-      ttsf: { enabled: ttsfEnabled },
+      ttsf: { enabled: ttsfEnabled, devourDragons: devourDragonsEnabled },
       tbbh: { enabled: tbbhEnabled },
       trkoe: { enabled: trkoeEnabled },
       'absolute-bastard': { enabled: absoluteBastardEnabled },
@@ -126,9 +138,20 @@ export default function NewCampaign() {
             label={getExpansionDisplayName('ttsf')}
             description={getExpansionDescription('ttsf')}
             value={ttsfEnabled}
-            onValueChange={setTTSFEnabled}
+            onValueChange={handleTTSFToggle}
             testID='ttsf-expansion-switch'
           />
+          {ttsfEnabled && (
+            <View style={{ marginLeft: 20, marginTop: 8 }}>
+              <SwitchRow
+                label='Here be Devour Dragons'
+                value={devourDragonsEnabled}
+                onValueChange={setDevourDragonsEnabled}
+                description='Adds the special Devour Dragons card to monster encounters. This card can be assigned to monsters (excluding Kings and Dragons) and modifies their behavior with special rules.'
+                testID='devour-dragons-switch'
+              />
+            </View>
+          )}
           <SwitchRow
             label={getExpansionDisplayName('tbbh')}
             description={getExpansionDescription('tbbh')}

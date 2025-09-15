@@ -2,13 +2,14 @@ import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type { CampaignSettings, KnightExpeditionChoice } from '@/models/campaign';
-import type { DistrictWheel as DistrictWheelType } from '@/models/district';
+import type { DistrictAssignment, DistrictWheel as DistrictWheelType } from '@/models/district';
 import { getDistrictsWithMonsters } from '@/models/district';
 import { getBestiaryWithExpansions, type KingdomMonster } from '@/models/kingdom';
 import { selectMonsterName, useMonsters } from '@/store/monsters';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import MonsterSelectionModal from './MonsterSelectionModal';
 
 interface DistrictWheelProps {
@@ -66,9 +67,25 @@ export default function DistrictWheel({
     return stageValue !== null && stageValue !== undefined;
   });
 
-  const handleDistrictPress = (districtId: string) => {
+  const handleChangeMonster = (districtId: string) => {
     setSelectedDistrictId(districtId);
     setShowMonsterModal(true);
+  };
+
+  const handleFightMonster = (districtId: string) => {
+    const district = districtsWithMonsters.find(d => d.district.id === districtId);
+    if (district?.assignment?.monsterId) {
+      // Navigate to monster fight screen with monster ID and level
+      const monsterLevel = bestiary.stages[stageIndex]?.[district.assignment.monsterId] || 1;
+      router.push({
+        pathname: '/monster/fight',
+        params: {
+          monsterId: district.assignment.monsterId,
+          level: monsterLevel.toString(),
+          specialCard: district.assignment.specialCard || undefined,
+        },
+      });
+    }
   };
 
   const handleMonsterSelect = (monsterId: string) => {
@@ -79,17 +96,34 @@ export default function DistrictWheel({
     setSelectedDistrictId(null);
   };
 
+  const handleSpecialCardSelect = (cardId: string) => {
+    if (selectedDistrictId) {
+      // For now, we'll handle the Devour Dragons card selection
+      // This will be replaced with a random monster and then assigned to an eligible monster
+      onReplaceMonster(selectedDistrictId, cardId);
+    }
+    setShowMonsterModal(false);
+    setSelectedDistrictId(null);
+  };
+
+  const showDevourStatus = (assignment: DistrictAssignment | undefined, districtName: string) => {
+    if (assignment?.specialCard) {
+      const monsterName = selectMonsterName(assignment.monsterId)(monstersState);
+      Alert.alert(
+        '🐉 Devour Dragons Card',
+        `The ${monsterName} in ${districtName} has the Devour Dragons card assigned!\n\nThis monster will have special rules applied during combat.`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   return (
     <View>
       <View style={{ gap: 12 }}>
         {districtsWithMonsters.map(({ district, assignment }) => (
-          <TouchableOpacity
+          <View
             key={district.id}
-            onPress={() => handleDistrictPress(district.id)}
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               padding: 12,
               backgroundColor: tokens.surface,
               borderRadius: 8,
@@ -97,21 +131,49 @@ export default function DistrictWheel({
               borderColor: tokens.textMuted + '20',
             }}
           >
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}>
-                {district.name}
-              </Text>
-              {assignment && (
-                <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
-                  {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
-                  {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}>
+                  {district.name}
                 </Text>
-              )}
+                {assignment && (
+                  <TouchableOpacity
+                    onPress={() => showDevourStatus(assignment, district.name)}
+                    style={{ marginTop: 4 }}
+                    activeOpacity={assignment.specialCard ? 0.7 : 1}
+                  >
+                    <Text style={{ fontSize: 14, color: tokens.textMuted }}>
+                      {assignment.specialCard && (
+                        <Text style={{ color: tokens.accent, fontWeight: '600' }}>🐉 </Text>
+                      )}
+                      {selectMonsterName(assignment.monsterId)(monstersState)} (Level{' '}
+                      {bestiary.stages[stageIndex]?.[assignment.monsterId] || 'Unknown'})
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 8, marginLeft: 12 }}>
+                <Button
+                  label='Change'
+                  onPress={() => handleChangeMonster(district.id)}
+                  tone='default'
+                />
+                {assignment && (
+                  <Button
+                    label='Fight'
+                    onPress={() => handleFightMonster(district.id)}
+                    tone='accent'
+                  />
+                )}
+              </View>
             </View>
-            <Text style={{ fontSize: 12, color: tokens.accent, fontWeight: '500' }}>
-              Tap to change
-            </Text>
-          </TouchableOpacity>
+          </View>
         ))}
 
         <View style={{ marginTop: 8 }}>
@@ -130,6 +192,7 @@ export default function DistrictWheel({
           setSelectedDistrictId(null);
         }}
         onSelectMonster={handleMonsterSelect}
+        onSelectSpecialCard={handleSpecialCardSelect}
         districtWheel={districtWheel}
         availableMonsters={availableMonsters}
         currentMonsterId={
