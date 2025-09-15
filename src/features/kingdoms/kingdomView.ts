@@ -1,5 +1,11 @@
 import type { Campaign } from '@/models/campaign';
-import type { Bestiary, KingdomAdventureDef, KingdomCatalog, KingdomState } from '@/models/kingdom';
+import type {
+  Bestiary,
+  KingdomAdventureDef,
+  KingdomCatalog,
+  KingdomContractDef,
+  KingdomState,
+} from '@/models/kingdom';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
 
 export type KingdomAdventureView = KingdomAdventureDef & {
@@ -12,6 +18,7 @@ export type KingdomView = {
   id: string;
   name: string;
   adventures: KingdomAdventureView[];
+  contracts?: KingdomContractDef[];
   bestiary?: Bestiary;
 };
 
@@ -72,6 +79,7 @@ export function buildKingdomView(
     id: catalog.id,
     name: catalog.name,
     adventures,
+    contracts: catalog.contracts,
     bestiary: getBestiaryWithExpansions(catalog, campaign?.settings?.expansions),
   };
 }

@@ -74,6 +74,14 @@ export type CampaignsActions = {
     opts?: { singleAttempt?: boolean; delta?: number }
   ) => void;
 
+  // Contract actions
+  setContractProgress: (
+    campaignId: string,
+    kingdomId: string,
+    contractId: string,
+    opts?: { completed?: boolean; singleAttempt?: boolean }
+  ) => void;
+
   // Expedition actions
   startExpedition: (campaignId: string) => void;
   setExpeditionPhase: (campaignId: string, phase: ExpeditionPhase) => void;
@@ -706,6 +714,64 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
               k.kingdomId === kingdomId ? { ...k, adventures: updatedAdventures } : k
             )
           : [...c.kingdoms, { ...kingdom!, adventures: updatedAdventures }];
+
+        return {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              kingdoms: updatedKingdoms,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+      }),
+
+    // ---- Contract actions ----
+    setContractProgress: (campaignId, kingdomId, contractId, opts) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        // Find or create kingdom
+        let kingdom = c.kingdoms.find(k => k.kingdomId === kingdomId);
+        if (!kingdom) {
+          kingdom = {
+            kingdomId,
+            name: kingdomId, // Use kingdomId as name for now
+            chapter: 1, // Default to chapter 1
+            adventures: [],
+            contracts: [],
+          };
+        }
+
+        const existing = kingdom.contracts?.find(contract => contract.id === contractId);
+        const { completed = false } = opts ?? {};
+
+        let newState;
+        if (existing) {
+          // Update existing contract
+          newState = {
+            ...existing,
+            completed,
+          };
+        } else {
+          // Create new contract state
+          newState = {
+            id: contractId,
+            completed,
+          };
+        }
+
+        const updatedContracts = existing
+          ? kingdom.contracts?.map(contract => (contract.id === contractId ? newState : contract))
+          : [...(kingdom.contracts || []), newState];
+
+        const updatedKingdoms = c.kingdoms.find(k => k.kingdomId === kingdomId)
+          ? c.kingdoms.map(k =>
+              k.kingdomId === kingdomId ? { ...k, contracts: updatedContracts } : k
+            )
+          : [...c.kingdoms, { ...kingdom!, contracts: updatedContracts }];
 
         return {
           campaigns: {

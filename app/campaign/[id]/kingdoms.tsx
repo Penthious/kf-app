@@ -16,6 +16,7 @@ import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import { buildKingdomView } from '@/features/kingdoms/kingdomView';
 import AdventuresCard from '@/features/kingdoms/ui/AdventuresCard';
+import ContractsCard from '@/features/kingdoms/ui/ContractsCard';
 import KingdomSelector from '@/features/kingdoms/ui/KingdomSelector';
 import LeaderContextCard from '@/features/kingdoms/ui/LeaderContextCard';
 import MonstersCard from '@/features/kingdoms/ui/MonsterCard';
@@ -192,16 +193,17 @@ export default function CampaignKingdoms() {
           onSelect={setActiveKingdomId}
         />
 
-        {/* Monsters and adventures (only when a leader is selected) */}
+        {/* Monsters, adventures, and contracts (only when a leader is selected) */}
         {leader ? (
           <>
             <MonstersCard kingdom={kv} stageRow={stageRow} />
             <AdventuresCard kingdom={kv} />
+            <ContractsCard kingdom={kv} />
           </>
         ) : (
           <View>
             <Text style={{ color: tokens.textMuted }}>
-              Select a party leader to see available monsters and adventures.
+              Select a party leader to see available monsters, adventures, and contracts.
             </Text>
           </View>
         )}

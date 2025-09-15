@@ -193,6 +193,7 @@ describe('CampaignGear', () => {
         advanceCurseTracker: jest.fn(),
         setCurseTrackerPosition: jest.fn(),
         setDevourDragonsEnabled: jest.fn(),
+        setContractProgress: jest.fn(),
       };
 
       if (typeof selector === 'function') {
