@@ -26,6 +26,101 @@ jest.mock('@/theme/ThemeProvider', () => ({
   useThemeTokens: jest.fn(),
 }));
 
+// Mock components
+jest.mock('@/components/Button', () => {
+  const { Text, TouchableOpacity } = require('react-native');
+  return ({ label, onPress, disabled, ...props }: any) => (
+    <TouchableOpacity onPress={onPress} disabled={disabled} {...props}>
+      <Text>{label}</Text>
+    </TouchableOpacity>
+  );
+});
+
+jest.mock('@/components/Card', () => {
+  const { View } = require('react-native');
+  return ({ children, style, ...props }: any) => (
+    <View style={style} {...props}>
+      {children}
+    </View>
+  );
+});
+
+jest.mock('@/components/ui/CollapsibleCard', () => {
+  const { View, Text } = require('react-native');
+  return ({ children, title, style, ...props }: any) => (
+    <View style={style} {...props}>
+      <Text>{title}</Text>
+      {children}
+    </View>
+  );
+});
+
+// Mock scavenge deck
+jest.mock('@/catalogs/scavenge-deck', () => ({
+  SCAVENGE_DECK: [
+    {
+      id: 'test-card-1',
+      type: 'kingdom',
+      name: 'Test Kingdom Card',
+      description: 'A test kingdom card',
+      rarity: 'common',
+    },
+    {
+      id: 'test-card-2',
+      type: 'upgrade',
+      name: 'Test Upgrade Card',
+      description: 'A test upgrade card',
+      rarity: 'uncommon',
+    },
+  ],
+  getAvailableScavengeTypes: jest.fn(() => ['kingdom', 'upgrade']),
+}));
+
+// Mock ScavengeSelectionModal
+jest.mock('@/features/expedition/ScavengeSelectionModal', () => {
+  const { View, Text } = require('react-native');
+  return ({ visible, onClose, onSelectCards, phase, availableCards }: any) => {
+    if (!visible) return null;
+    return (
+      <View testID='scavenge-selection-modal'>
+        <Text>Scavenge Selection Modal</Text>
+      </View>
+    );
+  };
+});
+
+// Mock other expedition components
+jest.mock('@/features/expedition/ClueSelectionModal', () => {
+  const { View, Text } = require('react-native');
+  return ({ visible, onClose, onSelectClues }: any) => {
+    if (!visible) return null;
+    return (
+      <View testID='clue-selection-modal'>
+        <Text>Clue Selection Modal</Text>
+      </View>
+    );
+  };
+});
+
+jest.mock('@/features/expedition/DistrictWheel', () => {
+  const { View, Text } = require('react-native');
+  return ({ onSelectDistrict }: any) => (
+    <View testID='district-wheel'>
+      <Text>District Wheel</Text>
+    </View>
+  );
+});
+
+jest.mock('@/features/expedition/KingdomTrack', () => {
+  const { View, Text } = require('react-native');
+  return ({ onAdvanceThreat, onAdvanceTime }: any) => (
+    <View testID='kingdom-track'>
+      <Text>Threat Track</Text>
+      <Text>Time Track</Text>
+    </View>
+  );
+});
+
 // Mock Alert
 jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 

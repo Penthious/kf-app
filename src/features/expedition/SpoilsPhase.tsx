@@ -1,11 +1,13 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import { progressKey, resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
 import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 interface SpoilsPhaseProps {
@@ -23,6 +25,21 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     endExpedition,
   } = useCampaigns();
   const { knightsById, updateKnightSheet, advanceChapter } = useKnights();
+  
+  // State to track which loot cards are expanded
+  const [expandedLootCards, setExpandedLootCards] = useState<Set<string>>(new Set());
+
+  const toggleLootCard = (lootId: string) => {
+    setExpandedLootCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(lootId)) {
+        newSet.delete(lootId);
+      } else {
+        newSet.add(lootId);
+      }
+      return newSet;
+    });
+  };
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
@@ -502,10 +519,12 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
         </View>
       </Card>
 
-      <Card>
+      <CollapsibleCard
+        title={`Loot Deck (${spoilsProgress?.lootDeck.length || 0} cards)`}
+        isExpanded={expandedLootCards.has('loot-deck')}
+        onToggle={() => toggleLootCard('loot-deck')}
+      >
         <View style={styles.lootDeckSection}>
-          <Text style={styles.sectionTitle}>Loot Deck</Text>
-
           {spoilsProgress?.lootDeck.map(loot => (
             <View key={loot.id} style={styles.lootCardItem}>
               <View style={styles.lootCardHeader}>
@@ -515,7 +534,7 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                 </Text>
               </View>
               <Text style={styles.lootCardDetails}>
-                Source: {loot.source} | Obtained by: {loot.obtainedBy}
+                Source: {loot.source}
               </Text>
               {!loot.exchangedFor && (
                 <View style={styles.lootCardActions}>
@@ -532,7 +551,7 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
             </View>
           )) || <Text style={styles.errorText}>No loot cards yet</Text>}
         </View>
-      </Card>
+      </CollapsibleCard>
 
       <Card>
         <View style={styles.questSection}>

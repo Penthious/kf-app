@@ -114,6 +114,7 @@ export type ExpeditionState = {
   clashResults?: ClashResult[];
   restProgress?: RestPhaseProgress;
   spoilsProgress?: SpoilsProgress;
+  scavengedCards?: string[]; // IDs of scavenge cards that have been taken
 };
 
 export type CampaignSettings = {

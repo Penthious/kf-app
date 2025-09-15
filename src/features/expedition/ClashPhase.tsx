@@ -1,4 +1,3 @@
-import { SCAVENGE_DECK, getAvailableScavengeTypes } from '@/catalogs/scavenge-deck';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import type { LootCard } from '@/models/campaign';
@@ -15,7 +14,7 @@ interface ClashPhaseProps {
 
 export default function ClashPhase({ campaignId }: ClashPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, completeClash, scavengeCards } = useCampaigns();
+  const { campaigns, completeClash, scavengeCards, getAvailableScavengeCards } = useCampaigns();
   const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
@@ -215,10 +214,10 @@ export default function ClashPhase({ campaignId }: ClashPhaseProps) {
     setShowScavengeSelection(true);
   };
 
-  const handleSelectScavengeCards = (cards: LootCard[]) => {
+  const handleSelectScavengeCards = (cards: LootCard[], scavengeCardIds: string[]) => {
     if (!partyLeader) return;
 
-    scavengeCards(campaignId, cards, partyLeader.knightUID);
+    scavengeCards(campaignId, cards, scavengeCardIds, partyLeader.knightUID);
 
     const cardTypesText = cards.map(card => card.type.replace('-', ' ')).join(', ');
 
@@ -338,10 +337,9 @@ export default function ClashPhase({ campaignId }: ClashPhaseProps) {
         onClose={() => setShowScavengeSelection(false)}
         onSelectCards={handleSelectScavengeCards}
         phase={isExhibitionClash ? 'exhibition-clash' : 'full-clash'}
-        availableCards={SCAVENGE_DECK.filter(card =>
-          getAvailableScavengeTypes(isExhibitionClash ? 'exhibition-clash' : 'full-clash').includes(
-            card.type
-          )
+        availableCards={getAvailableScavengeCards(
+          campaignId,
+          isExhibitionClash ? 'exhibition-clash' : 'full-clash'
         )}
       />
     </View>

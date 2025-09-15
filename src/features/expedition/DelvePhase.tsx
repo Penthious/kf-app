@@ -1,5 +1,4 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
-// import { SCAVENGE_DECK, getAvailableScavengeTypes } from '@/catalogs/scavenge-deck';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import CollapsibleCard from '@/components/ui/CollapsibleCard';
@@ -15,7 +14,7 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 import ClueSelectionModal from './ClueSelectionModal';
 import DistrictWheel from './DistrictWheel';
 import KingdomTrack from './KingdomTrack';
-// import ScavengeSelectionModal from './ScavengeSelectionModal';
+import ScavengeSelectionModal from './ScavengeSelectionModal';
 
 interface DelvePhaseProps {
   campaignId: string;
@@ -25,7 +24,7 @@ interface DelvePhaseProps {
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
   const [showClueSelection, setShowClueSelection] = useState(false);
-  // const [showScavengeSelection, setShowScavengeSelection] = useState(false);
+  const [showScavengeSelection, setShowScavengeSelection] = useState(false);
   const [isDelvePhaseExpanded, setIsDelvePhaseExpanded] = useState(true);
   const [isDistrictWheelExpanded, setIsDistrictWheelExpanded] = useState(true);
   const [isKingdomTrackerExpanded, setIsKingdomTrackerExpanded] = useState(true);
@@ -43,7 +42,8 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     rotateDistrictWheel,
     replaceDistrictMonster,
     updateDistrictWheelForCurrentStage,
-    // scavengeCards,
+    scavengeCards,
+    getAvailableScavengeCards,
   } = useCampaigns();
   const { knightsById } = useKnights();
 
@@ -221,27 +221,27 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     );
   };
 
-  // const handleScavenge = () => {
-  //   if (!partyLeader) {
-  //     Alert.alert('Error', 'No party leader selected');
-  //     return;
-  //   }
+  const handleScavenge = () => {
+    if (!partyLeader) {
+      Alert.alert('Error', 'No party leader selected');
+      return;
+    }
 
-  //   setShowScavengeSelection(true);
-  // };
+    setShowScavengeSelection(true);
+  };
 
-  // const handleSelectScavengeCards = (cards: LootCard[]) => {
-  //   if (!partyLeader) return;
+  const handleSelectScavengeCards = (cards: LootCard[], scavengeCardIds: string[]) => {
+    if (!partyLeader) return;
 
-  //   scavengeCards(campaignId, cards, partyLeader.knightUID);
+    scavengeCards(campaignId, cards, scavengeCardIds, partyLeader.knightUID);
 
-  //   const cardTypesText = cards.map(card => card.type.replace('-', ' ')).join(', ');
+    const cardTypesText = cards.map(card => card.type.replace('-', ' ')).join(', ');
 
-  //   Alert.alert(
-  //     'Loot Scavenged',
-  //     `${partyLeader.displayName} has scavenged ${cards.length} loot card${cards.length > 1 ? 's' : ''}: ${cardTypesText}!`
-  //   );
-  // };
+    Alert.alert(
+      'Loot Scavenged',
+      `${partyLeader.displayName} has scavenged ${cards.length} loot card${cards.length > 1 ? 's' : ''}: ${cardTypesText}!`
+    );
+  };
 
   const handleAdvanceThreat = () => {
     const currentThreat = delveProgress?.threatTrack.currentPosition || 0;
@@ -477,7 +477,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       <Card style={{ marginBottom: 16 }}>
         <View style={{ marginTop: 16, gap: 8 }}>
           <Button label='Collect Clue' onPress={handleCollectClue} />
-          {/* <Button label='Scavenge Loot' onPress={handleScavenge} /> */}
+          <Button label='Scavenge Loot' onPress={handleScavenge} />
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />
           <Button label='Advance Curse Tracker' onPress={() => advanceCurseTracker(campaignId)} />
@@ -498,17 +498,13 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
         onSelectClues={handleSelectClues}
       />
 
-      {/* Temporarily disabled for testing
       <ScavengeSelectionModal
         visible={showScavengeSelection}
         onClose={() => setShowScavengeSelection(false)}
         onSelectCards={handleSelectScavengeCards}
         phase='delve'
-        availableCards={SCAVENGE_DECK.filter(card =>
-          getAvailableScavengeTypes('delve').includes(card.type)
-        )}
+        availableCards={getAvailableScavengeCards(campaignId, 'delve')}
       />
-      */}
     </ScrollView>
   );
 }

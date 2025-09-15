@@ -1,12 +1,11 @@
-import Button from '@/components/Button';
-import Card from '@/components/Card';
-import Pill from '@/components/ui/Pill';
 import {
   getAvailableScavengeTypes,
-  getRarityColor,
   type ScavengeCard,
   type ScavengeCardType,
 } from '@/catalogs/scavenge-deck';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
+import Pill from '@/components/ui/Pill';
 import type { LootCard } from '@/models/campaign';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
@@ -15,7 +14,7 @@ import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 interface ScavengeSelectionModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectCards: (cards: LootCard[]) => void;
+  onSelectCards: (cards: LootCard[], scavengeCardIds: string[]) => void;
   phase: 'delve' | 'exhibition-clash' | 'full-clash';
   availableCards: ScavengeCard[]; // Cards available for this scavenge action
 }
@@ -52,8 +51,11 @@ export default function ScavengeSelectionModal({
       obtainedBy: '', // Will be set by the parent component
     }));
 
-    onSelectCards(lootCards);
+    const scavengeCardIds = selectedCards.map(card => card.id);
+    
+    onSelectCards(lootCards, scavengeCardIds);
     setSelectedCards([]);
+    onClose();
   };
 
   const handleClose = () => {
@@ -88,8 +90,8 @@ export default function ScavengeSelectionModal({
             Scavenge Loot
           </Text>
           <Text style={{ fontSize: 16, color: tokens.textMuted, marginBottom: 16 }}>
-            Select loot cards from the scavenge deck. You can choose multiple cards of different
-            types.
+            Select loot cards from the scavenge deck. You can choose any combination of card types
+            and take as many as you want.
           </Text>
 
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -126,8 +128,6 @@ export default function ScavengeSelectionModal({
                 <View style={{ gap: 12 }}>
                   {typeCards.map(card => {
                     const isSelected = selectedCards.some(c => c.id === card.id);
-                    const rarityColor = getRarityColor(card.rarity);
-
                     return (
                       <TouchableOpacity
                         key={card.id}
@@ -159,7 +159,6 @@ export default function ScavengeSelectionModal({
                             {card.name}
                           </Text>
                           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                            {card.rarity && <Pill label={card.rarity} selected={false} />}
                             {isSelected && <Pill label='Selected' selected={true} />}
                           </View>
                         </View>
