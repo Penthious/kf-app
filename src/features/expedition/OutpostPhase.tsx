@@ -1,6 +1,7 @@
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { Text, View } from 'react-native';
 
@@ -10,7 +11,8 @@ interface OutpostPhaseProps {
 
 export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, setExpeditionPhase } = useCampaigns();
+  const { campaigns, setExpeditionPhase, initializeDistrictWheel } = useCampaigns();
+  const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
 
@@ -38,6 +40,14 @@ export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
   }
 
   const handleBeginDelvePhase = () => {
+    // Initialize district wheel before transitioning to delve phase
+    if (campaign.partyLeaderUID && campaign.selectedKingdomId) {
+      const partyLeaderKnight = knightsById[campaign.partyLeaderUID];
+      if (partyLeaderKnight) {
+        initializeDistrictWheel(campaignId, campaign.selectedKingdomId, partyLeaderKnight);
+      }
+    }
+    
     setExpeditionPhase(campaignId, 'delve');
   };
 

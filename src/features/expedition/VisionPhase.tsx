@@ -26,7 +26,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     setKnightExpeditionChoice,
     setSelectedKingdom,
     setExpeditionPhase,
-    initializeDistrictWheel,
   } = useCampaigns();
   const { knightsById, updateKnightSheet } = useKnights();
 
@@ -198,12 +197,6 @@ export default function VisionPhase({ campaignId }: VisionPhaseProps) {
     // If expedition doesn't exist yet, start it
     if (!expedition) {
       startExpedition(campaignId);
-    }
-
-    // Initialize district wheel after expedition is started and party leader is set
-    const partyLeaderKnight = knightsById[selectedPartyLeader];
-    if (partyLeaderKnight && campaign.selectedKingdomId) {
-      initializeDistrictWheel(campaignId, campaign.selectedKingdomId, partyLeaderKnight);
     }
   };
 
