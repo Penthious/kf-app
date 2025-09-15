@@ -23,7 +23,12 @@ export type CampaignsActions = {
   addCampaign: (
     campaignId: string,
     name: string,
-    expansionSettings?: { [key: string]: { enabled: boolean } }
+    expansionSettings?: {
+      [key: string]: {
+        enabled: boolean;
+        devourDragons?: boolean;
+      };
+    }
   ) => void;
   renameCampaign: (campaignId: string, name: string) => void;
   removeCampaign: (campaignId: string) => void;
@@ -186,6 +191,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             expansions: {
               ttsf: {
                 enabled: expansionSettings?.ttsf?.enabled ?? false,
+                devourDragons: expansionSettings?.ttsf?.devourDragons ?? false,
               },
               tbbh: {
                 enabled: expansionSettings?.tbbh?.enabled ?? false,
@@ -1082,18 +1088,23 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         let finalAssignments = [...assignments];
         if (devourDragonsEnabled) {
           // Check if any assignments have the Devour Dragons card
-          const devourCardAssignments = finalAssignments.filter(a => a.monsterId === DEVOUR_DRAGONS_CARD.id);
-          
+          const devourCardAssignments = finalAssignments.filter(
+            a => a.monsterId === DEVOUR_DRAGONS_CARD.id
+          );
+
           if (devourCardAssignments.length > 0) {
             // For each Devour Dragons card assignment, replace it with a random available monster
             devourCardAssignments.forEach(devourAssignment => {
               // Get remaining available monsters (excluding already assigned ones)
               const assignedMonsterIds = finalAssignments.map(a => a.monsterId);
-              const remainingMonsters = availableMonsters.filter(m => !assignedMonsterIds.includes(m.id));
-              
+              const remainingMonsters = availableMonsters.filter(
+                m => !assignedMonsterIds.includes(m.id)
+              );
+
               if (remainingMonsters.length > 0) {
-                const randomMonster = remainingMonsters[Math.floor(Math.random() * remainingMonsters.length)];
-                
+                const randomMonster =
+                  remainingMonsters[Math.floor(Math.random() * remainingMonsters.length)];
+
                 // Replace the Devour Dragons card with the random monster
                 finalAssignments = finalAssignments.map(assignment => {
                   if (assignment.districtId === devourAssignment.districtId) {
@@ -1106,25 +1117,26 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 });
               }
             });
-            
+
             // Now assign the Devour Dragons card to an eligible monster
             const monstersState = useMonsters.getState();
             const eligibleAssignments = finalAssignments.filter(assignment => {
               const monsterStats = monstersState.byId[assignment.monsterId];
               if (!monsterStats) return false;
-              
+
               // If monster has no tier defined, it's eligible
               if (!monsterStats.tier) return true;
-              
+
               // If monster has a tier, check if it's excluded
               return !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
                 monsterStats.tier as Tier
               );
             });
-            
+
             if (eligibleAssignments.length > 0) {
-              const randomEligibleAssignment = eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
-              
+              const randomEligibleAssignment =
+                eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
+
               finalAssignments = finalAssignments.map(assignment => {
                 if (assignment.districtId === randomEligibleAssignment.districtId) {
                   return {
@@ -1138,7 +1150,11 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           }
         }
 
-        const districtWheel = createDistrictWheel(kingdomId, kingdomCatalog.districts, finalAssignments);
+        const districtWheel = createDistrictWheel(
+          kingdomId,
+          kingdomCatalog.districts,
+          finalAssignments
+        );
 
         const newState = {
           campaigns: {
@@ -1256,10 +1272,10 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           const eligibleAssignments = newAssignments.filter(assignment => {
             const monsterStats = monstersState.byId[assignment.monsterId];
             if (!monsterStats) return false;
-            
+
             // If monster has no tier defined, it's eligible
             if (!monsterStats.tier) return true;
-            
+
             // If monster has a tier, check if it's excluded
             return !DEVOUR_DRAGONS_CARD.assignmentRestrictions?.excludedTiers?.includes(
               monsterStats.tier as Tier
@@ -1269,7 +1285,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
           if (eligibleAssignments.length > 0) {
             const randomEligibleAssignment =
               eligibleAssignments[Math.floor(Math.random() * eligibleAssignments.length)];
-            
+
             const finalAssignments = newAssignments.map(assignment => {
               if (assignment.districtId === randomEligibleAssignment.districtId) {
                 return {
