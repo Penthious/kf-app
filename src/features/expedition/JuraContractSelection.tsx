@@ -1,6 +1,4 @@
-import { Tier } from '@/catalogs/tier';
-import { JURA_CONTRACTS } from '@/catalogs/contracts/jura-contracts';
-import { KingdomContractDef } from '@/models/kingdom';
+import { JURA_CONTRACTS, JuraContractDef } from '@/catalogs/contracts/jura-contracts';
 import Pill from '@/components/ui/Pill';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
@@ -16,7 +14,7 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
   const { tokens } = useThemeTokens();
   const { campaigns, selectContract, clearSelectedContract } = useCampaigns();
   const { knightsById } = useKnights();
-  const [expandedTier, setExpandedTier] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const campaign = campaigns[campaignId];
   const partyLeader = campaign?.partyLeaderUID ? knightsById[campaign.partyLeaderUID] : undefined;
@@ -30,21 +28,14 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
     'Fragments of the Past',
   ];
 
-  // Filter contracts to only show unlocked ones (no tier restriction for Jura contracts)
+  // Filter contracts to only show unlocked ones
   const availableContracts = JURA_CONTRACTS.filter(contract =>
     unlockedContractNames.includes(contract.name)
   );
 
-  // Group contracts by tier
-  const contractsByTier = availableContracts.reduce(
-    (acc, contract) => {
-      if (!acc[contract.tier]) {
-        acc[contract.tier] = [];
-      }
-      acc[contract.tier].push(contract);
-      return acc;
-    },
-    {} as Record<Tier, typeof availableContracts>
+  // Show locked contracts for context (but not selectable)
+  const lockedContracts = JURA_CONTRACTS.filter(
+    contract => !unlockedContractNames.includes(contract.name)
   );
 
   const selectedContract = campaign.selectedContract;
@@ -71,203 +62,146 @@ export default function JuraContractSelection({ campaignId }: JuraContractSelect
     }
   };
 
-  const toggleTierExpansion = (tier: Tier) => {
-    setExpandedTier(expandedTier === tier ? null : tier);
+  const toggleExpansion = () => {
+    setExpanded(!expanded);
   };
-
-  // Show locked contracts for context (but not selectable)
-  const lockedContracts = JURA_CONTRACTS.filter(
-    contract => !unlockedContractNames.includes(contract.name)
-  );
-
-  const lockedContractsByTier = lockedContracts.reduce(
-    (acc, contract) => {
-      if (!acc[contract.tier]) {
-        acc[contract.tier] = [];
-      }
-      acc[contract.tier].push(contract);
-      return acc;
-    },
-    {} as Record<Tier, typeof lockedContracts>
-  );
 
   return (
     <View
       style={{
+        backgroundColor: tokens.card,
+        borderRadius: 8,
         padding: 16,
-        borderRadius: 10,
+        marginBottom: 16,
         borderWidth: 1,
-        borderColor: '#0006',
-        backgroundColor: tokens.surface,
-        marginBottom: 20,
+        borderColor: tokens.surface,
       }}
     >
-      <Text style={{ color: tokens.textPrimary, fontWeight: '800', marginBottom: 8 }}>
-        Jura Contracts
-      </Text>
+      <TouchableOpacity
+        onPress={toggleExpansion}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: expanded ? 12 : 0,
+        }}
+      >
+        <Text style={{ color: tokens.textPrimary, fontWeight: '800', fontSize: 18 }}>
+          Jura Contracts
+        </Text>
+        <Text style={{ color: tokens.textMuted, fontSize: 16 }}>{expanded ? '−' : '+'}</Text>
+      </TouchableOpacity>
 
       <Text style={{ color: tokens.textMuted, marginBottom: 12 }}>
         Special contracts from the TTSF expansion. Available contracts are unlocked through gameplay
         progression.
       </Text>
 
-      <ScrollView style={{ maxHeight: 400 }}>
-        {/* Available Contracts */}
-        {Array.from(
-          new Set([...Object.keys(contractsByTier), ...Object.keys(lockedContractsByTier)])
-        ).map(tier => {
-          const tierKey = tier as Tier;
-          const contracts = contractsByTier[tierKey];
-          const lockedContractsForTier = lockedContractsByTier[tierKey] || [];
-
-          if ((!contracts || contracts.length === 0) && lockedContractsForTier.length === 0) {
-            return null;
-          }
-
-          const isExpanded = expandedTier === tier;
-
-          return (
-            <View key={tier} style={{ marginBottom: 12 }}>
-              <TouchableOpacity
-                onPress={() => toggleTierExpansion(tierKey)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: 12,
-                  backgroundColor: tokens.card,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#0006',
-                }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ color: tokens.textPrimary, fontWeight: '700' }}>
-                    {tier.toUpperCase()} Contracts
-                  </Text>
-                  <Pill label={`${contracts?.length || 0}`} selected={false} />
-                  {lockedContractsForTier.length > 0 && (
-                    <Pill label={`${lockedContractsForTier.length} locked`} selected={false} />
-                  )}
-                </View>
-                <Text style={{ color: tokens.textMuted, fontSize: 18 }}>
-                  {isExpanded ? '−' : '+'}
+      {expanded && (
+        <ScrollView style={{ maxHeight: 400 }}>
+          <View style={{ gap: 12 }}>
+            {/* Available Contracts */}
+            {availableContracts.length > 0 && (
+              <View>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '600', marginBottom: 8 }}>
+                  Available Contracts
                 </Text>
-              </TouchableOpacity>
-
-              {isExpanded && (
-                <View style={{ marginTop: 8, gap: 8 }}>
-                  {/* Available Contracts */}
-                  {contracts?.map((contract: KingdomContractDef) => (
-                    <TouchableOpacity
-                      key={contract.name}
-                      onPress={() => handleContractSelect(contract.name)}
-                      style={{
-                        padding: 12,
-                        borderRadius: 6,
-                        borderWidth: 1,
-                        borderColor: isSelected(contract.name) ? tokens.accent : '#0003',
-                        backgroundColor: isSelected(contract.name)
-                          ? `${tokens.accent}20`
-                          : tokens.surface,
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <View style={{ flex: 1, paddingRight: 12 }}>
-                          <Text
-                            style={{
-                              color: tokens.textPrimary,
-                              fontWeight: '600',
-                              marginBottom: 4,
-                            }}
-                          >
-                            {contract.name}
-                          </Text>
-                          <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
-                            {contract.objective}
-                          </Text>
-                        </View>
-                        <Pill
-                          label={isSelected(contract.name) ? 'Selected' : 'Select'}
-                          selected={isSelected(contract.name)}
-                          onPress={() => handleContractSelect(contract.name)}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-
-                  {/* Locked Contracts */}
-                  {lockedContractsForTier.map((contract: KingdomContractDef) => (
+                {availableContracts.map((contract: JuraContractDef) => (
+                  <TouchableOpacity
+                    key={contract.name}
+                    onPress={() => handleContractSelect(contract.name)}
+                    style={{
+                      padding: 12,
+                      borderRadius: 6,
+                      borderWidth: 2,
+                      borderColor: isSelected(contract.name) ? tokens.accent : tokens.surface,
+                      backgroundColor: isSelected(contract.name) ? tokens.surface : tokens.card,
+                      marginBottom: 8,
+                    }}
+                  >
                     <View
-                      key={contract.name}
                       style={{
-                        padding: 12,
-                        borderRadius: 6,
-                        borderWidth: 1,
-                        borderColor: '#0002',
-                        backgroundColor: tokens.surface,
-                        opacity: 0.6,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <View style={{ flex: 1, paddingRight: 12 }}>
-                          <Text
-                            style={{
-                              color: tokens.textMuted,
-                              fontWeight: '600',
-                              marginBottom: 4,
-                            }}
-                          >
-                            {contract.name}
-                          </Text>
-                          <Text style={{ color: tokens.textMuted, fontSize: 12 }}>
-                            ??? (Locked)
-                          </Text>
-                        </View>
-                        <Pill label='Locked' selected={false} />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}
+                        >
+                          {contract.name}
+                        </Text>
+                        <Text style={{ fontSize: 14, color: tokens.textPrimary, marginTop: 4 }}>
+                          {contract.objective}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: tokens.textMuted, marginTop: 4 }}>
+                          Reward: {contract.reward}
+                        </Text>
                       </View>
+                      <Pill
+                        label={isSelected(contract.name) ? 'Selected' : 'Select'}
+                        selected={isSelected(contract.name)}
+                      />
                     </View>
-                  ))}
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </ScrollView>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
-      {selectedContract && selectedContract.kingdomId === 'jura' && (
-        <View
-          style={{
-            marginTop: 12,
-            padding: 12,
-            backgroundColor: `${tokens.accent}20`,
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: tokens.accent,
-          }}
-        >
-          <Text style={{ color: tokens.textPrimary, fontWeight: '600', marginBottom: 4 }}>
-            Selected Jura Contract
-          </Text>
-          <Text style={{ color: tokens.textMuted }}>
-            {selectedContract.contractId
-              .split(':')[1]
-              .replace(/-/g, ' ')
-              .replace(/\b\w/g, l => l.toUpperCase())}
-          </Text>
-        </View>
+            {/* Locked Contracts */}
+            {lockedContracts.length > 0 && (
+              <View>
+                <Text style={{ color: tokens.textPrimary, fontWeight: '600', marginBottom: 8 }}>
+                  Locked Contracts
+                </Text>
+                {lockedContracts.map((contract: JuraContractDef) => (
+                  <View
+                    key={contract.name}
+                    style={{
+                      padding: 12,
+                      borderRadius: 6,
+                      borderWidth: 1,
+                      borderColor: tokens.surface,
+                      backgroundColor: tokens.card,
+                      opacity: 0.6,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={{ fontSize: 16, fontWeight: '600', color: tokens.textPrimary }}
+                        >
+                          {contract.name}
+                        </Text>
+                        <Text style={{ fontSize: 14, color: tokens.textMuted, marginTop: 4 }}>
+                          ???
+                        </Text>
+                        <Text style={{ fontSize: 12, color: tokens.textMuted, marginTop: 4 }}>
+                          Locked - Complete other contracts to unlock
+                        </Text>
+                      </View>
+                      <Pill label='Locked' selected={false} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {availableContracts.length === 0 && lockedContracts.length === 0 && (
+              <Text style={{ color: tokens.textMuted, textAlign: 'center', fontStyle: 'italic' }}>
+                No Jura contracts available
+              </Text>
+            )}
+          </View>
+        </ScrollView>
       )}
     </View>
   );

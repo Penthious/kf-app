@@ -1,12 +1,22 @@
-import { Tier } from '@/catalogs/tier';
-import { KingdomContractDef } from '@/models/kingdom';
+/**
+ * Jura Contract Definition
+ * These contracts are progression-based, not tier-based
+ */
+export interface JuraContractDef {
+  name: string;
+  objective: string;
+  setup: string;
+  reward: string;
+  singleAttempt: boolean;
+  unlocked: boolean;
+}
 
 /**
  * Jura Contracts from TTSF expansion
  * These contracts can be taken in any kingdom
  * Only the first contract is unlocked by default, others are locked
  */
-export const JURA_CONTRACTS: KingdomContractDef[] = [
+export const JURA_CONTRACTS: JuraContractDef[] = [
   {
     name: 'Fragments of the Past',
     objective:
@@ -14,7 +24,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'These mysterious fragments have been appearing throughout the Sub-Kingdoms. Your mission is to locate and secure these consecrated pieces.',
     reward: 'Gain insight into the ancient history of the realm and unlock further Jura contracts.',
-    tier: Tier.mob,
     singleAttempt: false,
     unlocked: true, // Only this contract starts unlocked
   },
@@ -25,7 +34,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'The Deep Fog eruptions are a mysterious phenomenon occurring in the deepest parts of the Sub-Kingdoms. Venture into these dangerous depths to investigate.',
     reward: 'Discover the secrets of the Deep Fog and unlock new areas of exploration.',
-    tier: Tier.vassal,
     singleAttempt: false,
     unlocked: false, // Locked until unlocked by game progression
   },
@@ -36,7 +44,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'The larger landmarks throughout the Kingdom contain ancient archives with valuable historical knowledge. Search these locations to uncover the past.',
     reward: 'Gain valuable historical knowledge and unlock further understanding of the realm.',
-    tier: Tier.vassal,
     singleAttempt: false,
     unlocked: false, // Locked until unlocked by game progression
   },
@@ -46,7 +53,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'The Erdbeben Tunnels are a network of underground passages that lead to unknown depths. Locate the entrance to these mysterious tunnels.',
     reward: 'Access to the Erdbeben Tunnels and the secrets they contain.',
-    tier: Tier.king,
     singleAttempt: false,
     unlocked: false, // Locked until unlocked by game progression
   },
@@ -56,7 +62,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'Face the ultimate challenge by confronting and defeating the King in combat. This is the most dangerous contract available.',
     reward: 'The ultimate reward for defeating the King and proving your worth.',
-    tier: Tier.devil,
     singleAttempt: false,
     unlocked: false, // Locked until unlocked by game progression
   },
@@ -67,7 +72,6 @@ export const JURA_CONTRACTS: KingdomContractDef[] = [
     setup:
       'This is the ultimate test of survival and skill. Complete an entire expedition without falling to the dangers of the realm.',
     reward: 'The highest honor and recognition for completing the most challenging contract.',
-    tier: Tier.dragon,
     singleAttempt: false,
     unlocked: false, // Locked until unlocked by game progression
   },
