@@ -138,6 +138,9 @@ export type CampaignSettings = {
       enabled: boolean;
     };
   };
+  juraContracts?: {
+    unlockedContracts: string[]; // Array of contract names that have been unlocked
+  };
 };
 
 export type Campaign = {

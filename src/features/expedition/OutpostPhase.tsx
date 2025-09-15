@@ -6,6 +6,7 @@ import { useThemeTokens } from '@/theme/ThemeProvider';
 import { buildKingdomView } from '@/features/kingdoms/kingdomView';
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
 import ContractSelection from './ContractSelection';
+import JuraContractSelection from './JuraContractSelection';
 import { Text, View } from 'react-native';
 
 interface OutpostPhaseProps {
@@ -99,6 +100,11 @@ export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
 
       {/* Contract Selection */}
       <ContractSelection campaignId={campaignId} kingdom={kingdomView} />
+
+      {/* Jura Contracts (TTSF expansion) */}
+      {campaign.settings.expansions?.ttsf?.enabled && (
+        <JuraContractSelection campaignId={campaignId} />
+      )}
 
       {/* Outpost Actions */}
       <View style={{ marginBottom: 20 }}>

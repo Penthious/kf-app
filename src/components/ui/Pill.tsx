@@ -1,6 +1,6 @@
 // src/components/ui/Pill.tsx
 import React from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 
 type PillProps = {
@@ -43,6 +43,30 @@ export default function Pill({
       : selected
         ? tokens.textPrimary
         : tokens.textPrimary;
+
+  // If no onPress is provided, render as a non-interactive View
+  if (!onPress) {
+    return (
+      <View
+        accessibilityLabel={label}
+        accessibilityState={{ disabled, selected }}
+        testID={testID}
+        style={{
+          paddingHorizontal: 12,
+          height: 32,
+          borderRadius: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: bg,
+          borderWidth: 1,
+          borderColor: selected ? tokens.accent : '#0006',
+          opacity: disabled ? 0.5 : 1,
+        }}
+      >
+        <Text style={{ color: textColor, fontWeight: '800' }}>{label}</Text>
+      </View>
+    );
+  }
 
   return (
     <Pressable

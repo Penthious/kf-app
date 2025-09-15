@@ -39,6 +39,7 @@ export default function ModalsLayout() {
       <Stack.Screen name='keywords' options={{ title: 'Keywords' }} />
       <Stack.Screen name='theme' options={{ title: 'Theme' }} />
       <Stack.Screen name='faq' options={{ title: 'FAQ' }} />
+      <Stack.Screen name='jura-contracts' options={{ title: 'Jura Contracts' }} />
     </Stack>
   );
 }
