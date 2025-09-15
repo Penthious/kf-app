@@ -88,6 +88,7 @@ export type CampaignsActions = {
   ) => void;
   selectContract: (campaignId: string, kingdomId: string, contractId: string) => void;
   clearSelectedContract: (campaignId: string) => void;
+  unlockJuraContract: (campaignId: string, contractName: string) => void;
 
   // Expedition actions
   startExpedition: (campaignId: string) => void;
@@ -844,6 +845,41 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             [campaignId]: {
               ...c,
               selectedContract: undefined,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    unlockJuraContract: (campaignId, contractName) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const currentUnlocked = c.settings.juraContracts?.unlockedContracts || [
+          'Fragments of the Past',
+        ];
+
+        // Don't add if already unlocked
+        if (currentUnlocked.includes(contractName)) {
+          return s;
+        }
+
+        const newUnlocked = [...currentUnlocked, contractName];
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              settings: {
+                ...c.settings,
+                juraContracts: {
+                  unlockedContracts: newUnlocked,
+                },
+              },
               updatedAt: Date.now(),
             },
           },
