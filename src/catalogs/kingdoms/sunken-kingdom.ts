@@ -83,6 +83,9 @@ export const ANCESTOR_RUINS: SubKingdomCatalog = {
     { name: 'Rosetta', roll: { min: 89, max: 94 }, singleAttempt: true },
     { name: 'Secret Keeper', roll: { min: 95, max: 100 }, singleAttempt: true },
   ],
+  contracts: [
+    // Ancestor Ruins contracts can be added here if needed
+  ],
 };
 
 // Sunken Kingdom kingdom-specific stages (without wandering monsters)
@@ -148,6 +151,9 @@ export const SUNKEN_KINGDOM: KingdomCatalog = {
       roll: { min: 96, max: 100 },
       singleAttempt: true,
     },
+  ],
+  contracts: [
+    // Sunken Kingdom contracts can be added here if needed
   ],
   subKingdoms: [ANCESTOR_RUINS],
   expansions: {

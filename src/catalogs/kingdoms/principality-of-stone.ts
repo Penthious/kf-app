@@ -5,6 +5,7 @@ import {
   PANZERDRAGON_VELDR_ID,
   PUPPET_KING_EDELHARDT_ID,
 } from '@/catalogs/monsters';
+import { JURA_CONTRACTS } from '@/catalogs/contracts/jura-contracts';
 import { DEVIL_OF_THE_SMELTED_FEARS_STAGES } from '@/catalogs/monsters/devil-of-the-smelted-fears';
 import { EGGKNIGHT_STAGES } from '@/catalogs/monsters/eggknight';
 import { IRONCAST_DEAD_STAGES } from '@/catalogs/monsters/ironcast-dead';
@@ -80,6 +81,9 @@ export const SCHWARZREICH: SubKingdomCatalog = {
     { name: 'Escape This Cage of Flesh', roll: { min: 89, max: 94 }, singleAttempt: true },
     { name: 'Profane Terror', roll: { min: 95, max: 100 }, singleAttempt: true },
   ],
+  contracts: [
+    // Schwarzreich contracts can be added here if needed
+  ],
 };
 
 // Principality of Stone kingdom-specific stages (without wandering monsters)
@@ -140,6 +144,80 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
     { name: 'Eaves-drip Kindness', roll: { min: 93, max: 95 }, singleAttempt: true },
     { name: 'The Devil You Know', roll: { min: 96, max: 100 }, singleAttempt: false },
   ],
+  contracts: [
+    {
+      name: 'Oh, To Be Inspired',
+      objective: 'Guide the bard to a place where she can find her inspiration to create again.',
+      setup: '<to be filled in later, but about 4 paragraphs of text>',
+      reward: '<to be filled in later, about 2 paragraphs of text>',
+      tier: 'mob',
+      singleAttempt: true,
+    },
+    {
+      name: 'Search and Rescue',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'mob',
+      singleAttempt: false,
+    },
+    {
+      name: 'Escort Service',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'mob',
+      singleAttempt: false,
+    },
+    {
+      name: 'Resource Run',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'vassal',
+      singleAttempt: false,
+    },
+    {
+      name: 'Delivery Job',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'king',
+      singleAttempt: false,
+    },
+    {
+      name: 'Carvo a Slimy Path',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'king',
+      singleAttempt: true,
+    },
+    {
+      name: 'Extermination Efforts',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'devil',
+      singleAttempt: false,
+    },
+    {
+      name: 'Extraction Needed',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'dragon',
+      singleAttempt: false,
+    },
+    {
+      name: 'Power Struggle',
+      objective: '<to be filled in later>',
+      setup: '<to be filled in later>',
+      reward: '<to be filled in later>',
+      tier: 'dragon',
+      singleAttempt: true,
+    },
+  ],
   subKingdoms: [SCHWARZREICH],
   expansions: {
     ttsf: {
@@ -162,6 +240,7 @@ export const PRINCIPALITY_OF_STONE: KingdomCatalog = {
           stages: YOUNG_DEVOURER_DRAGON_STAGES,
         },
       ],
+      additionalContracts: JURA_CONTRACTS,
     },
   },
 };
