@@ -87,6 +87,11 @@ export default function HeaderMenuButton({ testID }: HeaderMenuButtonProps) {
             label: 'Expansions',
             onPress: () => go(() => router.push(`/expansions?id=${id}`)),
           },
+          {
+            key: 'jura-contracts',
+            label: 'Jura Contracts',
+            onPress: () => go(() => router.push(`/jura-contracts?campaignId=${id}`)),
+          },
         ]
       : []),
     ...(id && isPastVisionPhase

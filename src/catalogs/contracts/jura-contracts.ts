@@ -23,7 +23,7 @@ export const JURA_CONTRACTS: JuraContractDef[] = [
       'Seek out some of these "Consecrated Fragments" that have been turning up in the Sub-Kingdoms.',
     setup:
       'These mysterious fragments have been appearing throughout the Sub-Kingdoms. Your mission is to locate and secure these consecrated pieces.',
-    reward: 'Gain insight into the ancient history of the realm and unlock further Jura contracts.',
+    reward: 'Gain insight into the ancient history of the realm.',
     singleAttempt: false,
     unlocked: true, // Only this contract starts unlocked
   },
