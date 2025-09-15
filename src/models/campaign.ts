@@ -20,6 +20,11 @@ export type ExpeditionPhase =
   | 'second-clash'
   | 'spoils';
 
+export type SelectedContract = {
+  kingdomId: string;
+  contractId: string;
+};
+
 export type KnightExpeditionChoice = {
   knightUID: string;
   choice: 'quest' | 'investigation' | 'free-roam';
@@ -145,6 +150,7 @@ export type Campaign = {
   partyLeaderUID?: string;
 
   selectedKingdomId?: string;
+  selectedContract?: SelectedContract;
 
   kingdoms: KingdomState[];
 

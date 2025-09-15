@@ -1,3 +1,5 @@
+import { Tier } from '@/catalogs/tier';
+
 export type KingdomMonster = {
   id: string;
   type: 'kingdom' | 'wandering';
@@ -34,7 +36,6 @@ export type KingdomAdventureDef = {
  * - singleAttempt: true if it can only be attempted once (not repeatable)
  * - unlocked: true if this contract is available (for Jura contracts progression)
  */
-import { Tier } from '@/catalogs/tier';
 
 export type KingdomContractDef = {
   name: string;

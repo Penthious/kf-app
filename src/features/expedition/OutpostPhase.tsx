@@ -3,6 +3,9 @@ import Card from '@/components/Card';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
+import { buildKingdomView } from '@/features/kingdoms/kingdomView';
+import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+import ContractSelection from './ContractSelection';
 import { Text, View } from 'react-native';
 
 interface OutpostPhaseProps {
@@ -15,6 +18,11 @@ export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
   const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
+
+  // Build kingdom view for contract selection
+  const kingdomView = campaign?.selectedKingdomId
+    ? buildKingdomView(campaign.selectedKingdomId, campaign, allKingdomsCatalog)
+    : undefined;
 
   if (!campaign) {
     return (
@@ -88,6 +96,9 @@ export default function OutpostPhase({ campaignId }: OutpostPhaseProps) {
           </View>
         ))}
       </View>
+
+      {/* Contract Selection */}
+      <ContractSelection campaignId={campaignId} kingdom={kingdomView} />
 
       {/* Outpost Actions */}
       <View style={{ marginBottom: 20 }}>

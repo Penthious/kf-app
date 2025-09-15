@@ -81,6 +81,8 @@ export type CampaignsActions = {
     contractId: string,
     opts?: { singleAttempt?: boolean; delta?: number }
   ) => void;
+  selectContract: (campaignId: string, kingdomId: string, contractId: string) => void;
+  clearSelectedContract: (campaignId: string) => void;
 
   // Expedition actions
   startExpedition: (campaignId: string) => void;
@@ -789,6 +791,48 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
             },
           },
         };
+      }),
+
+    // ---- Contract selection actions ----
+    selectContract: (campaignId, kingdomId, contractId) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedContract: {
+                kingdomId,
+                contractId,
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    clearSelectedContract: campaignId =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              selectedContract: undefined,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
       }),
 
     // Expedition actions
