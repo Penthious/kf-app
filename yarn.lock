@@ -1204,14 +1204,14 @@
   resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-54.0.8.tgz#2aa1f96e0abad6a125d0ff1092b303280f7962e9"
   integrity sha512-lyIn/x/Yz0SgHL7IGWtgTLg6TJWC9vL7489++0hzCHZ4iGjVcfZmPTUfiragZ3HycFFj899qN0jlhl49IHa94A==
 
-"@expo/config@~12.0.8":
-  version "12.0.8"
-  resolved "https://registry.yarnpkg.com/@expo/config/-/config-12.0.8.tgz#cab2ed812bf1fd9eceba3137d65e2d37b32042df"
-  integrity sha512-yFadXa5Cmja57EVOSyEYV1hF7kCaSbPnd1twx0MfvTr1Yj2abIbrEu2MUZqcvElNQOtgADnLRP0YJiuEdgoO5A==
+"@expo/config@~12.0.8", "@expo/config@~12.0.9":
+  version "12.0.9"
+  resolved "https://registry.yarnpkg.com/@expo/config/-/config-12.0.9.tgz#07e1ddb3c9227031e9e9322e41797ad36197a1c3"
+  integrity sha512-HiDVVaXYKY57+L1MxSF3TaYjX6zZlGBnuWnOKZG+7mtsLD+aNTtW4bZM0pZqZfoRumyOU0SfTCwT10BWtUUiJQ==
   dependencies:
     "@babel/code-frame" "~7.10.4"
-    "@expo/config-plugins" "~54.0.0"
-    "@expo/config-types" "^54.0.7"
+    "@expo/config-plugins" "~54.0.1"
+    "@expo/config-types" "^54.0.8"
     "@expo/json-file" "^10.0.7"
     deepmerge "^4.3.1"
     getenv "^2.0.0"
@@ -6193,12 +6193,12 @@ jest-environment-node@^29.7.0:
     jest-mock "^29.7.0"
     jest-util "^29.7.0"
 
-jest-expo@~54.0.10:
-  version "54.0.10"
-  resolved "https://registry.yarnpkg.com/jest-expo/-/jest-expo-54.0.10.tgz#6ff2b059673386151fc7a1147bd5d4899d3972d4"
-  integrity sha512-b69i3k84SoQEZ7QKfrZpju19DoCiGWqhQD+Dx8tCuGq1mDGlMNs9VwofctfQqtx/UrHBFAOHBeDt2/eibMcrhg==
+jest-expo@~54.0.11:
+  version "54.0.11"
+  resolved "https://registry.yarnpkg.com/jest-expo/-/jest-expo-54.0.11.tgz#1ab55d26a2ba7b56a229f0172a2323784f6dcac4"
+  integrity sha512-SR9Tnxp45f6UYWPTbWEkigKnWvNk8CxN6msAHf43PmzKRVClvzIJYSR4+h1hV4aTNVpPXB7vaTTgzl1TG1x53Q==
   dependencies:
-    "@expo/config" "~12.0.8"
+    "@expo/config" "~12.0.9"
     "@expo/json-file" "^10.0.7"
     "@jest/create-cache-key-function" "^29.2.1"
     "@jest/globals" "^29.2.1"
