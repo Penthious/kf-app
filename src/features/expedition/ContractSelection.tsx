@@ -1,12 +1,12 @@
+import { Tier } from '@/catalogs/tier';
 import Pill from '@/components/ui/Pill';
+import { KingdomView } from '@/features/kingdoms/kingdomView';
 import { useCampaigns } from '@/store/campaigns';
 import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { calculateKnightTier, getAvailableContractTiers } from '@/utils/knight-tier';
-import { Tier } from '@/catalogs/tier';
-import { KingdomView } from '@/features/kingdoms/kingdomView';
 import { useState } from 'react';
-import { Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 interface ContractSelectionProps {
   campaignId: string;
@@ -27,6 +27,7 @@ export default function ContractSelection({ campaignId, kingdom }: ContractSelec
   }
 
   const knightTier = calculateKnightTier(partyLeader.sheet);
+
   const availableTiers = getAvailableContractTiers(knightTier);
 
   // Group contracts by tier

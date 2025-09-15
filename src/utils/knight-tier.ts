@@ -18,9 +18,13 @@ export function calculateKnightTier(knightSheet: KnightSheet): Tier {
   // Count completed quests
   const completedQuests = chapters.filter(chapter => chapter.quest?.completed).length;
 
-  // Count completed investigations
+  // Count attempted investigations (pass/fail/lead all count as 1, max 3 per chapter)
   const completedInvestigations = chapters.reduce((total, chapter) => {
-    return total + (chapter.completed?.length || 0);
+    const attempts = chapter.attempts || [];
+    // Count unique investigation codes that were attempted (pass/fail/lead)
+    const uniqueAttempts = new Set(attempts.map(attempt => attempt.code));
+    // Cap at 3 per chapter as per the rule
+    return total + Math.min(uniqueAttempts.size, 3);
   }, 0);
 
   // Determine tier based on progression
