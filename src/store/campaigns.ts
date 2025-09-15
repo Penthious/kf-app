@@ -1,5 +1,9 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
-import { getAvailableScavengeTypes, SCAVENGE_DECK, type ScavengeCard } from '@/catalogs/scavenge-deck';
+import {
+  getAvailableScavengeTypes,
+  SCAVENGE_DECK,
+  type ScavengeCard,
+} from '@/catalogs/scavenge-deck';
 import { Tier } from '@/catalogs/tier';
 import { calculateExpeditionMonsterStage } from '@/features/kingdoms/utils';
 import type {

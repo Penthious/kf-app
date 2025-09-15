@@ -25,7 +25,7 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
     endExpedition,
   } = useCampaigns();
   const { knightsById, updateKnightSheet, advanceChapter } = useKnights();
-  
+
   // State to track which loot cards are expanded
   const [expandedLootCards, setExpandedLootCards] = useState<Set<string>>(new Set());
 
@@ -533,9 +533,7 @@ export default function SpoilsPhase({ campaignId }: SpoilsPhaseProps) {
                   {loot.exchangedFor ? `Exchanged for ${loot.exchangedFor}` : 'Available'}
                 </Text>
               </View>
-              <Text style={styles.lootCardDetails}>
-                Source: {loot.source}
-              </Text>
+              <Text style={styles.lootCardDetails}>Source: {loot.source}</Text>
               {!loot.exchangedFor && (
                 <View style={styles.lootCardActions}>
                   <Button

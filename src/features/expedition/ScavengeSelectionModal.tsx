@@ -42,17 +42,34 @@ export default function ScavengeSelectionModal({
     });
   };
 
+  const mapScavengeTypeToLootType = (scavengeType: ScavengeCardType): LootCard['type'] => {
+    switch (scavengeType) {
+      case 'kingdom':
+        return 'kingdom-gear';
+      case 'consumable':
+        return 'consumable-gear';
+      case 'upgrade':
+        return 'upgrade';
+      case 'exhibition-clash':
+        return 'exhibition-clash';
+      case 'full-clash':
+        return 'full-clash';
+      default:
+        throw new Error(`Unknown scavenge type: ${scavengeType}`);
+    }
+  };
+
   const handleConfirmSelection = () => {
     const lootCards: LootCard[] = selectedCards.map(card => ({
       id: `loot-${Date.now()}-${Math.random()}`,
-      type: card.type as LootCard['type'],
+      type: mapScavengeTypeToLootType(card.type),
       source: `${phase}-scavenge`,
       obtainedAt: Date.now(),
       obtainedBy: '', // Will be set by the parent component
     }));
 
     const scavengeCardIds = selectedCards.map(card => card.id);
-    
+
     onSelectCards(lootCards, scavengeCardIds);
     setSelectedCards([]);
     onClose();
