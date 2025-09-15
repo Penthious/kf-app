@@ -1,7 +1,7 @@
-import { describe, expect, it } from '@jest/globals';
 import { Tier } from '@/catalogs/tier';
-import { calculateKnightTier, getAvailableContractTiers } from './knight-tier';
 import type { KnightSheet } from '@/models/knight';
+import { describe, expect, it } from '@jest/globals';
+import { calculateKnightTier, getAvailableContractTiers } from './knight-tier';
 
 describe('knight-tier', () => {
   describe('calculateKnightTier', () => {
