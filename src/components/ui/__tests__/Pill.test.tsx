@@ -94,12 +94,24 @@ describe('Pill', () => {
     expect(getByTestId('test-pill')).toBeTruthy();
   });
 
-  it('has correct accessibility properties', () => {
-    const { getByTestId } = render(<Pill label='Accessible Pill' testID='test-pill' />);
+  it('has correct accessibility properties when interactive', () => {
+    const mockOnPress = jest.fn();
+    const { getByTestId } = render(
+      <Pill label='Accessible Pill' onPress={mockOnPress} testID='test-pill' />
+    );
 
     const pill = getByTestId('test-pill');
     expect(pill).toBeTruthy();
     expect(pill.props.accessibilityRole).toBe('button');
+    expect(pill.props.accessibilityLabel).toBe('Accessible Pill');
+  });
+
+  it('has correct accessibility properties when non-interactive', () => {
+    const { getByTestId } = render(<Pill label='Accessible Pill' testID='test-pill' />);
+
+    const pill = getByTestId('test-pill');
+    expect(pill).toBeTruthy();
+    expect(pill.props.accessibilityRole).toBeUndefined();
     expect(pill.props.accessibilityLabel).toBe('Accessible Pill');
   });
 
@@ -131,10 +143,20 @@ describe('Pill', () => {
     expect(pill.props.accessibilityState?.selected).toBe(true);
   });
 
-  it('has correct hit slop for touch target', () => {
-    const { getByTestId } = render(<Pill label='Test Pill' testID='test-pill' />);
+  it('has correct hit slop for touch target when interactive', () => {
+    const mockOnPress = jest.fn();
+    const { getByTestId } = render(
+      <Pill label='Test Pill' onPress={mockOnPress} testID='test-pill' />
+    );
 
     const pill = getByTestId('test-pill');
     expect(pill.props.hitSlop).toBe(8);
+  });
+
+  it('has no hit slop when non-interactive', () => {
+    const { getByTestId } = render(<Pill label='Test Pill' testID='test-pill' />);
+
+    const pill = getByTestId('test-pill');
+    expect(pill.props.hitSlop).toBeUndefined();
   });
 });
