@@ -1,9 +1,13 @@
+import { SCAVENGE_DECK, getAvailableScavengeTypes } from '@/catalogs/scavenge-deck';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import type { LootCard } from '@/models/campaign';
 import { useCampaigns } from '@/store/campaigns';
+import { useKnights } from '@/store/knights';
 import { useThemeTokens } from '@/theme/ThemeProvider';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
+import ScavengeSelectionModal from './ScavengeSelectionModal';
 
 interface SecondClashPhaseProps {
   campaignId: string;
@@ -11,15 +15,18 @@ interface SecondClashPhaseProps {
 
 export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) {
   const { tokens } = useThemeTokens();
-  const { campaigns, completeClash, setExpeditionPhase } = useCampaigns();
+  const { campaigns, completeClash, setExpeditionPhase, scavengeCards } = useCampaigns();
+  const { knightsById } = useKnights();
 
   const campaign = campaigns[campaignId];
   const expedition = campaign?.expedition;
   const clashResults = expedition?.clashResults || [];
+  const partyLeader = campaign?.partyLeaderUID ? knightsById[campaign.partyLeaderUID] : undefined;
 
   const [woundsDealt, setWoundsDealt] = useState(0);
   const [woundsReceived, setWoundsReceived] = useState(0);
   const [specialEffects, setSpecialEffects] = useState<string[]>([]);
+  const [showScavengeSelection, setShowScavengeSelection] = useState(false);
 
   const styles = StyleSheet.create({
     container: {
@@ -200,6 +207,28 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
     setSpecialEffects(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleScavenge = () => {
+    if (!partyLeader) {
+      Alert.alert('Error', 'No party leader selected');
+      return;
+    }
+
+    setShowScavengeSelection(true);
+  };
+
+  const handleSelectScavengeCards = (cards: LootCard[]) => {
+    if (!partyLeader) return;
+
+    scavengeCards(campaignId, cards, partyLeader.knightUID);
+
+    const cardTypesText = cards.map(card => card.type.replace('-', ' ')).join(', ');
+
+    Alert.alert(
+      'Loot Scavenged',
+      `${partyLeader.name || 'Party Leader'} has scavenged ${cards.length} loot card${cards.length > 1 ? 's' : ''}: ${cardTypesText}!`
+    );
+  };
+
   const handleBeginSpoils = () => {
     Alert.alert(
       'Begin Spoils Phase',
@@ -268,6 +297,8 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
             )}
           </View>
 
+          <Button label='Scavenge Loot' onPress={handleScavenge} />
+
           <View style={styles.buttonRow}>
             <Button
               label='Mark Victory'
@@ -317,6 +348,16 @@ export default function SecondClashPhase({ campaignId }: SecondClashPhaseProps) 
       <Card>
         <Button label='Begin Spoils Phase' onPress={handleBeginSpoils} tone='accent' />
       </Card>
+
+      <ScavengeSelectionModal
+        visible={showScavengeSelection}
+        onClose={() => setShowScavengeSelection(false)}
+        onSelectCards={handleSelectScavengeCards}
+        phase='full-clash'
+        availableCards={SCAVENGE_DECK.filter(card =>
+          getAvailableScavengeTypes('full-clash').includes(card.type)
+        )}
+      />
     </View>
   );
 }

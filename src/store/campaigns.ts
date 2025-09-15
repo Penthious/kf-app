@@ -149,6 +149,9 @@ export type CampaignsActions = {
     result: string
   ) => void;
 
+  // Scavenge actions
+  scavengeCards: (campaignId: string, cards: LootCard[], obtainedBy: string) => void;
+
   // Spoils phase actions
   startSpoilsPhase: (campaignId: string) => void;
   addLootCard: (
@@ -1965,6 +1968,48 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                     rapportBonus,
                     result,
                   },
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    // ---- Scavenge actions ----
+    scavengeCards: (campaignId, cards, obtainedBy) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c?.expedition) return s;
+
+        // Initialize spoilsProgress if it doesn't exist
+        if (!c.expedition.spoilsProgress) {
+          c.expedition.spoilsProgress = {
+            lootDeck: [],
+            goldEarned: 0,
+            gearAcquired: [],
+            questCompletions: [],
+          };
+        }
+
+        // Add obtainedBy to each card
+        const cardsWithObtainer = cards.map(card => ({
+          ...card,
+          obtainedBy,
+        }));
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              expedition: {
+                ...c.expedition,
+                spoilsProgress: {
+                  ...c.expedition.spoilsProgress,
+                  lootDeck: [...c.expedition.spoilsProgress.lootDeck, ...cardsWithObtainer],
                 },
               },
               updatedAt: Date.now(),

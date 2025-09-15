@@ -1,9 +1,10 @@
 import { allKingdomsCatalog } from '@/catalogs/kingdoms';
+// import { SCAVENGE_DECK, getAvailableScavengeTypes } from '@/catalogs/scavenge-deck';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import CollapsibleCard from '@/components/ui/CollapsibleCard';
 import { resolveExpeditionStagesForBestiary } from '@/features/kingdoms/utils';
-import type { ClueType } from '@/models/campaign';
+import type { ClueType, LootCard } from '@/models/campaign';
 import { getBestiaryWithExpansions } from '@/models/kingdom';
 import { countCompletedInvestigations, ensureChapter } from '@/models/knight';
 import { useCampaigns } from '@/store/campaigns';
@@ -14,6 +15,7 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 import ClueSelectionModal from './ClueSelectionModal';
 import DistrictWheel from './DistrictWheel';
 import KingdomTrack from './KingdomTrack';
+// import ScavengeSelectionModal from './ScavengeSelectionModal';
 
 interface DelvePhaseProps {
   campaignId: string;
@@ -23,6 +25,7 @@ interface DelvePhaseProps {
 export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhaseProps) {
   const { tokens } = useThemeTokens();
   const [showClueSelection, setShowClueSelection] = useState(false);
+  // const [showScavengeSelection, setShowScavengeSelection] = useState(false);
   const [isDelvePhaseExpanded, setIsDelvePhaseExpanded] = useState(true);
   const [isDistrictWheelExpanded, setIsDistrictWheelExpanded] = useState(true);
   const [isKingdomTrackerExpanded, setIsKingdomTrackerExpanded] = useState(true);
@@ -40,6 +43,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
     rotateDistrictWheel,
     replaceDistrictMonster,
     updateDistrictWheelForCurrentStage,
+    // scavengeCards,
   } = useCampaigns();
   const { knightsById } = useKnights();
 
@@ -216,6 +220,28 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       `${partyLeader.displayName} has discovered ${totalClues} clue${totalClues > 1 ? 's' : ''}: ${clueTypesText}!`
     );
   };
+
+  // const handleScavenge = () => {
+  //   if (!partyLeader) {
+  //     Alert.alert('Error', 'No party leader selected');
+  //     return;
+  //   }
+
+  //   setShowScavengeSelection(true);
+  // };
+
+  // const handleSelectScavengeCards = (cards: LootCard[]) => {
+  //   if (!partyLeader) return;
+
+  //   scavengeCards(campaignId, cards, partyLeader.knightUID);
+
+  //   const cardTypesText = cards.map(card => card.type.replace('-', ' ')).join(', ');
+
+  //   Alert.alert(
+  //     'Loot Scavenged',
+  //     `${partyLeader.displayName} has scavenged ${cards.length} loot card${cards.length > 1 ? 's' : ''}: ${cardTypesText}!`
+  //   );
+  // };
 
   const handleAdvanceThreat = () => {
     const currentThreat = delveProgress?.threatTrack.currentPosition || 0;
@@ -451,6 +477,7 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
       <Card style={{ marginBottom: 16 }}>
         <View style={{ marginTop: 16, gap: 8 }}>
           <Button label='Collect Clue' onPress={handleCollectClue} />
+          {/* <Button label='Scavenge Loot' onPress={handleScavenge} /> */}
           <Button label='Advance Threat Track' onPress={handleAdvanceThreat} />
           <Button label='Advance Time Track' onPress={handleAdvanceTime} />
           <Button label='Advance Curse Tracker' onPress={() => advanceCurseTracker(campaignId)} />
@@ -470,6 +497,18 @@ export default function DelvePhase({ campaignId, phase = 'first' }: DelvePhasePr
         onClose={() => setShowClueSelection(false)}
         onSelectClues={handleSelectClues}
       />
+
+      {/* Temporarily disabled for testing
+      <ScavengeSelectionModal
+        visible={showScavengeSelection}
+        onClose={() => setShowScavengeSelection(false)}
+        onSelectCards={handleSelectScavengeCards}
+        phase='delve'
+        availableCards={SCAVENGE_DECK.filter(card =>
+          getAvailableScavengeTypes('delve').includes(card.type)
+        )}
+      />
+      */}
     </ScrollView>
   );
 }

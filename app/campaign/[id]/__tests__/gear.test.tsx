@@ -196,6 +196,7 @@ describe('CampaignGear', () => {
         setContractProgress: jest.fn(),
         selectContract: jest.fn(),
         clearSelectedContract: jest.fn(),
+        scavengeCards: jest.fn(),
       };
 
       if (typeof selector === 'function') {
