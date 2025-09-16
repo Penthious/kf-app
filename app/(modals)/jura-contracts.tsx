@@ -101,50 +101,53 @@ export default function JuraContractsScreen() {
                     backgroundColor: unlocked ? tokens.surface : tokens.card,
                   }}
                 >
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: isExpanded ? 12 : 0,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}>
-                        {contract.name}
-                      </Text>
-                      <View
-                        style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 4 }}
-                      >
-                        <Pill label={unlocked ? 'Unlocked' : 'Locked'} selected={unlocked} />
-                        {unlocked && attemptCount > 0 && (
-                          <Pill
-                            label={`${attemptCount} attempt${attemptCount > 1 ? 's' : ''}`}
-                            selected={false}
+                  <View style={{ marginBottom: isExpanded ? 12 : 0 }}>
+                    {/* Header Row */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginBottom: 8,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}>
+                          {contract.name}
+                        </Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        {!unlocked && (
+                          <Button
+                            label='Unlock'
+                            onPress={() => handleUnlockContract(contract.name)}
+                            tone='accent'
                           />
                         )}
+                        {unlocked && (
+                          <Button
+                            label='Record Attempt'
+                            onPress={() => handleRecordAttempt(contract.name)}
+                            tone='success'
+                          />
+                        )}
+                        <Button
+                          label={isExpanded ? 'Hide' : 'Details'}
+                          onPress={() => toggleContractExpansion(contract.name)}
+                          tone='default'
+                        />
                       </View>
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {!unlocked && (
-                        <Button
-                          label='Unlock'
-                          onPress={() => handleUnlockContract(contract.name)}
-                          tone='accent'
+
+                    {/* Status Row */}
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                      <Pill label={unlocked ? 'Unlocked' : 'Locked'} selected={unlocked} />
+                      {unlocked && attemptCount > 0 && (
+                        <Pill
+                          label={`${attemptCount} attempt${attemptCount > 1 ? 's' : ''}`}
+                          selected={false}
                         />
                       )}
-                      {unlocked && (
-                        <Button
-                          label='Record Attempt'
-                          onPress={() => handleRecordAttempt(contract.name)}
-                          tone='success'
-                        />
-                      )}
-                      <Button
-                        label={isExpanded ? 'Hide' : 'Details'}
-                        onPress={() => toggleContractExpansion(contract.name)}
-                        tone='default'
-                      />
                     </View>
                   </View>
 
