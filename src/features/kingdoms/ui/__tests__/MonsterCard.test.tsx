@@ -31,6 +31,7 @@ jest.mock('@/store/monsters', () => {
       toHit: 3,
       wounds: 3,
       exhibitionStartingWounds: 3,
+      tier: 'Mob',
     },
     orc: {
       id: 'orc',
@@ -39,6 +40,7 @@ jest.mock('@/store/monsters', () => {
       toHit: 4,
       wounds: 5,
       exhibitionStartingWounds: 5,
+      tier: 'Mob',
     },
     troll: {
       id: 'troll',
@@ -47,6 +49,7 @@ jest.mock('@/store/monsters', () => {
       toHit: 5,
       wounds: 8,
       exhibitionStartingWounds: 8,
+      tier: 'Vassal',
     },
     dragon: {
       id: 'dragon',
@@ -126,9 +129,9 @@ describe('MonsterCard', () => {
   it('displays available monsters with their names and stages', () => {
     const { getByTestId } = render(<MonsterCard kingdom={kingdom} stageRow={stageRow} />);
 
-    // Should show available monsters (stage > 0)
-    expect(getByTestId('monster-name-text-goblin').props.children).toBe('Goblin');
-    expect(getByTestId('monster-name-text-orc').props.children).toBe('Orc');
+    // Should show available monsters (stage > 0) with tiers
+    expect(getByTestId('monster-name-text-goblin').props.children).toBe('Goblin (Mob)');
+    expect(getByTestId('monster-name-text-orc').props.children).toBe('Orc (Mob)');
 
     // Should show stage badges
     expect(getByTestId('monster-stage-goblin-text').props.children).toBe('Stage 1');
@@ -147,10 +150,10 @@ describe('MonsterCard', () => {
       <MonsterCard kingdom={kingdom} stageRow={stageRow} availableOnly={false} />
     );
 
-    // Should show all monsters including locked ones
-    expect(getByTestId('monster-name-text-goblin').props.children).toBe('Goblin');
-    expect(getByTestId('monster-name-text-orc').props.children).toBe('Orc');
-    expect(getByTestId('monster-name-text-troll').props.children).toBe('Troll');
+    // Should show all monsters including locked ones with tiers
+    expect(getByTestId('monster-name-text-goblin').props.children).toBe('Goblin (Mob)');
+    expect(getByTestId('monster-name-text-orc').props.children).toBe('Orc (Mob)');
+    expect(getByTestId('monster-name-text-troll').props.children).toBe('Troll (Vassal)');
 
     // Should show stage badges including "Locked"
     expect(getByTestId('monster-stage-goblin-text').props.children).toBe('Stage 1');
@@ -198,8 +201,10 @@ describe('MonsterCard', () => {
       <MonsterCard kingdom={kingdomWithUnknownMonster} stageRow={stageRowWithUnknown} />
     );
 
-    // Should show the monster ID as fallback name
-    expect(getByTestId('monster-name-text-unknown-monster').props.children).toBe('unknown-monster');
+    // Should show the monster ID as fallback name with Unknown tier
+    expect(getByTestId('monster-name-text-unknown-monster').props.children).toBe(
+      'unknown-monster (Unknown)'
+    );
     expect(getByTestId('monster-stage-unknown-monster-text').props.children).toBe('Stage 1');
   });
 

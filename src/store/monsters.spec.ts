@@ -11,6 +11,7 @@ const MOCKS: ReadonlyArray<MonsterStats> = Object.freeze([
     toHit: 3,
     wounds: 6,
     exhibitionStartingWounds: 4,
+    tier: 'Mob',
     traits: [],
   }),
   Object.freeze({
@@ -20,6 +21,7 @@ const MOCKS: ReadonlyArray<MonsterStats> = Object.freeze([
     toHit: 3,
     wounds: 8,
     exhibitionStartingWounds: 5,
+    tier: 'Vassal',
     traits: [],
   }),
 ]);

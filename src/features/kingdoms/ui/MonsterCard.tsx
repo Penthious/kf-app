@@ -27,18 +27,12 @@ export default function MonsterCard({ kingdom, stageRow, availableOnly = true }:
     return kingdomName ? `${kingdomName} • Monsters` : 'Kingdom • Monsters';
   };
 
-  // Get monster display name with fallback
-  const getMonsterName = (monsterId: string) => {
-    const base = byId[monsterId];
-    return base?.name ?? monsterId;
-  };
-
   // Get monster display name with tier
   const getMonsterNameWithTier = (monsterId: string) => {
     const base = byId[monsterId];
     const name = base?.name ?? monsterId;
-    const tier = base?.tier;
-    return tier ? `${name} (${tier})` : name;
+    const tier = base?.tier ?? 'Unknown';
+    return `${name} (${tier})`;
   };
 
   // Get stage for monster
