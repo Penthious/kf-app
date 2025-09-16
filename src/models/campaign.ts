@@ -140,6 +140,7 @@ export type CampaignSettings = {
   };
   juraContracts?: {
     unlockedContracts: string[]; // Array of contract names that have been unlocked
+    contractAttempts: Record<string, number>; // Contract name -> attempt count
   };
 };
 

@@ -197,6 +197,7 @@ describe('CampaignGear', () => {
         selectContract: jest.fn(),
         clearSelectedContract: jest.fn(),
         unlockJuraContract: jest.fn(),
+        recordJuraContractAttempt: jest.fn(),
         scavengeCards: jest.fn(),
         getAvailableScavengeCards: jest.fn(),
       };

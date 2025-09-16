@@ -87,9 +87,12 @@ export default function MonsterFightScreen() {
             {specialCard === DEVOUR_DRAGONS_CARD.id ? '🐉 ' : ''}
             {monsterStats.name}
           </Text>
-          <Text style={{ color: tokens.textMuted, marginBottom: 16 }}>
-            Level {monsterStats.level}
-          </Text>
+          <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
+            <Text style={{ color: tokens.textMuted }}>Level {monsterStats.level}</Text>
+            {monsterStats.tier && (
+              <Text style={{ color: tokens.textMuted }}>Tier: {monsterStats.tier}</Text>
+            )}
+          </View>
 
           {/* Devour Dragons Special Rules */}
           {specialCard === DEVOUR_DRAGONS_CARD.id &&
