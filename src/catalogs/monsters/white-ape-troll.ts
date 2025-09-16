@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const WHITE_APE_TROLL_ID = 'white-ape-troll';
 
@@ -6,6 +7,8 @@ export const whiteApeTroll: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WHITE_APE_TROLL_ID,
     name: 'White Ape Troll',
+    tier: Tier.vassal,
+    type: [MonsterType.ape, MonsterType.beast],
     level: 1,
     toHit: 3,
     accuracy: 6,
@@ -18,6 +21,8 @@ export const whiteApeTroll: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WHITE_APE_TROLL_ID,
     name: 'White Ape Troll',
+    tier: Tier.vassal,
+    type: [MonsterType.ape, MonsterType.beast],
     level: 2,
     toHit: 5,
     accuracy: 7,
@@ -32,6 +37,8 @@ export const whiteApeTroll: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WHITE_APE_TROLL_ID,
     name: 'White Ape Troll',
+    tier: Tier.vassal,
+    type: [MonsterType.ape, MonsterType.beast],
     level: 3,
     toHit: 6,
     accuracy: 8,
@@ -46,6 +53,8 @@ export const whiteApeTroll: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WHITE_APE_TROLL_ID,
     name: 'White Ape Troll',
+    tier: Tier.vassal,
+    type: [MonsterType.ape, MonsterType.beast],
     level: 4,
     toHit: 9,
     accuracy: 8,
