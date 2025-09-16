@@ -1,5 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
-import { ArmorPlates } from '../traits';
+import { MonsterType, Tier } from '../tier';
 
 export const PANZERDRAGON_VELDR_ID = 'panzerdragon-veldr';
 
@@ -7,14 +7,31 @@ export const panzerdragonVeldr: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: PANZERDRAGON_VELDR_ID,
     name: 'Panzerdragon Veldr',
-    level: 8,
-    toHit: 3,
-    wounds: 20,
-    exhibitionStartingWounds: 12,
+    tier: Tier.dragon,
+    type: [MonsterType.parasite, MonsterType.undead],
+    level: 1,
+    toHit: 9,
+    accuracy: 10,
+    wounds: 10,
+    exhibitionStartingWounds: 4,
     aiActivation: [activationCounter(ActivationToken.standard, 2)],
-    signatureActivation: [activationCounter(ActivationToken.signature, 1)],
-    evasionDiceBonus: 1,
-    traits: [ArmorPlates(1)],
+    signatureActivation: [activationCounter(ActivationToken.signature, 0)],
+    traits: [],
+  }),
+  Object.freeze({
+    id: PANZERDRAGON_VELDR_ID,
+    name: 'Panzerdragon Veldr',
+    tier: Tier.dragon,
+    type: [MonsterType.parasite, MonsterType.undead],
+    level: 2,
+    toHit: 11,
+    accuracy: 11,
+    wounds: 11,
+    exhibitionStartingWounds: 4,
+    aiActivation: [activationCounter(ActivationToken.standard, 2)],
+    signatureActivation: [activationCounter(ActivationToken.signature, 0)],
+    traits: [],
+    escalationBonus: 1,
   }),
 ];
 

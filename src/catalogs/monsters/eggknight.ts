@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 import { ArmorPlates } from '../traits';
 
 export const EGGKNIGHT_ID = 'eggknight';
@@ -7,6 +8,8 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: EGGKNIGHT_ID,
     name: 'Eggknight',
+    tier: Tier.vassal,
+    type: [MonsterType.knight, MonsterType.egg],
     level: 1,
     toHit: 3,
     accuracy: 6,
@@ -19,6 +22,8 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: EGGKNIGHT_ID,
     name: 'Eggknight',
+    tier: Tier.vassal,
+    type: [MonsterType.knight, MonsterType.egg],
     level: 2,
     toHit: 5,
     accuracy: 7,
@@ -34,6 +39,8 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: EGGKNIGHT_ID,
     name: 'Eggknight',
+    tier: Tier.vassal,
+    type: [MonsterType.knight, MonsterType.egg],
     level: 3,
     toHit: 7,
     accuracy: 9,
@@ -49,6 +56,8 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: EGGKNIGHT_ID,
     name: 'Eggknight',
+    tier: Tier.vassal,
+    type: [MonsterType.knight, MonsterType.egg],
     level: 3,
     toHit: 9,
     accuracy: 11,

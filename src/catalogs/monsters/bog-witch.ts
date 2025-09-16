@@ -1,5 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
-import { Tier } from '../tier';
+import { MonsterType, Tier } from '../tier';
 
 export const BOG_WITCH_ID = 'bog-witch';
 
@@ -8,6 +8,7 @@ export const bogWitch: ReadonlyArray<MonsterStats> = [
     id: BOG_WITCH_ID,
     name: 'Bog Witch',
     tier: Tier.vassal,
+    type: [MonsterType.spellcaster, MonsterType.ancient],
     level: 1,
     toHit: 4,
     accuracy: 5,
@@ -21,6 +22,7 @@ export const bogWitch: ReadonlyArray<MonsterStats> = [
     id: BOG_WITCH_ID,
     name: 'Bog Witch',
     tier: Tier.vassal,
+    type: [MonsterType.spellcaster, MonsterType.ancient],
     level: 2,
     toHit: 5,
     accuracy: 6,
@@ -35,6 +37,7 @@ export const bogWitch: ReadonlyArray<MonsterStats> = [
     id: BOG_WITCH_ID,
     name: 'Bog Witch',
     tier: Tier.vassal,
+    type: [MonsterType.spellcaster, MonsterType.ancient],
     level: 3,
     toHit: 7,
     accuracy: 7,
@@ -51,6 +54,7 @@ export const bogWitch: ReadonlyArray<MonsterStats> = [
     id: BOG_WITCH_ID,
     name: 'Bog Witch',
     tier: Tier.vassal,
+    type: [MonsterType.spellcaster, MonsterType.ancient],
     level: 4,
     toHit: 9,
     accuracy: 10,
