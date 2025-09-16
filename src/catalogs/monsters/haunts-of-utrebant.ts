@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const HAUNTS_OF_UTREBANT_ID = 'haunts-of-utrebant';
 
@@ -6,6 +7,8 @@ export const hauntsOfUtrebant: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: HAUNTS_OF_UTREBANT_ID,
     name: 'Haunts of Utrebant',
+    tier: Tier.mob,
+    type: [MonsterType.undead, MonsterType.ancient],
     level: 1,
     toHit: 3,
     accuracy: 7,
@@ -18,6 +21,8 @@ export const hauntsOfUtrebant: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: HAUNTS_OF_UTREBANT_ID,
     name: 'Haunts of Utrebant',
+    tier: Tier.mob,
+    type: [MonsterType.undead, MonsterType.ancient],
     level: 2,
     toHit: 5,
     accuracy: 9,
@@ -31,6 +36,8 @@ export const hauntsOfUtrebant: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: HAUNTS_OF_UTREBANT_ID,
     name: 'Haunts of Utrebant',
+    tier: Tier.mob,
+    type: [MonsterType.undead, MonsterType.ancient],
     level: 3,
     toHit: 7,
     accuracy: 9,
@@ -45,6 +52,8 @@ export const hauntsOfUtrebant: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: HAUNTS_OF_UTREBANT_ID,
     name: 'Haunts of Utrebant',
+    tier: Tier.mob,
+    type: [MonsterType.undead, MonsterType.ancient],
     level: 4,
     toHit: 9,
     accuracy: 10,

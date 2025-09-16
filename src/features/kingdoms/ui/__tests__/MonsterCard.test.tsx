@@ -48,6 +48,15 @@ jest.mock('@/store/monsters', () => {
       wounds: 8,
       exhibitionStartingWounds: 8,
     },
+    dragon: {
+      id: 'dragon',
+      name: 'Ancient Dragon',
+      level: 5,
+      toHit: 8,
+      wounds: 15,
+      exhibitionStartingWounds: 15,
+      tier: 'Dragon',
+    },
   };
 
   return {
@@ -192,6 +201,26 @@ describe('MonsterCard', () => {
     // Should show the monster ID as fallback name
     expect(getByTestId('monster-name-text-unknown-monster').props.children).toBe('unknown-monster');
     expect(getByTestId('monster-stage-unknown-monster-text').props.children).toBe('Stage 1');
+  });
+
+  it('displays monster tier when available', () => {
+    const kingdomWithDragon = {
+      ...kingdom,
+      bestiary: {
+        monsters: [{ id: 'dragon', type: 'kingdom' as const }],
+        stages: [],
+      },
+    };
+
+    const stageRowWithDragon = { dragon: 1 };
+
+    const { getByTestId } = render(
+      <MonsterCard kingdom={kingdomWithDragon} stageRow={stageRowWithDragon} />
+    );
+
+    // Should show the monster name with tier
+    expect(getByTestId('monster-name-text-dragon').props.children).toBe('Ancient Dragon (Dragon)');
+    expect(getByTestId('monster-stage-dragon-text').props.children).toBe('Stage 1');
   });
 
   it('handles undefined kingdom gracefully', () => {

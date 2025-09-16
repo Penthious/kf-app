@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const WINGED_NIGHTMARE_ID = 'winged-nightmare';
 
@@ -6,6 +7,8 @@ export const wingedNightmare: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WINGED_NIGHTMARE_ID,
     name: 'Winged Nightmare',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.horror],
     level: 1,
     toHit: 4,
     accuracy: 7,
@@ -18,6 +21,8 @@ export const wingedNightmare: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WINGED_NIGHTMARE_ID,
     name: 'Winged Nightmare',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.horror],
     level: 2,
     toHit: 5,
     accuracy: 9,
@@ -32,6 +37,8 @@ export const wingedNightmare: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WINGED_NIGHTMARE_ID,
     name: 'Winged Nightmare',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.horror],
     level: 3,
     toHit: 7,
     accuracy: 10,
@@ -47,6 +54,8 @@ export const wingedNightmare: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: WINGED_NIGHTMARE_ID,
     name: 'Winged Nightmare',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.horror],
     level: 4,
     toHit: 9,
     accuracy: 12,

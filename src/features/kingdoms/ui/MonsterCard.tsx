@@ -33,6 +33,14 @@ export default function MonsterCard({ kingdom, stageRow, availableOnly = true }:
     return base?.name ?? monsterId;
   };
 
+  // Get monster display name with tier
+  const getMonsterNameWithTier = (monsterId: string) => {
+    const base = byId[monsterId];
+    const name = base?.name ?? monsterId;
+    const tier = base?.tier;
+    return tier ? `${name} (${tier})` : name;
+  };
+
   // Get stage for monster
   const getMonsterStage = (monsterId: string) => {
     return Number(stageRow[monsterId] ?? 0) || 0;
@@ -51,7 +59,7 @@ export default function MonsterCard({ kingdom, stageRow, availableOnly = true }:
         {list.length > 0 ? (
           list.map(m => {
             const stage = getMonsterStage(m.id);
-            const name = getMonsterName(m.id);
+            const nameWithTier = getMonsterNameWithTier(m.id);
 
             return (
               <View
@@ -73,7 +81,7 @@ export default function MonsterCard({ kingdom, stageRow, availableOnly = true }:
                     style={{ color: tokens.textPrimary, fontWeight: '700' }}
                     testID={`monster-name-text-${m.id}`}
                   >
-                    {name}
+                    {nameWithTier}
                   </Text>
                 </View>
                 <StageBadge stage={stage} testID={`monster-stage-${m.id}`} />

@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const KING_LAID_LOW_ID = 'king-laid-low';
 
@@ -6,6 +7,8 @@ export const kingLaidLow: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KING_LAID_LOW_ID,
     name: 'King Laid Low',
+    tier: Tier.king,
+    type: [MonsterType.beast, MonsterType.cursed],
     level: 1,
     toHit: 6,
     accuracy: 8,
@@ -19,6 +22,8 @@ export const kingLaidLow: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KING_LAID_LOW_ID,
     name: 'King Laid Low',
+    tier: Tier.king,
+    type: [MonsterType.beast, MonsterType.cursed],
     level: 2,
     toHit: 7,
     accuracy: 9,
@@ -34,6 +39,8 @@ export const kingLaidLow: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KING_LAID_LOW_ID,
     name: 'King Laid Low',
+    tier: Tier.king,
+    type: [MonsterType.beast, MonsterType.cursed],
     level: 3,
     toHit: 8,
     accuracy: 10,
@@ -49,6 +56,8 @@ export const kingLaidLow: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KING_LAID_LOW_ID,
     name: 'King Laid Low',
+    tier: Tier.king,
+    type: [MonsterType.beast, MonsterType.cursed],
     level: 4,
     toHit: 9,
     accuracy: 10,

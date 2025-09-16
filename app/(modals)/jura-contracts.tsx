@@ -112,7 +112,9 @@ export default function JuraContractsScreen() {
                       }}
                     >
                       <View style={{ flex: 1 }}>
-                        <Text style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}>
+                        <Text
+                          style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}
+                        >
                           {contract.name}
                         </Text>
                       </View>
