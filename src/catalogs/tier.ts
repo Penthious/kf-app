@@ -8,6 +8,25 @@ export enum Tier {
 }
 
 export enum MonsterType {
-  curse = 'curse',
   ancient = 'ancient',
+  ape = 'ape',
+  beast = 'beast',
+  blood = 'blood',
+  calamity = 'calamity',
+  construct = 'construct',
+  cursed = 'cursed',
+  egg = 'egg',
+  horror = 'horror',
+  hunger = 'hunger',
+  hunter = 'hunter',
+  knight = 'knight',
+  machinated = 'machinated',
+  ooze = 'ooze',
+  parasite = 'parasite',
+  plant = 'plant',
+  soldier = 'soldier',
+  spellcaster = 'spellcaster',
+  stone = 'stone',
+  toad = 'toad',
+  undead = 'undead',
 }

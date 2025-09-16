@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const TOADRAGON_ID = 'toadragon';
 
@@ -6,13 +7,32 @@ export const toadragon: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: TOADRAGON_ID,
     name: 'Toadragon',
-    level: 4,
-    toHit: 3,
+    tier: Tier.dragon,
+    type: [MonsterType.toad, MonsterType.beast],
+    level: 1,
+    toHit: 9,
+    accuracy: 11,
     wounds: 10,
-    exhibitionStartingWounds: 7,
-    aiActivation: [activationCounter(ActivationToken.standard, 2)],
-    signatureActivation: [activationCounter(ActivationToken.signature, 1)],
+    exhibitionStartingWounds: 4,
+    aiActivation: [activationCounter(ActivationToken.standard, 1)],
+    signatureActivation: [activationCounter(ActivationToken.signature, 0)],
     traits: [],
+  }),
+  Object.freeze({
+    id: TOADRAGON_ID,
+    name: 'Toadragon',
+    tier: Tier.dragon,
+    type: [MonsterType.toad, MonsterType.beast],
+    level: 2,
+    toHit: 11,
+    accuracy: 11,
+    wounds: 11,
+    exhibitionStartingWounds: 4,
+    aiActivation: [activationCounter(ActivationToken.standard, 1)],
+    signatureActivation: [activationCounter(ActivationToken.signature, 0)],
+    traits: [],
+    atBonus: 2,
+    escalationBonus: 1,
   }),
 ];
 

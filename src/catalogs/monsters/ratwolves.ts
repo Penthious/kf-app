@@ -1,5 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
-import { Frenzy, PackHunters } from '../traits';
+import { MonsterType, Tier } from '../tier';
 
 export const RATWOLVES_ID = 'ratwolves';
 
@@ -7,6 +7,8 @@ export const ratwolves: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: RATWOLVES_ID,
     name: 'Ratwolves',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.hunter],
     level: 1,
     toHit: 2,
     accuracy: 6,
@@ -14,11 +16,13 @@ export const ratwolves: ReadonlyArray<MonsterStats> = [
     exhibitionStartingWounds: 1,
     aiActivation: [activationCounter(ActivationToken.standard, 2)],
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
-    traits: [PackHunters, Frenzy],
+    traits: [],
   }),
   Object.freeze({
     id: RATWOLVES_ID,
     name: 'Ratwolves',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.hunter],
     level: 2,
     accuracy: 6,
     toHit: 3,
@@ -28,11 +32,13 @@ export const ratwolves: ReadonlyArray<MonsterStats> = [
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
     atBonus: 1,
     vigorLossBonus: 1,
-    traits: [PackHunters, Frenzy],
+    traits: [],
   }),
   Object.freeze({
     id: RATWOLVES_ID,
     name: 'Ratwolves',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.hunter],
     level: 3,
     toHit: 4,
     wounds: 5,
@@ -43,11 +49,13 @@ export const ratwolves: ReadonlyArray<MonsterStats> = [
     atBonus: 2,
     vigorLossBonus: 1,
     escalations: 1,
-    traits: [PackHunters, Frenzy],
+    traits: [],
   }),
   Object.freeze({
     id: RATWOLVES_ID,
     name: 'Ratwolves',
+    tier: Tier.mob,
+    type: [MonsterType.beast, MonsterType.hunter],
     level: 4,
     toHit: 4,
     wounds: 5,
@@ -59,7 +67,7 @@ export const ratwolves: ReadonlyArray<MonsterStats> = [
     vigorLossBonus: 2,
     evasionDiceBonus: 1,
     escalations: 1,
-    traits: [PackHunters, Frenzy],
+    traits: [],
   }),
 ];
 
