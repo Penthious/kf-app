@@ -22,7 +22,7 @@ export type MonsterStats = Readonly<{
   wounds: number;
   exhibitionStartingWounds: number;
 
-  tier?: string; // Optional tier property for monsters that have it defined
+  tier: string; // Required tier property for all monsters
   type?: string[]; // Optional type array for monster keywords
 
   aiActivation?: ReadonlyArray<ActivationCounter>;

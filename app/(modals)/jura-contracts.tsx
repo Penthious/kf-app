@@ -11,7 +11,7 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 export default function JuraContractsScreen() {
   const { tokens } = useThemeTokens();
   const { campaignId } = useLocalSearchParams<{ campaignId: string }>();
-  const { campaigns, unlockJuraContract } = useCampaigns();
+  const { campaigns, unlockJuraContract, recordJuraContractAttempt } = useCampaigns();
   const [expandedContract, setExpandedContract] = useState<string | null>(null);
 
   const campaign = campaigns[campaignId];
@@ -30,6 +30,10 @@ export default function JuraContractsScreen() {
 
   const isUnlocked = (contractName: string) => {
     return unlockedContractNames.includes(contractName);
+  };
+
+  const getAttemptCount = (contractName: string) => {
+    return campaign?.settings?.juraContracts?.contractAttempts?.[contractName] || 0;
   };
 
   const handleUnlockContract = (contractName: string) => {
@@ -53,6 +57,19 @@ export default function JuraContractsScreen() {
     setExpandedContract(expandedContract === contractName ? null : contractName);
   };
 
+  const handleRecordAttempt = (contractName: string) => {
+    Alert.alert('Record Attempt', `Record an attempt for "${contractName}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Record',
+        onPress: () => {
+          recordJuraContractAttempt(campaignId, contractName);
+          Alert.alert('Success', `Attempt recorded for "${contractName}"!`);
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
@@ -71,6 +88,7 @@ export default function JuraContractsScreen() {
             {JURA_CONTRACTS.map((contract: JuraContractDef) => {
               const unlocked = isUnlocked(contract.name);
               const isExpanded = expandedContract === contract.name;
+              const attemptCount = getAttemptCount(contract.name);
 
               return (
                 <View
@@ -83,33 +101,55 @@ export default function JuraContractsScreen() {
                     backgroundColor: unlocked ? tokens.surface : tokens.card,
                   }}
                 >
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: isExpanded ? 12 : 0,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}>
-                        {contract.name}
-                      </Text>
-                      <Pill label={unlocked ? 'Unlocked' : 'Locked'} selected={unlocked} />
-                    </View>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {!unlocked && (
+                  <View style={{ marginBottom: isExpanded ? 12 : 0 }}>
+                    {/* Header Row */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginBottom: 8,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={{ color: tokens.textPrimary, fontSize: 16, fontWeight: '600' }}
+                        >
+                          {contract.name}
+                        </Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        {!unlocked && (
+                          <Button
+                            label='Unlock'
+                            onPress={() => handleUnlockContract(contract.name)}
+                            tone='accent'
+                          />
+                        )}
+                        {unlocked && (
+                          <Button
+                            label='Record Attempt'
+                            onPress={() => handleRecordAttempt(contract.name)}
+                            tone='success'
+                          />
+                        )}
                         <Button
-                          label='Unlock'
-                          onPress={() => handleUnlockContract(contract.name)}
-                          tone='accent'
+                          label={isExpanded ? 'Hide' : 'Details'}
+                          onPress={() => toggleContractExpansion(contract.name)}
+                          tone='default'
+                        />
+                      </View>
+                    </View>
+
+                    {/* Status Row */}
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                      <Pill label={unlocked ? 'Unlocked' : 'Locked'} selected={unlocked} />
+                      {unlocked && attemptCount > 0 && (
+                        <Pill
+                          label={`${attemptCount} attempt${attemptCount > 1 ? 's' : ''}`}
+                          selected={false}
                         />
                       )}
-                      <Button
-                        label={isExpanded ? 'Hide' : 'Details'}
-                        onPress={() => toggleContractExpansion(contract.name)}
-                        tone='default'
-                      />
                     </View>
                   </View>
 
@@ -152,6 +192,23 @@ export default function JuraContractsScreen() {
                           {contract.singleAttempt ? 'Yes' : 'No'}
                         </Text>
                       </View>
+
+                      {unlocked && (
+                        <View>
+                          <Text
+                            style={{
+                              color: tokens.textPrimary,
+                              fontWeight: '600',
+                              marginBottom: 4,
+                            }}
+                          >
+                            Attempts:
+                          </Text>
+                          <Text style={{ color: tokens.textMuted }}>
+                            {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   )}
                 </View>

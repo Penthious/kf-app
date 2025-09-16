@@ -89,6 +89,7 @@ export type CampaignsActions = {
   selectContract: (campaignId: string, kingdomId: string, contractId: string) => void;
   clearSelectedContract: (campaignId: string) => void;
   unlockJuraContract: (campaignId: string, contractName: string) => void;
+  recordJuraContractAttempt: (campaignId: string, contractName: string) => void;
 
   // Expedition actions
   startExpedition: (campaignId: string) => void;
@@ -861,6 +862,7 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
         const currentUnlocked = c.settings.juraContracts?.unlockedContracts || [
           'Fragments of the Past',
         ];
+        const currentAttempts = c.settings.juraContracts?.contractAttempts || {};
 
         // Don't add if already unlocked
         if (currentUnlocked.includes(contractName)) {
@@ -878,6 +880,47 @@ export const useCampaigns = create<CampaignsState & CampaignsActions>((set, get)
                 ...c.settings,
                 juraContracts: {
                   unlockedContracts: newUnlocked,
+                  contractAttempts: currentAttempts,
+                },
+              },
+              updatedAt: Date.now(),
+            },
+          },
+        };
+        saveToStorage(newState);
+        return newState;
+      }),
+
+    recordJuraContractAttempt: (campaignId, contractName) =>
+      set(s => {
+        const c = s.campaigns[campaignId];
+        if (!c) return s;
+
+        const currentUnlocked = c.settings.juraContracts?.unlockedContracts || [
+          'Fragments of the Past',
+        ];
+        const currentAttempts = c.settings.juraContracts?.contractAttempts || {};
+
+        // Only record attempts for unlocked contracts
+        if (!currentUnlocked.includes(contractName)) {
+          return s;
+        }
+
+        const newAttempts = {
+          ...currentAttempts,
+          [contractName]: (currentAttempts[contractName] || 0) + 1,
+        };
+
+        const newState = {
+          campaigns: {
+            ...s.campaigns,
+            [campaignId]: {
+              ...c,
+              settings: {
+                ...c.settings,
+                juraContracts: {
+                  unlockedContracts: currentUnlocked,
+                  contractAttempts: newAttempts,
                 },
               },
               updatedAt: Date.now(),

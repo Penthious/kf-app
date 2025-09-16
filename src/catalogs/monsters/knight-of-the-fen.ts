@@ -1,4 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
+import { MonsterType, Tier } from '../tier';
 
 export const KNIGHT_OF_THE_FEN_ID = 'knight-of-the-fen';
 
@@ -6,6 +7,8 @@ export const knightOfTheFen: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KNIGHT_OF_THE_FEN_ID,
     name: 'Knight of the Fen',
+    tier: Tier.vassal,
+    type: [MonsterType.ooze, MonsterType.knight],
     level: 1,
     toHit: 4,
     accuracy: 6,
@@ -18,6 +21,8 @@ export const knightOfTheFen: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KNIGHT_OF_THE_FEN_ID,
     name: 'Knight of the Fen',
+    tier: Tier.vassal,
+    type: [MonsterType.ooze, MonsterType.knight],
     level: 2,
     toHit: 6,
     accuracy: 8,
@@ -32,6 +37,8 @@ export const knightOfTheFen: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KNIGHT_OF_THE_FEN_ID,
     name: 'Knight of the Fen',
+    tier: Tier.vassal,
+    type: [MonsterType.ooze, MonsterType.knight],
     level: 3,
     toHit: 7,
     accuracy: 9,
@@ -47,6 +54,8 @@ export const knightOfTheFen: ReadonlyArray<MonsterStats> = [
   Object.freeze({
     id: KNIGHT_OF_THE_FEN_ID,
     name: 'Knight of the Fen',
+    tier: Tier.vassal,
+    type: [MonsterType.ooze, MonsterType.knight],
     level: 4,
     toHit: 8,
     accuracy: 11,

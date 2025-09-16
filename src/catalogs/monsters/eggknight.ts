@@ -1,6 +1,5 @@
 import { activationCounter, ActivationToken, MonsterStats } from '@/models/monster';
 import { MonsterType, Tier } from '../tier';
-import { ArmorPlates } from '../traits';
 
 export const EGGKNIGHT_ID = 'eggknight';
 
@@ -17,7 +16,7 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
     exhibitionStartingWounds: 2,
     aiActivation: [activationCounter(ActivationToken.standard, 1)],
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
-    traits: [ArmorPlates(1)],
+    traits: [],
   }),
   Object.freeze({
     id: EGGKNIGHT_ID,
@@ -31,7 +30,7 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
     exhibitionStartingWounds: 4,
     aiActivation: [activationCounter(ActivationToken.standard, 1)],
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
-    traits: [ArmorPlates(1)],
+    traits: [],
     atBonus: 4,
     vigorLossBonus: 1,
     escalations: 1,
@@ -48,7 +47,7 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
     exhibitionStartingWounds: 4,
     aiActivation: [activationCounter(ActivationToken.standard, 1)],
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
-    traits: [ArmorPlates(1)],
+    traits: [],
     atBonus: 4,
     vigorLossBonus: 1,
     escalations: 1,
@@ -65,7 +64,7 @@ export const eggknight: ReadonlyArray<MonsterStats> = [
     exhibitionStartingWounds: 4,
     aiActivation: [activationCounter(ActivationToken.standard, 1)],
     signatureActivation: [activationCounter(ActivationToken.signature, 0)],
-    traits: [ArmorPlates(1)],
+    traits: [],
     atBonus: 6,
     vigorLossBonus: 2,
     escalations: 1,
