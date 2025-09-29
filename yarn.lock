@@ -4889,10 +4889,10 @@ expo-dev-menu@7.0.11:
   dependencies:
     expo-dev-menu-interface "2.0.0"
 
-expo-file-system@~19.0.12:
-  version "19.0.12"
-  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-19.0.12.tgz#704bf4111314c473d6ee3eb67daf8b7ce6c60fa9"
-  integrity sha512-gqpxpnjfhzXLcqMOi49isB5S1Af49P9410fsaFfnLZWN3X6Dwc8EplDwbaolOI/wnGwP81P+/nDn5RNmU6m7mQ==
+expo-file-system@~19.0.12, expo-file-system@~19.0.15:
+  version "19.0.15"
+  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-19.0.15.tgz#ef13ce8bea6bc683f50376749bdb42c028173111"
+  integrity sha512-sRLW+3PVJDiuoCE2LuteHhC7OxPjh1cfqLylf1YG1TDEbbQXnzwjfsKeRm6dslEPZLkMWfSLYIrVbnuq5mF7kQ==
 
 expo-font@~14.0.8:
   version "14.0.8"
